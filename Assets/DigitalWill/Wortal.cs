@@ -12,23 +12,37 @@ namespace DigitalWill
         [Header("Wortal Properties")]
         [Tooltip("Default language to fall back on if the browser language cannot be detected or parsed. Also can be used if the detected language is not supported.")]
         [SerializeField] private LanguageCode _defaultLanguageCode = LanguageCode.EN;
+        [Tooltip("String to test language parsing in Editor. Only the first two letters will be parsed and they should correspond to a language code. Example: JA, de, etc.")]
+        [SerializeField] private string _testLanguage = "ja";
 
         /// <summary>
         /// Subscribe to be notified when the language code has been parsed and set.
         /// </summary>
-        public event Action<LanguageCode> LanguageCodeSet;
+        public static event Action<LanguageCode> LanguageCodeSet;
+
+        /// <summary>
+        /// Has the LanguageCode been set yet or not.
+        /// </summary>
+        public static bool IsLanguageCodeSet { get; private set; }
 
         /// <summary>
         /// Sets the 2-letter ISO language code of the language received from the browser.
         /// </summary>
-        public LanguageCode LanguageCode { get; private set; }
+        public static LanguageCode LanguageCode { get; private set; }
 
+    #if UNITY_WEBGL && !UNITY_EDITOR
         [DllImport("__Internal")]
         private static extern string GetBrowserLanguage();
+    #endif
 
         private void Awake()
         {
+        #if UNITY_WEBGL && !UNITY_EDITOR
             var language = GetBrowserLanguage();
+        #else
+            var language = _testLanguage;
+        #endif
+
             ParseLanguageToCode(language);
             Debug.Log($"Preferred language: {language}.");
         }
@@ -94,6 +108,7 @@ namespace DigitalWill
             }
 
             LanguageCodeSet?.Invoke(LanguageCode);
+            IsLanguageCodeSet = true;
             Debug.Log($"LanguageCode set to {LanguageCode}");
         }
     }
