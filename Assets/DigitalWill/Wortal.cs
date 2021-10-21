@@ -1,11 +1,12 @@
 using System;
+using System.Collections;
 using System.Runtime.InteropServices;
 using UnityEngine;
 
 namespace DigitalWill
 {
     /// <summary>
-    /// Handles interaction between Unity and WortalPlugin.jslib.
+    /// Wortal class controls the wortal prefab and provides an interface to WortalPlugin.jslib.
     /// </summary>
     public class Wortal : MonoBehaviour
     {
@@ -15,10 +16,18 @@ namespace DigitalWill
         [Tooltip("String to test language parsing in Editor. Only the first two letters will be parsed and they should correspond to a language code. Example: JA, de, etc.")]
         [SerializeField] private string _testLanguage = "ja";
 
+        #pragma warning disable 67
+        /// <summary>
+        /// Subscribe to be notified when an ad timeout occurs. This is helpful to escape out of error conditions
+        /// and avoid infinite waiting loops for non-existent ads.
+        /// </summary>
+        public static event Action AdTimeout;
+
         /// <summary>
         /// Subscribe to be notified when the language code has been parsed and set.
         /// </summary>
         public static event Action<LanguageCode> LanguageCodeSet;
+        #pragma warning restore 67
 
         /// <summary>
         /// Has the LanguageCode been set yet or not.
@@ -30,21 +39,45 @@ namespace DigitalWill
         /// </summary>
         public static LanguageCode LanguageCode { get; private set; }
 
-    #if UNITY_WEBGL && !UNITY_EDITOR
+        #if UNITY_WEBGL && !UNITY_EDITOR
         [DllImport("__Internal")]
         private static extern string GetBrowserLanguage();
-    #endif
+        #endif
 
         private void Awake()
         {
-        #if UNITY_WEBGL && !UNITY_EDITOR
+            #if UNITY_WEBGL && !UNITY_EDITOR
             var language = GetBrowserLanguage();
-        #else
+            #else
             var language = _testLanguage;
-        #endif
+            #endif
 
+            AdSense.AdCalled += OnAdCalled;
             ParseLanguageToCode(language);
             Debug.Log($"Preferred language: {language}.");
+        }
+
+        private void OnDestroy()
+        {
+            AdSense.AdCalled -= OnAdCalled;
+        }
+
+        private void OnAdCalled()
+        {
+            StartCoroutine(CheckForAdTimeout());
+        }
+
+        private IEnumerator CheckForAdTimeout()
+        {
+            yield return new WaitForSeconds(0.5f);
+
+            if (AdSense.IsAdAvailable)
+            {
+                yield break;
+            }
+
+            AdTimeout?.Invoke();
+            Debug.Log("Ad timeout reached.");
         }
 
         private void ParseLanguageToCode(string language)
@@ -54,7 +87,6 @@ namespace DigitalWill
             if (!string.IsNullOrEmpty(language) && language.Length >= 2)
             {
                 firstTwoLetters = language.Substring(0, 2).ToUpper();
-                Debug.Log($"Language parsed to code: {firstTwoLetters}.");
             }
             else
             {
