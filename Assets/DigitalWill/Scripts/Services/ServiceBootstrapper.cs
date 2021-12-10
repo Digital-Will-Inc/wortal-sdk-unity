@@ -98,12 +98,12 @@ namespace DigitalWill.Services
 
         private static IEnumerator CheckForLoadingDone()
         {
-            while (!Wortal.IsLanguageCodeSet)
+            while (!SoupComponent.I.IsLanguageCodeSet)
             {
                 yield return null;
             }
 
-            GameServices.I.Get<ILocalizationService>().Init(Wortal.LanguageCode);
+            GameServices.I.Get<ILocalizationService>().Init(SoupComponent.I.LanguageCode);
             yield return YieldHelper.TENTH_SECOND;
 
             // Now we init Soup to hook up the services for easy access.
