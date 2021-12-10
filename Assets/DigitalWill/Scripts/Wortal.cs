@@ -16,7 +16,7 @@ namespace DigitalWill
         [Tooltip("String to test language parsing in Editor. Only the first two letters will be parsed and they should correspond to a language code. Example: JA, de, etc.")]
         [SerializeField] private string _testLanguage = "ja";
 
-        #pragma warning disable 67
+#pragma warning disable 67
         /// <summary>
         /// Subscribe to be notified when an ad timeout occurs. This is helpful to escape out of error conditions
         /// and avoid infinite waiting loops for non-existent ads.
@@ -27,7 +27,7 @@ namespace DigitalWill
         /// Subscribe to be notified when the language code has been parsed and set.
         /// </summary>
         public static event Action<LanguageCode> LanguageCodeSet;
-        #pragma warning restore 67
+#pragma warning restore 67
 
         /// <summary>
         /// Has the LanguageCode been set yet or not.
@@ -39,18 +39,21 @@ namespace DigitalWill
         /// </summary>
         public static LanguageCode LanguageCode { get; private set; }
 
-        #if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL && !UNITY_EDITOR
         [DllImport("__Internal")]
         private static extern string GetBrowserLanguage();
-        #endif
+
+        [DllImport("__Internal")]
+        private static extern void OpenLink(string url);
+#endif
 
         private void Awake()
         {
-            #if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL && !UNITY_EDITOR
             var language = GetBrowserLanguage();
-            #else
+#else
             var language = _testLanguage;
-            #endif
+#endif
 
             AdSense.AdCalled += OnAdCalled;
             ParseLanguageToCode(language);
