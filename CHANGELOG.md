@@ -4,6 +4,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.0.0] - 2021-12-10
+
+### Added
+
+- Modified Soup2 package
+- Integrated AFG plugin
+- OpenLink function for opening links from in-game
+- Custom editor window for settings
+- Built-in Japanese font support
+- Font Atlas Builder for populating dynamic TMP_FontAssets
+- Loading progress bar for WebGL instance
+
+### Changed
+
+- Wortal class is replaced with SoupComponent
+- Logging is handled by SoupLog
+- Configuration is done in editor window instead of prefab inspector
+- Updated style.css for canvas sizing on wortal
+
+### Fixed
+
+- Possible null reference if core prefab missing
+
 ## [1.1.0] - 2021-10-21
 
 ### Added
