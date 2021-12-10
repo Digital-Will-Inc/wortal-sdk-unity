@@ -21,3 +21,13 @@ MonoBehaviour:
   Localization: 0
   DefaultLanguage: 0
   DefaultFont: {fileID: 0}
+  CustomFonts:
+  - LanguageCode: 1
+    Font: {fileID: 11400000, guid: ad9f5886860ca1a43948ddd0d411e43d, type: 2}
+    CustomLineSpacing: 0
+    LineSpacing: 0
+    CustomFontSizeOffset: 0
+    FontSizeOffsetPercent: 0
+    CustomAlignment: 0
+    Alignment: 0
+  UseFontAtlasBuilder: 0
