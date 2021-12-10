@@ -15,7 +15,7 @@ namespace DigitalWill.Core
     public class SoupSettings : ScriptableObject
     {
 #region Package Properties
-        public string PACKAGE_VERSION = "1.2.0";
+        public string PACKAGE_VERSION = "2.0.0";
         public string PACKAGE_REPO = "https://github.com/Digital-Will-Inc/unity-wortal-plugin";
 #endregion
 

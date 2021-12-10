@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e1900799e7c3ce41a27fef8194a0ec5, type: 3}
   m_Name: SoupSettings
   m_EditorClassIdentifier: 
-  PACKAGE_VERSION: 1.2.0
+  PACKAGE_VERSION: 2.0.0
   PACKAGE_REPO: https://github.com/Digital-Will-Inc/unity-wortal-plugin
   LogLevel: 0
   SaveLogsToFile: 0
