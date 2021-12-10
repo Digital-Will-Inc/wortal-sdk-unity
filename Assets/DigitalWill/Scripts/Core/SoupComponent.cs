@@ -51,8 +51,6 @@ namespace DigitalWill.Core
 
         protected override void Awake()
         {
-            base.Awake();
-
 #if UNITY_WEBGL && !UNITY_EDITOR
             var language = GetBrowserLanguage();
 #else
