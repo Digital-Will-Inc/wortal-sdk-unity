@@ -169,7 +169,6 @@ namespace DigitalWill
                     DrawField("DefaultLanguage", true);
                     DrawField("DebugLanguage", true);
                     DrawField("DefaultFont", true);
-                    DrawField("UseFontAtlasBuilder", true);
                     DrawField("CustomFonts", true);
                 }
 

@@ -18,7 +18,7 @@ MonoBehaviour:
   SaveLogsToFile: 0
   Audio: 0
   LocalData: 0
-  Localization: 0
+  Localization: 1
   DefaultLanguage: 0
   DebugLanguage: 1
   DefaultFont: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -31,4 +31,3 @@ MonoBehaviour:
     FontSizeOffsetPercent: 0
     CustomAlignment: 0
     Alignment: 0
-  UseFontAtlasBuilder: 0

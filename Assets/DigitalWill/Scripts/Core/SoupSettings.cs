@@ -42,8 +42,6 @@ namespace DigitalWill.Core
         public TMP_FontAsset DefaultFont;
         [Tooltip("Custom fonts to be used with localized languages.")]
         public List<LocalizedFont> CustomFonts;
-        [Tooltip("Adds the Font Atlas Builder to the game for debug building of dynamic TMP_FontAssets.")]
-        public bool UseFontAtlasBuilder;
 #endregion
 
         public enum SoupLogLevel
