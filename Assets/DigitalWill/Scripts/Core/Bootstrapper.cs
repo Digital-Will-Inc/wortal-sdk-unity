@@ -23,10 +23,8 @@ namespace DigitalWill.Core
 
         private void OnLoadingDone()
         {
-            // Load the Main Menu along with the additional menu scenes.
-            SceneManager.LoadScene("UI.Menu.Main");
-            SceneManager.LoadSceneAsync("UI.Menu.Quiz", LoadSceneMode.Additive);
-            SceneManager.LoadSceneAsync("UI.Menu.Settings", LoadSceneMode.Additive);
+            // Load the scene at buildIndex 1. You can change this to fit your game's needs.
+            SceneManager.LoadScene(1);
         }
     }
 }
