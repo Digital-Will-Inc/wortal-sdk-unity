@@ -20,7 +20,8 @@ MonoBehaviour:
   LocalData: 0
   Localization: 0
   DefaultLanguage: 0
-  DefaultFont: {fileID: 0}
+  DebugLanguage: 1
+  DefaultFont: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   CustomFonts:
   - LanguageCode: 1
     Font: {fileID: 11400000, guid: ad9f5886860ca1a43948ddd0d411e43d, type: 2}
