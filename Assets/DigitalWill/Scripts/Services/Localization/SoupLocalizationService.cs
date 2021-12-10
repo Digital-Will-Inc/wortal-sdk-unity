@@ -110,8 +110,8 @@ namespace DigitalWill.Services
 
         private void SetFont(LanguageCode languageCode)
         {
-            Font = LanguageAssets.I.DefaultFont;
-            var fonts = LanguageAssets.I.CustomFonts;
+            Font = SoupComponent.SoupSettings.DefaultFont;
+            var fonts = SoupComponent.SoupSettings.CustomFonts;
 
             if (fonts == null || fonts.Count < 1)
             {
