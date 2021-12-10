@@ -36,6 +36,8 @@ namespace DigitalWill.Core
 #region Soup Localization
         [Tooltip("Default language to be displayed in the game.")]
         public LanguageCode DefaultLanguage;
+        [Tooltip("Debug language to test localization and custom fonts with.")]
+        public LanguageCode DebugLanguage;
         [Tooltip("Default font to use in the game.")]
         public TMP_FontAsset DefaultFont;
         [Tooltip("Custom fonts to be used with localized languages.")]
