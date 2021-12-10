@@ -1,4 +1,4 @@
-namespace DigitalWill
+namespace DigitalWill.Services
 {
     /// <summary>
     /// Languages supported for localization.
