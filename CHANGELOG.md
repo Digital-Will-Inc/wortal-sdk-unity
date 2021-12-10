@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Built-in Japanese font support
 - Font Atlas Builder for populating dynamic TMP_FontAssets
 - Loading progress bar for WebGL instance
+- Preroll ads
 
 ### Changed
 
