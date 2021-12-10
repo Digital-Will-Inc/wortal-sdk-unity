@@ -4,5 +4,8 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/DigitalWill/Scenes/Preload.unity
+    guid: 505180d5c6cf63a428dd64b8cbb926f3
   m_configObjects: {}
