@@ -1,5 +1,7 @@
 // ReSharper disable InconsistentNaming
+using System.Collections.Generic;
 using DigitalWill.Services;
+using TMPro;
 using UnityEngine;
 
 namespace DigitalWill.Core
@@ -13,8 +15,8 @@ namespace DigitalWill.Core
     public class SoupSettings : ScriptableObject
     {
 #region Package Properties
-        public string PACKAGE_VERSION = "2.0.0";
-        public string PACKAGE_REPO = "https://github.com/Digital-Will-Inc/sdk-soup";
+        public string PACKAGE_VERSION = "1.2.0";
+        public string PACKAGE_REPO = "https://github.com/Digital-Will-Inc/unity-wortal-plugin";
 #endregion
 
 #region Soup Properties
@@ -29,6 +31,17 @@ namespace DigitalWill.Core
         public ServiceType.LocalDataType LocalData;
         [Tooltip("Localizes game content for different languages.")]
         public ServiceType.LocalizationType Localization;
+#endregion
+
+#region Soup Localization
+        [Tooltip("Default language to be displayed in the game.")]
+        public LanguageCode DefaultLanguage;
+        [Tooltip("Default font to use in the game.")]
+        public TMP_FontAsset DefaultFont;
+        [Tooltip("Custom fonts to be used with localized languages.")]
+        public List<LocalizedFont> CustomFonts;
+        [Tooltip("Adds the Font Atlas Builder to the game for debug building of dynamic TMP_FontAssets.")]
+        public bool UseFontAtlasBuilder;
 #endregion
 
         public enum SoupLogLevel
