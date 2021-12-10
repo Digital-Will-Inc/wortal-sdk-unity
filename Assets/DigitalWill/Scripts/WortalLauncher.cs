@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace DigitalWill
@@ -13,13 +14,31 @@ namespace DigitalWill
             try
             {
                 var wortal = Instantiate(Resources.Load("Wortal")) as GameObject;
+
+                if (wortal != null)
+                {
+                    if (wortal.TryGetComponent(typeof(Wortal), out Component comp))
+                    {
+                        Debug.Log("WortalLoader: Wortal prefab loaded.");
+                    }
+                    else
+                    {
+                        wortal.AddComponent<Wortal>();
+                        Debug.LogWarning("WortalLoader: Wortal prefab found with no Wortal. Adding component..");
+                    }
+                }
+
                 DontDestroyOnLoad(wortal);
-                Debug.Log("Initializing Wortal prefab.");
             }
-            catch (System.ArgumentException e)
+            catch (Exception)
             {
-                Debug.LogError("CRITICAL: Wortal prefab was not found in Resources directory. \n" + e);
+                var wortal = new GameObject("Wortal");
+                wortal.AddComponent<Wortal>();
+                DontDestroyOnLoad(wortal);
+                Debug.LogError("#CRITICAL# WortalLoader: Wortal prefab was not found in Resources directory. Creating new prefab with default settings..");
             }
+
+            Debug.Log("WortalLoader: Wortal initializing..");
         }
     }
 }
