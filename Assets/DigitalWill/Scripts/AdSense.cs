@@ -13,13 +13,13 @@ namespace DigitalWill
     /// </summary>
     public class AdSense
     {
-        #pragma warning disable 67
+#pragma warning disable 67
         /// <summary>
         /// Subscribe to be notified when a call is made to retrieve an ad. This is useful for starting a timer to
         /// check for error conditions and prevent the game from waiting indefinitely.
         /// </summary>
         public static event Action AdCalled;
-        #pragma warning restore 67
+#pragma warning restore 67
 
         /// <summary>
         /// Was an ad successfully returned or not. This gets set in the beforeAd callback and checked in Wortal.cs
@@ -37,7 +37,7 @@ namespace DigitalWill
             IsAdAvailable = false;
             AdCalled?.Invoke();
 
-            #if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL && !UNITY_EDITOR
             string afgType;
             switch (type)
             {
@@ -64,7 +64,7 @@ namespace DigitalWill
                 BeforeAdCallback,
                 AfterAdCallback,
                 AdBreakDoneCallback);
-            #endif
+#endif
         }
 
         /// <summary>
@@ -76,7 +76,7 @@ namespace DigitalWill
             IsAdAvailable = false;
             AdCalled?.Invoke();
 
-            #if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL && !UNITY_EDITOR
             AdBreak.RequestRewardedAd(
                 name,
                 BeforeAdCallback,
@@ -85,7 +85,7 @@ namespace DigitalWill
                 BeforeRewardCallback,
                 AdDismissedCallback,
                 AdViewedCallback);
-            #endif
+#endif
         }
 
         /// <summary>
@@ -95,13 +95,13 @@ namespace DigitalWill
         /// </summary>
         public static void ShowRewardedAd()
         {
-            #if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL && !UNITY_EDITOR
             // We don't invoke AdCalled here because there is no BeforeAdCallback attached to this method.
             AdBreak.ShowRewardedAd();
-            #endif
+#endif
         }
 
-        #if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL && !UNITY_EDITOR
         [MonoPInvokeCallback(typeof(AdBreak.BeforeAdDelegate))]
         private static void BeforeAdCallback()
         {
@@ -168,7 +168,7 @@ namespace DigitalWill
 
 
         }
-        #endif
+#endif
     }
 
     /// <summary>
