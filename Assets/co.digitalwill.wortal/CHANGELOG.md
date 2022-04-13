@@ -4,11 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [3.0.5] - 2022-04-13
+## [3.0.6] - 2022-04-14
+### Fixed
+- Missing OpenLink function
+
+## [3.0.5] - 2022-04-14
 ### Fixed
 - LanguageCode not parsed correctly
 
-## [3.0.4] - 2022-04-13
+## [3.0.4] - 2022-04-14
 ### Fixed
 - LanguageCodeSet event never fires
 
