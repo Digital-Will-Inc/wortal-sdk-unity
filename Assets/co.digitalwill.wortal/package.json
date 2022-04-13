@@ -1,6 +1,6 @@
 {
     "name": "co.digitalwill.wortal",
-    "version": "3.0.0",
+    "version": "3.0.1",
     "displayName": "Wortal Plugin",
     "description": "Plugin for the Digital Will HTML5 Game Portal. Used in WebGL builds to handle ad displays and interfacing with the game portal (Wortal).",
     "unity": "2019.1",
