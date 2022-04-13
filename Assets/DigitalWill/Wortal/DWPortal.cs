@@ -45,13 +45,11 @@ namespace DigitalWill.Wortal
         private static void Init()
         {
 #if UNITY_WEBGL && !UNITY_EDITOR
-            LanguageCode = GetBrowserLanguage();
+            string language = GetBrowserLanguage();
 #else
-            LanguageCode = "EN";
+            string language = "EN";
 #endif
-
-            LanguageCodeSet?.Invoke(LanguageCode);
-            IsLanguageCodeSet = true;
+            ParseLanguageCode(language);
             AdSense.AdCalled += OnAdCalled;
             Debug.Log($"Preferred language: {LanguageCode}.");
         }
@@ -70,6 +68,24 @@ namespace DigitalWill.Wortal
 
             AdTimeout?.Invoke();
             Debug.Log("Ad timeout reached.");
+        }
+
+        private static void ParseLanguageCode(string language)
+        {
+            string firstTwoLetters;
+            if (!string.IsNullOrEmpty(language) && language.Length >= 2)
+            {
+                firstTwoLetters = language.Substring(0, 2).ToUpper();
+            }
+            else
+            {
+                firstTwoLetters = "EN";
+                Debug.LogWarning("Language could not be parsed. Using system default.");
+            }
+
+            LanguageCode = firstTwoLetters;
+            LanguageCodeSet?.Invoke(LanguageCode);
+            IsLanguageCodeSet = true;
         }
     }
 }
