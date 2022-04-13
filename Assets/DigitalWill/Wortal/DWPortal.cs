@@ -54,6 +54,17 @@ namespace DigitalWill.Wortal
             Debug.Log($"Preferred language: {LanguageCode}.");
         }
 
+        /// <summary>
+        /// Opens a link to a website with the URL provided. Will open in a new browser tab.
+        /// </summary>
+        /// <param name="url">URL to open.</param>
+        public static void OpenWebLink(string url)
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            OpenLink(url);
+#endif
+        }
+
         private static void OnAdCalled()
         {
             Task.Delay(500).ContinueWith(_ => CheckForAdTimeout());
