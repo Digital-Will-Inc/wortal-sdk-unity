@@ -6,9 +6,9 @@ using UnityEngine;
 namespace DigitalWill.Wortal
 {
     /// <summary>
-    ///
+    /// Contains utility functions for interfacing with the game portal and player's browser.
     /// </summary>
-    public class Wortal
+    public class DWPortal
     {
 #pragma warning disable 67
         /// <summary>
@@ -50,6 +50,8 @@ namespace DigitalWill.Wortal
             LanguageCode = "EN";
 #endif
 
+            LanguageCodeSet?.Invoke(LanguageCode);
+            IsLanguageCodeSet = true;
             AdSense.AdCalled += OnAdCalled;
             Debug.Log($"Preferred language: {LanguageCode}.");
         }
