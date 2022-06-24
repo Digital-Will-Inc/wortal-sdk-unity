@@ -67,20 +67,12 @@ namespace DigitalWill.H5Portal
         }
 
         /// <summary>
-        /// Requests a rewarded ad. Should be called before <see cref="ShowRewardedAd"/>.
-        /// </summary>
-        /// <param name="name">Name of the ad to be shown.</param>
-        public static void RequestRewardedAd(string name)
-        {
-            _ads.RequestRewardedAd(name);
-        }
-
-        /// <summary>
         /// Shows a rewarded ad.
         /// </summary>
-        public static void ShowRewardedAd()
+        /// <param name="name">Name of the ad to be shown.</param>
+        public static void ShowRewardedAd(string name)
         {
-            _ads.ShowRewardedAd();
+            _ads.ShowRewardedAd(name);
         }
 
         /// <summary>
@@ -94,6 +86,12 @@ namespace DigitalWill.H5Portal
             // webpages via our plugin for obvious security reasons.
             OpenLink(url);
         }
+
+        internal static void CallBeforeAd() => BeforeAd?.Invoke();
+        internal static void CallAdDone() => AdDone?.Invoke();
+        internal static void CallAdTimedOut() => AdTimedOut?.Invoke();
+        internal static void CallAdDismissed() => RewardedAdDismissed?.Invoke();
+        internal static void CallAdViewed() => RewardedAdViewed?.Invoke();
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void Init()
