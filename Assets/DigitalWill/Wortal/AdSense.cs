@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using UnityEngine;
 using AOT;
 
@@ -9,8 +10,7 @@ namespace DigitalWill.H5Portal
     /// </summary>
     internal class AdSense : IAdProvider
     {
-        private static bool _isAdAvailable;
-        public bool IsAdAvailable => _isAdAvailable;
+        private static bool _isAdEventTriggered;
 
         private delegate void BeforeAdDelegate();
         private delegate void AfterAdDelegate();
@@ -107,11 +107,6 @@ namespace DigitalWill.H5Portal
         [MonoPInvokeCallback(typeof(BeforeAdDelegate))]
         private static void BeforeAdCallback()
         {
-            // Called only if the ad is available and before the ad is displayed.
-            // You should pause or stop the game flow here to ensure anything
-            // doesn't change while the ad is being displayed.
-            // We set this flag to let Wortal.cs know that we reached the BeforeAdCallback so we have an ad returned.
-            _isAdAvailable = true;
             Debug.Log("[Wortal] BeforeAdCallback");
             Wortal.CallBeforeAd();
         }
@@ -119,28 +114,29 @@ namespace DigitalWill.H5Portal
         [MonoPInvokeCallback(typeof(AfterAdDelegate))]
         private static void AfterAdCallback()
         {
-            // Called only if the ad is displayed after the ad is finished (for any reason).
+            // We don't trigger an event here because it's redundant. If this is called, AdBreakDone will be called
+            // immediately after.
             Debug.Log("[Wortal] AfterAdCallback");
         }
 
         [MonoPInvokeCallback(typeof(AdBreakDoneDelegate))]
         private static void AdBreakDoneCallback()
         {
-            // Called after the AdBreak finished, regardless if an ad was
-            // displayed or not. You can resume or restart your game inside
-            // this callback.
-            // We make sure to set this here too in case we don't get an ad, but still receive a response from AdSense.
-            _isAdAvailable = true;
             Debug.Log("[Wortal] AdBreakDoneCallback");
             Wortal.CallAdDone();
+
+            // If AdSense doesn't serve an ad, we'll still receive this callback, but the Wortal SDK will have
+            // triggered a 500ms timeout before it triggers the NoShow callback. We set this flag to avoid firing
+            // both AdDone and AdTimedOut events.
+            _isAdEventTriggered = true;
+            Task.Delay(510).ContinueWith(_ => _isAdEventTriggered = false);
         }
 
         [MonoPInvokeCallback(typeof(BeforeRewardDelegate))]
         private static void BeforeRewardCallback()
         {
-            // Called if a rewarded ad is available. You should show a dialog/pop-up
-            // to ask if the user wants to see a rewarded ad or not. If the user agrees
-            // to it you can show it with calling AdBreak.ShowRewardedAd();
+            // We could delay here and give the dev or player the opportunity to start the ad, but we'll keep
+            // it simple for now and just show the ad.
             Debug.Log("[Wortal] BeforeRewardCallback");
             ShowRewardedAdAdSense();
         }
@@ -148,9 +144,6 @@ namespace DigitalWill.H5Portal
         [MonoPInvokeCallback(typeof(AdDismissedDelegate))]
         private static void AdDismissedCallback()
         {
-            // Called only for rewarded ads when the player dismisses the ad.
-            // It is only called if the player dismisses the ad before it completes.
-            // In this case the reward should not be granted.
             Debug.Log("[Wortal] AdDismissedCallback");
             Wortal.CallAdDismissed();
         }
@@ -158,8 +151,6 @@ namespace DigitalWill.H5Portal
         [MonoPInvokeCallback(typeof(AdViewedDelegate))]
         private static void AdViewedCallback()
         {
-            // Called only for rewarded ads when the player completes the ad
-            // and should be granted the reward.
             Debug.Log("[Wortal] AdViewedCallback");
             Wortal.CallAdViewed();
         }
@@ -167,8 +158,15 @@ namespace DigitalWill.H5Portal
         [MonoPInvokeCallback(typeof(NoShowDelegate))]
         private static void NoShowCallback()
         {
-            // Called when a timeout was reached and an ad was not returned. This can occur due to ad blockers
-            // or other browser issues.
+            // We check this because if AdSense decides not to show the player an ad, we'll receive an AdBreakDone
+            // callback and then a NoShow callback shortly after when the Wortal SDK calls it an ad timeout.
+            // This can be an issue for games that are subscribing to both events to continue play after an ad.
+            if (_isAdEventTriggered)
+            {
+                Debug.Log("[Wortal] AdBreakDoneCallback still active, skipping NoShowCallback.");
+                return;
+            }
+
             Debug.Log("[Wortal] NoShowCallback");
             Wortal.CallAdTimedOut();
         }
