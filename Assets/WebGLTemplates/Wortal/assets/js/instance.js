@@ -16,7 +16,7 @@ createUnityInstance(
     productVersion: "{{{ PRODUCT_VERSION }}}",
   },
   unityProgress).then((unityInstance) => {
-  myGameInstance = unityInstance;
+  gameInstance = unityInstance;
 });
 
 function unityProgress(progress) {
