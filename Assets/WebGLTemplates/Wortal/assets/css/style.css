@@ -44,7 +44,7 @@ a {
 }
 
 .webgl-content {
-  position:absolute;
+  position: absolute;
   top: 0;
   bottom: 0;
   left: 0;
@@ -154,5 +154,5 @@ a {
   background-image: url('../images/fullscreen.png');
   width: 38px;
   float: right;
-  cursor:pointer;
+  cursor: pointer;
 }
