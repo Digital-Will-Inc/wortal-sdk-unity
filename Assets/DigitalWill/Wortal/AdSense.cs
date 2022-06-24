@@ -51,7 +51,7 @@ namespace DigitalWill.H5Portal
                 NoShowCallback);
         }
 
-        public void RequestRewardedAd(string name)
+        public void ShowRewardedAd(string name)
         {
             RequestRewardedAdAdSense(
                 name,
@@ -62,12 +62,6 @@ namespace DigitalWill.H5Portal
                 AdDismissedCallback,
                 AdViewedCallback,
                 NoShowCallback);
-        }
-
-        public void ShowRewardedAd()
-        {
-            // We don't invoke AdCalled here because there is no BeforeAdCallback attached to this method.
-            ShowRewardedAdAdSense();
         }
 
         [DllImport("__Internal")]
@@ -119,6 +113,7 @@ namespace DigitalWill.H5Portal
             // We set this flag to let Wortal.cs know that we reached the BeforeAdCallback so we have an ad returned.
             _isAdAvailable = true;
             Debug.Log("[Wortal] BeforeAdCallback");
+            Wortal.CallBeforeAd();
         }
 
         [MonoPInvokeCallback(typeof(AfterAdDelegate))]
@@ -137,6 +132,7 @@ namespace DigitalWill.H5Portal
             // We make sure to set this here too in case we don't get an ad, but still receive a response from AdSense.
             _isAdAvailable = true;
             Debug.Log("[Wortal] AdBreakDoneCallback");
+            Wortal.CallAdDone();
         }
 
         [MonoPInvokeCallback(typeof(BeforeRewardDelegate))]
@@ -146,6 +142,7 @@ namespace DigitalWill.H5Portal
             // to ask if the user wants to see a rewarded ad or not. If the user agrees
             // to it you can show it with calling AdBreak.ShowRewardedAd();
             Debug.Log("[Wortal] BeforeRewardCallback");
+            ShowRewardedAdAdSense();
         }
 
         [MonoPInvokeCallback(typeof(AdDismissedDelegate))]
@@ -155,6 +152,7 @@ namespace DigitalWill.H5Portal
             // It is only called if the player dismisses the ad before it completes.
             // In this case the reward should not be granted.
             Debug.Log("[Wortal] AdDismissedCallback");
+            Wortal.CallAdDismissed();
         }
 
         [MonoPInvokeCallback(typeof(AdViewedDelegate))]
@@ -163,6 +161,7 @@ namespace DigitalWill.H5Portal
             // Called only for rewarded ads when the player completes the ad
             // and should be granted the reward.
             Debug.Log("[Wortal] AdViewedCallback");
+            Wortal.CallAdViewed();
         }
 
         [MonoPInvokeCallback(typeof(NoShowDelegate))]
@@ -171,6 +170,7 @@ namespace DigitalWill.H5Portal
             // Called when a timeout was reached and an ad was not returned. This can occur due to ad blockers
             // or other browser issues.
             Debug.Log("[Wortal] NoShowCallback");
+            Wortal.CallAdTimedOut();
         }
     }
 }

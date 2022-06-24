@@ -23,10 +23,6 @@ namespace DigitalWill.H5Portal
         /// Requests a rewarded ad. Should be called before <see cref="ShowRewardedAd"/>.
         /// </summary>
         /// <param name="name">Name of the ad to be shown.</param>
-        void RequestRewardedAd(string name);
-        /// <summary>
-        /// Shows a rewarded ad.
-        /// </summary>
-        void ShowRewardedAd();
+        void ShowRewardedAd(string name);
     }
 }

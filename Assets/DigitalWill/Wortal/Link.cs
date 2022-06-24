@@ -48,7 +48,7 @@ namespace DigitalWill.H5Portal
                 NoShowCallback);
         }
 
-        public void RequestRewardedAd(string name)
+        public void ShowRewardedAd(string name)
         {
             ShowRewardedAdLink(
                 name,
@@ -57,10 +57,6 @@ namespace DigitalWill.H5Portal
                 AdDismissedCallback,
                 AdViewedCallback,
                 NoShowCallback);
-        }
-
-        public void ShowRewardedAd()
-        {
         }
 
         [DllImport("__Internal")]
