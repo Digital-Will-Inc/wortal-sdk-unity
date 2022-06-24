@@ -7,6 +7,7 @@ namespace DigitalWill.H5Portal
     /// </summary>
     public class WortalSettings : ScriptableObject
     {
+        [Header("Link Configuration")]
         [SerializeField] private string _linkInterstitialId;
         [SerializeField] private string _linkRewardedId;
 
