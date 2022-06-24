@@ -8,11 +8,6 @@ namespace DigitalWill.H5Portal
     public interface IAdProvider
     {
         /// <summary>
-        /// Subscribe to be notified when a call is made to retrieve an ad. This is useful for starting a timer to
-        /// check for error conditions and prevent the game from waiting indefinitely.
-        /// </summary>
-        event Action AdCalled;
-        /// <summary>
         /// Was an ad successfully returned or not. This gets set in the beforeAd callback and checked in Wortal.cs
         /// on a timer to ensure we don't get stuck in an infinite loop waiting for an due to an error.
         /// </summary>
