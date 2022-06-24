@@ -15,7 +15,13 @@ namespace DigitalWill.H5Portal
         private delegate void AdViewedDelegate();
         private delegate void NoShowDelegate();
 
-        public void ShowInterstitialAd(Placement type, string name)
+        /// <summary>
+        /// Shows an interstitial ad for the Link platform.
+        /// </summary>
+        /// <param name="type">Type of ad placement.</param>
+        /// <param name="placementId">Ad placement ID. Not required for Link ads, value will not be used.</param>
+        /// <remarks>The Link ad placement ID is set in the Wortal settings and this method derives its value from there. Any placementId passed in here will be ignored.</remarks>
+        public void ShowInterstitialAd(Placement type, string placementId = null)
         {
             string typeArg;
             switch (type)
@@ -39,16 +45,21 @@ namespace DigitalWill.H5Portal
 
             ShowInterstitialAdLink(
                 typeArg,
-                name,
+                Wortal.Settings.LinkInterstitialId,
                 BeforeAdCallback,
                 AfterAdCallback,
                 NoShowCallback);
         }
 
-        public void ShowRewardedAd(string name)
+        /// <summary>
+        /// Shows a rewarded ad for the Link platform.
+        /// </summary>
+        /// <param name="placementId">Ad placement ID. Not required for Link ads, value will not be used.</param>
+        /// <remarks>The Link ad placement ID is set in the Wortal settings and this method derives its value from there. Any placementId passed in here will be ignored.</remarks>
+        public void ShowRewardedAd(string placementId = null)
         {
             ShowRewardedAdLink(
-                name,
+                Wortal.Settings.LinkRewardedId,
                 BeforeAdCallback,
                 AfterAdCallback,
                 AdDismissedCallback,
@@ -66,19 +77,19 @@ namespace DigitalWill.H5Portal
         private static extern void TriggerAdDismissedLink();
 
         [DllImport("__Internal")]
-        private static extern void TriggerAdViewedAdLink();
+        private static extern void TriggerAdViewedLink();
 
         [DllImport("__Internal")]
-        private static extern void TriggerNoShowAdLink();
+        private static extern void TriggerNoShowLink();
 
         [DllImport("__Internal")]
-        private static extern void ShowInterstitialAdLink(string type, string name,
+        private static extern void ShowInterstitialAdLink(string type, string placementId,
                                                              BeforeAdDelegate beforeAdCallback,
                                                              AfterAdDelegate afterAdCallback,
                                                              NoShowDelegate noShowDelegate);
 
         [DllImport("__Internal")]
-        private static extern void ShowRewardedAdLink(string name, BeforeAdDelegate beforeAdCallback,
+        private static extern void ShowRewardedAdLink(string placementId, BeforeAdDelegate beforeAdCallback,
                                                             AfterAdDelegate afterAdCallback,
                                                             AdDismissedDelegate adDismissedDelegate,
                                                             AdViewedDelegate adViewedDelegate,

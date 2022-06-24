@@ -1,5 +1,7 @@
 using System;
+using System.IO;
 using System.Runtime.InteropServices;
+using UnityEditor;
 using UnityEngine;
 
 namespace DigitalWill.H5Portal
@@ -9,7 +11,12 @@ namespace DigitalWill.H5Portal
     /// </summary>
     public static class Wortal
     {
+        private const string LOG_PREFIX = "[Wortal] ";
+        private const string SETTINGS_PATH_FULL = "Assets/DigitalWill/Wortal/Resources/WortalSettings.asset";
+        private const string SETTINGS_PATH_RELATIVE = "/DigitalWill/Wortal/Resources";
+
         private static IAdProvider _ads;
+        private static WortalSettings _settings;
 
         /// <summary>
         /// An ad was requested and successfully returned. This is fired before the ad is shown so it can be used
@@ -57,6 +64,22 @@ namespace DigitalWill.H5Portal
         public static bool IsAdAvailable { get; internal set; }
 
         /// <summary>
+        /// Settings asset for the wortal.
+        /// </summary>
+        public static WortalSettings Settings
+        {
+            get
+            {
+                if (_settings == null)
+                {
+                    InitSettings();
+                }
+
+                return _settings;
+            }
+        }
+
+        /// <summary>
         /// Shows an interstitial ad.
         /// </summary>
         /// <param name="type">Type of ad placement.</param>
@@ -101,7 +124,7 @@ namespace DigitalWill.H5Portal
 
             string language = GetBrowserLanguage();
             ParseLanguageCode(language);
-            Debug.Log($"[Wortal] Preferred language: {LanguageCode}.");
+            Debug.Log(LOG_PREFIX + $"Preferred language: {LanguageCode}.");
         }
 
         [DllImport("__Internal")]
@@ -119,12 +142,55 @@ namespace DigitalWill.H5Portal
             else
             {
                 firstTwoLetters = DefaultLanguageCode;
-                Debug.LogWarning("[Wortal] Language could not be parsed. Using system default.");
+                Debug.LogWarning(LOG_PREFIX + "Language could not be parsed. Using system default.");
             }
 
             LanguageCode = firstTwoLetters;
             LanguageCodeSet?.Invoke(LanguageCode);
             IsLanguageCodeSet = true;
+        }
+
+        private static void InitSettings()
+        {
+            try
+            {
+                _settings = Resources.Load<WortalSettings>("WortalSettings");
+
+#if UNITY_EDITOR
+                if (_settings == null)
+                {
+                    if (!Directory.Exists(Application.dataPath + SETTINGS_PATH_RELATIVE))
+                    {
+                        Directory.CreateDirectory(Application.dataPath + SETTINGS_PATH_RELATIVE);
+                        Debug.Log(LOG_PREFIX + "Could not find Wortal settings directory, creating now.");
+                    }
+
+                    // We found a settings file, but for some reason it didn't load properly. It might be corrupt.
+                    // We will just delete it and create a new one with default values.
+                    if (File.Exists(SETTINGS_PATH_FULL))
+                    {
+                        AssetDatabase.DeleteAsset(SETTINGS_PATH_FULL);
+                        AssetDatabase.Refresh();
+                        Debug.LogWarning(LOG_PREFIX + "WortalSettings file was corrupted. Re-creating now.");
+                    }
+
+                    var asset = ScriptableObject.CreateInstance<WortalSettings>();
+                    AssetDatabase.CreateAsset(asset, SETTINGS_PATH_FULL);
+
+                    AssetDatabase.SaveAssets();
+                    AssetDatabase.Refresh();
+
+                    Debug.Log(LOG_PREFIX + "WortalSettings file was missing. Created a new one.");
+
+                    _settings = asset;
+                    Selection.activeObject = asset;
+                }
+#endif
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(LOG_PREFIX + $"Failed to initialize. \n{e}");
+            }
         }
     }
 }
