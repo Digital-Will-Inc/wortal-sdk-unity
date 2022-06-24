@@ -11,5 +11,5 @@ trim_trailing_whitespace = true
 [*.{c,class,cpp,cs,go,h,json,kt,m,mm,php,py,rs,swift}]
 indent_size = 4
 
-[*.{css,htm,html,js,lua,rb,sass,scss,sh,sql,ts,xaml,xml,yml,yaml}]
+[*.{css,htm,html,js,jslib,lua,rb,sass,scss,sh,sql,ts,xaml,xml,yml,yaml}]
 indent_size = 2
