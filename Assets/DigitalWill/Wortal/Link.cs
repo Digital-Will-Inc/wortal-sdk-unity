@@ -9,9 +9,6 @@ namespace DigitalWill.H5Portal
     /// </summary>
     internal class Link : IAdProvider
     {
-        private static bool _isAdAvailable;
-        public bool IsAdAvailable => _isAdAvailable;
-
         private delegate void BeforeAdDelegate();
         private delegate void AfterAdDelegate();
         private delegate void AdDismissedDelegate();
@@ -90,44 +87,36 @@ namespace DigitalWill.H5Portal
         [MonoPInvokeCallback(typeof(BeforeAdDelegate))]
         private static void BeforeAdCallback()
         {
-            // Called only if the ad is available and before the ad is displayed.
-            // You should pause or stop the game flow here to ensure anything
-            // doesn't change while the ad is being displayed.
-            // We set this flag to let Wortal.cs know that we reached the BeforeAdCallback so we have an ad returned.
-            _isAdAvailable = true;
             Debug.Log("[Wortal] BeforeAdCallback");
+            Wortal.CallBeforeAd();
         }
 
         [MonoPInvokeCallback(typeof(AfterAdDelegate))]
         private static void AfterAdCallback()
         {
-            // Called only if the ad is displayed after the ad is finished (for any reason).
             Debug.Log("[Wortal] AfterAdCallback");
+            Wortal.CallAdDone();
         }
 
         [MonoPInvokeCallback(typeof(AdDismissedDelegate))]
         private static void AdDismissedCallback()
         {
-            // Called only for rewarded ads when the player dismisses the ad.
-            // It is only called if the player dismisses the ad before it completes.
-            // In this case the reward should not be granted.
             Debug.Log("[Wortal] AdDismissedCallback");
+            Wortal.CallAdDismissed();
         }
 
         [MonoPInvokeCallback(typeof(AdViewedDelegate))]
         private static void AdViewedCallback()
         {
-            // Called only for rewarded ads when the player completes the ad
-            // and should be granted the reward.
             Debug.Log("[Wortal] AdViewedCallback");
+            Wortal.CallAdViewed();
         }
 
         [MonoPInvokeCallback(typeof(NoShowDelegate))]
         private static void NoShowCallback()
         {
-            // Called when a timeout was reached and an ad was not returned. This can occur due to ad blockers
-            // or other browser issues.
             Debug.Log("[Wortal] NoShowCallback");
+            Wortal.CallAdTimedOut();
         }
     }
 }

@@ -1,5 +1,3 @@
-using System;
-
 namespace DigitalWill.H5Portal
 {
     /// <summary>
@@ -7,12 +5,6 @@ namespace DigitalWill.H5Portal
     /// </summary>
     public interface IAdProvider
     {
-        /// <summary>
-        /// Was an ad successfully returned or not. This gets set in the beforeAd callback and checked in Wortal.cs
-        /// on a timer to ensure we don't get stuck in an infinite loop waiting for an due to an error.
-        /// </summary>
-        bool IsAdAvailable { get; }
-
         /// <summary>
         /// Shows an interstitial ad.
         /// </summary>
