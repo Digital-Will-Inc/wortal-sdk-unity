@@ -4,15 +4,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [4.0.0] - 2022-064-24
+## [4.0.0] - 2022-06-24
 ### Added
 - Rakuten Games Link support
 - Assembly definition for Wortal
+- Wortal WebGL template
 
 ### Changed
 - All calls are now accessed via the Wortal class
 - Ad calls are made via the Wortal SDK
 - OpenLink is now internal only
+- All JS scripts have been moved to external files for easier maintenance
+
+### Fixed
+- Vertical scrollbar no longer shows
+- Game no longer shows before preroll ad finishes
+- Simultaneous AdBreakDone and NoShow callbacks no longer cause duplicate events
 
 ## [3.0.6] - 2022-04-14
 ### Fixed
