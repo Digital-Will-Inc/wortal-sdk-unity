@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.0.0] - 2022-064-24
+### Added
+- Rakuten Games Link support
+- Assembly definition for Wortal
+
+### Changed
+- All calls are now accessed via the Wortal class
+- Ad calls are made via the Wortal SDK
+- OpenLink is now internal only
+
 ## [3.0.6] - 2022-04-14
 ### Fixed
 - Missing OpenLink function
