@@ -17,7 +17,7 @@ namespace DigitalWill.Wortal.Editor
         private const string LOG_PREFIX = "[WortalInstaller] ";
         private const string PACKAGE_NAME = "co.digitalwill.wortal";
         private const string DEPENDENCIES_PATH = "Packages/co.digitalwill.wortal/Import/";
-        private const string TEMPLATE_PATH = "PROJECT:AdSense";
+        private const string TEMPLATE_PATH = "PROJECT:Wortal";
         private const string WARNING_TITLE = "WARNING: Reinstall Wortal package";
         private const string WARNING_DESC = "This will reinstall the Wortal package, which may overwrite previously saved settings and configuration for the package. It will also change some project settings. Are you sure you want to proceed?";
 
