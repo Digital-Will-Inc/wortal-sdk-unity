@@ -1,44 +1,49 @@
 var showRewardedAdFn;
-function showInterstitialAd(type, name) {
-  adBreak({
-    type: type,
-    name: name,
+
+function showInterstitialAdAdSense(type, name) {
+  window.triggerWortalAd(type, name, {
     beforeAd: () => {
-      myGameInstance.Module.asmLibraryArg._TriggerBeforeAd();
+      gameInstance.Module.asmLibraryArg._TriggerBeforeAdAdSense();
     },
     afterAd: () => {
-      myGameInstance.Module.asmLibraryArg._TriggerAfterAd();
+      gameInstance.Module.asmLibraryArg._TriggerAfterAdAdSense();
     },
     adBreakDone: (placementInfo) => {
-      myGameInstance.Module.asmLibraryArg._TriggerAdBreakDone();
+      gameInstance.Module.asmLibraryArg._TriggerAdBreakDoneAdSense();
+    },
+    noShow: () => {
+      gameInstance.Module.asmLibraryArg._TriggerNoShowAdSense();
     },
   });
 }
-function showRewardedAd(name) {
-  adBreak({
-    type: 'reward',
-    name: name,
+
+function showRewardedAdAdSense(name) {
+  window.triggerWortalAd('reward', name, {
     beforeAd: () => {
-      myGameInstance.Module.asmLibraryArg._TriggerBeforeAd();
+      gameInstance.Module.asmLibraryArg._TriggerBeforeAdAdSense();
     },
     afterAd: () => {
-      myGameInstance.Module.asmLibraryArg._TriggerAfterAd();
+      gameInstance.Module.asmLibraryArg._TriggerAfterAdAdSense();
     },
     adBreakDone: (placementInfo) => {
-      myGameInstance.Module.asmLibraryArg._TriggerAdBreakDone();
+      gameInstance.Module.asmLibraryArg._TriggerAdBreakDoneAdSense();
     },
     beforeReward: (showAdFn) => {
       showRewardedAdFn = showAdFn;
-      myGameInstance.Module.asmLibraryArg._TriggerBeforeReward();
+      gameInstance.Module.asmLibraryArg._TriggerBeforeRewardAdSense();
     },
     adDismissed: () => {
-      myGameInstance.Module.asmLibraryArg._TriggerAdDismissed();
+      gameInstance.Module.asmLibraryArg._TriggerAdDismissedAdSense();
     },
     adViewed: () => {
-      myGameInstance.Module.asmLibraryArg._TriggerAdViewed();
+      gameInstance.Module.asmLibraryArg._TriggerAdViewedAdSense();
+    },
+    noShow: () => {
+      gameInstance.Module.asmLibraryArg._TriggerNoShowAdSense();
     },
   });
 }
+
 function triggerShowRewardedAdFn() {
   console.log("***** triggerShowRewardedAdFn *****");
   showRewardedAdFn();
