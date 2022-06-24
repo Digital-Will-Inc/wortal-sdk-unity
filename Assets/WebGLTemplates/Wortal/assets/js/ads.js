@@ -44,22 +44,22 @@ function showRewardedAdAdSense(name) {
   });
 }
 
-function showInterstitialAdLink(type, name) {
-  window.triggerWortalLinkAd(type, name, {
+function showInterstitialAdLink(type, placementId) {
+  window.triggerWortalLinkAd(type, placementId, {
     beforeAd: () => {
       gameInstance.Module.asmLibraryArg._TriggerBeforeAdLink();
     },
     afterAd: () => {
       gameInstance.Module.asmLibraryArg._TriggerAfterAdLink();
     },
-    noShow: () => {
+    noBreak: () => {
       gameInstance.Module.asmLibraryArg._TriggerNoShowLink();
     },
   });
 }
 
-function showRewardedAdLink(name) {
-  window.triggerWortalLinkAd('reward', name, {
+function showRewardedAdLink(placementId) {
+  window.triggerWortalLinkAd('reward', placementId, {
     beforeAd: () => {
       gameInstance.Module.asmLibraryArg._TriggerBeforeAdLink();
     },
@@ -72,7 +72,7 @@ function showRewardedAdLink(name) {
     adViewed: () => {
       gameInstance.Module.asmLibraryArg._TriggerAdViewedLink();
     },
-    noShow: () => {
+    noBreak: () => {
       gameInstance.Module.asmLibraryArg._TriggerNoShowLink();
     },
   });

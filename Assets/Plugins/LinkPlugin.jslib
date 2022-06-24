@@ -6,20 +6,20 @@ mergeInto(LibraryManager.library, {
   $adViewedPointerLink: 0,
   $noShowPointerLink: 0,
 
-  ShowInterstitialAdLink: function(type, name, beforeAdCallback, afterAdCallback, noShowCallback) {
+  ShowInterstitialAdLink: function(type, placementId, beforeAdCallback, afterAdCallback, noShowCallback) {
     beforeAdPointerLink = beforeAdCallback;
     afterAdPointerLink = afterAdCallback;
     noShowPointerLink = noShowCallback;
-    showInterstitialAdLink(UTF8ToString(type), UTF8ToString(name));
+    showInterstitialAdLink(UTF8ToString(type), UTF8ToString(placementId));
   },
 
-  ShowRewardedAdLink: function(name, beforeAdCallback, afterAdCallback, adDismissedCallback, adViewedCallback, noShowCallback) {
+  ShowRewardedAdLink: function(placementId, beforeAdCallback, afterAdCallback, adDismissedCallback, adViewedCallback, noShowCallback) {
     beforeAdPointerLink = beforeAdCallback;
     afterAdPointerLink = afterAdCallback;
     adDismissedPointerLink = adDismissedCallback;
     adViewedPointerLink = adViewedCallback;
     noShowPointerLink = noShowCallback;
-    showRewardedAdLink('reward', UTF8ToString(name));
+    showRewardedAdLink('reward', UTF8ToString(placementId));
   },
 
   TriggerBeforeAdLink: function() {
