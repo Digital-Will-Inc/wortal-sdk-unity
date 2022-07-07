@@ -41,14 +41,14 @@ namespace DigitalWill.H5Portal
         /// </summary>
         public static event Action RewardedAdDismissed;
         /// <summary>
-        /// Subscribe to be notified when the language code has been parsed and set.
+        /// Subscribe to be notified when the language has been parsed and set.
         /// </summary>
-        public static event Action<Language> LanguageCodeSet;
+        public static event Action<Language> LanguageSet;
 
         /// <summary>
-        /// Has the LanguageCode been set yet or not.
+        /// Has the Language been set yet or not.
         /// </summary>
-        public static bool IsLanguageCodeSet { get; private set; }
+        public static bool IsLanguageSet { get; private set; }
         /// <summary>
         /// Language to be used for localization.
         /// </summary>
@@ -119,8 +119,8 @@ namespace DigitalWill.H5Portal
             };
 
             Language = LanguageUtil.GetLanguage(GetBrowserLanguage());
-            LanguageCodeSet?.Invoke(Language);
-            IsLanguageCodeSet = true;
+            LanguageSet?.Invoke(Language);
+            IsLanguageSet = true;
             Debug.Log(LOG_PREFIX + $"Preferred language: {Language.ToString()}.");
         }
 
