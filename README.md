@@ -79,6 +79,10 @@ void OnRewardedAdDismissed()
 Games on the Wortal need to support localization. Wortal Plugin offers functionality to check the player's
 browser language to determine what language the game should be played in.
 
+For all languages that will be supported in the game, you must add them to the `Supported Languages` config
+in the `WortalSettings`. Here you can also change the default language that will be used if the player's
+preferred language is not supported.
+
 Wortal Plugin does not offer localization features itself, only the player's preferred language.
 
 ```c#
