@@ -1,4 +1,4 @@
-namespace DigitalWill.H5Portal
+namespace DigitalWill
 {
     /// <summary>
     /// Languages the game can display.

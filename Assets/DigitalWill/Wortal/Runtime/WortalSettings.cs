@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace DigitalWill.H5Portal
+namespace DigitalWill
 {
     /// <summary>
     /// Settings for the wortal.
