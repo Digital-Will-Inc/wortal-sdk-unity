@@ -1,10 +1,8 @@
 using System;
-using System.IO;
 using System.Runtime.InteropServices;
-using UnityEditor;
 using UnityEngine;
 
-namespace DigitalWill.H5Portal
+namespace DigitalWill
 {
     /// <summary>
     /// Contains utility functions for interfacing with the game portal and player's browser.
@@ -12,8 +10,6 @@ namespace DigitalWill.H5Portal
     public static class Wortal
     {
         private const string LOG_PREFIX = "[Wortal] ";
-        private const string SETTINGS_PATH_FULL = "Assets/DigitalWill/Wortal/Resources/WortalSettings.asset";
-        private const string SETTINGS_PATH_RELATIVE = "/DigitalWill/Wortal/Resources";
 
         private static IAdProvider _ads;
         private static WortalSettings _settings;
@@ -135,41 +131,10 @@ namespace DigitalWill.H5Portal
             try
             {
                 _settings = Resources.Load<WortalSettings>("WortalSettings");
-
-#if UNITY_EDITOR
-                if (_settings == null)
-                {
-                    if (!Directory.Exists(Application.dataPath + SETTINGS_PATH_RELATIVE))
-                    {
-                        Directory.CreateDirectory(Application.dataPath + SETTINGS_PATH_RELATIVE);
-                        Debug.Log(LOG_PREFIX + "Could not find Wortal settings directory, creating now.");
-                    }
-
-                    // We found a settings file, but for some reason it didn't load properly. It might be corrupt.
-                    // We will just delete it and create a new one with default values.
-                    if (File.Exists(SETTINGS_PATH_FULL))
-                    {
-                        AssetDatabase.DeleteAsset(SETTINGS_PATH_FULL);
-                        AssetDatabase.Refresh();
-                        Debug.LogWarning(LOG_PREFIX + "WortalSettings file was corrupted. Re-creating now.");
-                    }
-
-                    var asset = ScriptableObject.CreateInstance<WortalSettings>();
-                    AssetDatabase.CreateAsset(asset, SETTINGS_PATH_FULL);
-
-                    AssetDatabase.SaveAssets();
-                    AssetDatabase.Refresh();
-
-                    Debug.Log(LOG_PREFIX + "WortalSettings file was missing. Created a new one.");
-
-                    _settings = asset;
-                    Selection.activeObject = asset;
-                }
-#endif
             }
             catch (Exception e)
             {
-                Debug.LogError(LOG_PREFIX + $"Failed to initialize. \n{e}");
+                Debug.LogError(LOG_PREFIX + $"Failed to initialize. WortalSettings are missing. \n{e}");
             }
         }
     }
