@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using AOT;
 
-namespace DigitalWill.H5Portal
+namespace DigitalWill
 {
     /// <summary>
     /// Handles ads provided by AdSense.

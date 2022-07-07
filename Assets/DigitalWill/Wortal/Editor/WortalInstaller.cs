@@ -1,8 +1,7 @@
-#if UNITY_EDITOR
 using UnityEditor;
 using UnityEngine;
 
-namespace DigitalWill.Wortal.Editor
+namespace DigitalWill.WortalEditor
 {
     /// <summary>
     /// Sets the project settings required to use the Wortal plugin.
@@ -13,11 +12,6 @@ namespace DigitalWill.Wortal.Editor
         private const string TEMPLATE_PATH = "PROJECT:Wortal";
 
         [MenuItem("DigitalWill/Wortal/Set Project Settings")]
-        private static void Reinstall()
-        {
-            Install();
-        }
-
         private static void Install()
         {
             Debug.Log(LOG_PREFIX + "Starting wortal plugin install..");
@@ -35,4 +29,3 @@ namespace DigitalWill.Wortal.Editor
         }
     }
 }
-#endif

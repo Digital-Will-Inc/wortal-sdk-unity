@@ -2,7 +2,7 @@ using System.Runtime.InteropServices;
 using AOT;
 using UnityEngine;
 
-namespace DigitalWill.H5Portal
+namespace DigitalWill
 {
     /// <summary>
     /// Handles ads provided by Rakuten Games Link.

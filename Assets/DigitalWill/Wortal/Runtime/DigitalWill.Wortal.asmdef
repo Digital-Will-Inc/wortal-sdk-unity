@@ -1,6 +1,6 @@
 {
     "name": "DigitalWill.Wortal",
-    "rootNamespace": "DigitalWill.H5Portal",
+    "rootNamespace": "DigitalWill",
     "references": [],
     "includePlatforms": [
         "Editor",

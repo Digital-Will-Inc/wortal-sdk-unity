@@ -1,4 +1,4 @@
-namespace DigitalWill.H5Portal
+namespace DigitalWill
 {
     /// <summary>
     /// Interface for ad providers. Used for implementation ad calls for different platforms.

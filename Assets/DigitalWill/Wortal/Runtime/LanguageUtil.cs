@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace DigitalWill.H5Portal
+namespace DigitalWill
 {
     /// <summary>
     ///
