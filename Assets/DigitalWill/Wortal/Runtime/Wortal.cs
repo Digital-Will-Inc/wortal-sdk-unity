@@ -111,7 +111,12 @@ namespace DigitalWill.H5Portal
         private static void Init()
         {
             //TODO: implement platform check once it is available in Wortal SDK
-            _ads = new AdSense();
+            _ads = _settings.Platform switch
+            {
+                Platform.AdSense => new AdSense(),
+                Platform.Link => new Link(),
+                _ => new AdSense(),
+            };
 
             Language = LanguageUtil.GetLanguage(GetBrowserLanguage());
             LanguageCodeSet?.Invoke(Language);
