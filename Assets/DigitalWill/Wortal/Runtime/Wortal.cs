@@ -43,25 +43,16 @@ namespace DigitalWill.H5Portal
         /// <summary>
         /// Subscribe to be notified when the language code has been parsed and set.
         /// </summary>
-        public static event Action<string> LanguageCodeSet;
+        public static event Action<Language> LanguageCodeSet;
 
         /// <summary>
         /// Has the LanguageCode been set yet or not.
         /// </summary>
         public static bool IsLanguageCodeSet { get; private set; }
         /// <summary>
-        /// Sets the 2-letter ISO language code of the language received from the browser.
+        /// Language to be used for localization.
         /// </summary>
-        public static string LanguageCode { get; private set; }
-        /// <summary>
-        /// The default language code to fallback to if the player's preferred language is not supported or not found.
-        /// </summary>
-        public static string DefaultLanguageCode { get; set; } = "EN";
-        /// <summary>
-        /// Was an ad successfully returned or not. This gets set in the beforeAd callback and checked in Wortal.cs
-        /// on a timer to ensure we don't get stuck in an infinite loop waiting for an due to an error.
-        /// </summary>
-        public static bool IsAdAvailable { get; internal set; }
+        public static Language Language { get; private set; }
 
         /// <summary>
         /// Settings asset for the wortal.
@@ -122,33 +113,17 @@ namespace DigitalWill.H5Portal
             //TODO: implement platform check once it is available in Wortal SDK
             _ads = new AdSense();
 
-            string language = GetBrowserLanguage();
-            ParseLanguageCode(language);
-            Debug.Log(LOG_PREFIX + $"Preferred language: {LanguageCode}.");
+            Language = LanguageUtil.GetLanguage(GetBrowserLanguage());
+            LanguageCodeSet?.Invoke(Language);
+            IsLanguageCodeSet = true;
+            Debug.Log(LOG_PREFIX + $"Preferred language: {Language.ToString()}.");
         }
 
         [DllImport("__Internal")]
         private static extern string GetBrowserLanguage();
+
         [DllImport("__Internal")]
         private static extern void OpenLink(string url);
-
-        private static void ParseLanguageCode(string language)
-        {
-            string firstTwoLetters;
-            if (!string.IsNullOrEmpty(language) && language.Length >= 2)
-            {
-                firstTwoLetters = language.Substring(0, 2).ToUpper();
-            }
-            else
-            {
-                firstTwoLetters = DefaultLanguageCode;
-                Debug.LogWarning(LOG_PREFIX + "Language could not be parsed. Using system default.");
-            }
-
-            LanguageCode = firstTwoLetters;
-            LanguageCodeSet?.Invoke(LanguageCode);
-            IsLanguageCodeSet = true;
-        }
 
         private static void InitSettings()
         {
