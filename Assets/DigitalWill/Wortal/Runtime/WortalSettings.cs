@@ -27,7 +27,9 @@ namespace DigitalWill
 
     public enum Platform
     {
+        Debug,
         AdSense,
         Link,
+        Viber,
     }
 }
