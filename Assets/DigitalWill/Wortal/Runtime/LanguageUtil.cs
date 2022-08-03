@@ -4,7 +4,7 @@ using UnityEngine;
 namespace DigitalWill
 {
     /// <summary>
-    ///
+    /// Utilities for localization support.
     /// </summary>
     internal class LanguageUtil
     {

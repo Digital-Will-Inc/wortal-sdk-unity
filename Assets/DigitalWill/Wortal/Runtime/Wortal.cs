@@ -106,8 +106,7 @@ namespace DigitalWill
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void Init()
         {
-            //TODO: implement platform check once it is available in Wortal SDK
-            _ads = _settings.Platform switch
+            _ads = ParsePlatform(GetPlatform()) switch
             {
                 Platform.AdSense => new AdSense(),
                 Platform.Link => new Link(),
@@ -119,6 +118,9 @@ namespace DigitalWill
             IsLanguageSet = true;
             Debug.Log(LOG_PREFIX + $"Preferred language: {Language.ToString()}.");
         }
+
+        [DllImport("__Internal")]
+        private static extern string GetPlatform();
 
         [DllImport("__Internal")]
         private static extern string GetBrowserLanguage();
@@ -135,6 +137,22 @@ namespace DigitalWill
             catch (Exception e)
             {
                 Debug.LogError(LOG_PREFIX + $"Failed to initialize. WortalSettings are missing. \n{e}");
+            }
+        }
+
+        private static Platform ParsePlatform(string platform)
+        {
+            switch (platform)
+            {
+                case "wortal":
+                    return Platform.AdSense;
+                case "link":
+                    return Platform.Link;
+                case "viber":
+                    return Platform.Viber;
+                default:
+                    Debug.LogWarning(LOG_PREFIX + "Could not determine platform. Switching to debug mode.");
+                    return Platform.Debug;
             }
         }
     }
