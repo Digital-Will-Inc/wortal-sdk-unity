@@ -1,50 +1,50 @@
 var showRewardedAdFn;
 
 function showInterstitialAdAdSense(type, name) {
-  window.triggerWortalAd(type, name, {
+  window.triggerWortalAd(type, "", name, {
     beforeAd: () => {
-      gameInstance.Module.asmLibraryArg._TriggerBeforeAdAdSense();
+      gameInstance.Module.Wortal.TriggerBeforeAdAdSense();
     },
     afterAd: () => {
-      gameInstance.Module.asmLibraryArg._TriggerAfterAdAdSense();
+      gameInstance.Module.Wortal.TriggerAfterAdAdSense();
     },
     adBreakDone: (placementInfo) => {
-      gameInstance.Module.asmLibraryArg._TriggerAdBreakDoneAdSense();
+      gameInstance.Module.Wortal.TriggerAdBreakDoneAdSense();
     },
     noShow: () => {
-      gameInstance.Module.asmLibraryArg._TriggerNoShowAdSense();
+      gameInstance.Module.Wortal.TriggerNoShowAdSense();
     },
   });
 }
 
 function showRewardedAdAdSense(name) {
-  window.triggerWortalAd('reward', name, {
+  window.triggerWortalAd('reward', "", name, {
     beforeAd: () => {
-      gameInstance.Module.asmLibraryArg._TriggerBeforeAdAdSense();
+      gameInstance.Module.Wortal.TriggerBeforeAdAdSense();
     },
     afterAd: () => {
-      gameInstance.Module.asmLibraryArg._TriggerAfterAdAdSense();
+      gameInstance.Module.Wortal.TriggerAfterAdAdSense();
     },
     adBreakDone: (placementInfo) => {
-      gameInstance.Module.asmLibraryArg._TriggerAdBreakDoneAdSense();
+      gameInstance.Module.Wortal.TriggerAdBreakDoneAdSense();
     },
     beforeReward: (showAdFn) => {
       showRewardedAdFn = showAdFn;
-      gameInstance.Module.asmLibraryArg._TriggerBeforeRewardAdSense();
+      gameInstance.Module.Wortal.TriggerBeforeRewardAdSense();
     },
     adDismissed: () => {
-      gameInstance.Module.asmLibraryArg._TriggerAdDismissedAdSense();
+      gameInstance.Module.Wortal.TriggerAdDismissedAdSense();
     },
     adViewed: () => {
-      gameInstance.Module.asmLibraryArg._TriggerAdViewedAdSense();
+      gameInstance.Module.Wortal.TriggerAdViewedAdSense();
     },
     noShow: () => {
-      gameInstance.Module.asmLibraryArg._TriggerNoShowAdSense();
+      gameInstance.Module.Wortal.TriggerNoShowAdSense();
     },
   });
 }
 
 function triggerShowRewardedAdFn() {
-  console.log("***** triggerShowRewardedAdFn *****");
+  console.log("[Wortal] ShowRewardedAd");
   showRewardedAdFn();
 }
