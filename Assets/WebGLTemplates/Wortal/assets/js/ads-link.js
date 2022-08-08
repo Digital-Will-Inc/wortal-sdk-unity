@@ -1,13 +1,13 @@
 function showInterstitialAdLink(type, placementId) {
   window.triggerWortalLinkAd(type, placementId, {
     beforeAd: () => {
-      gameInstance.Module.asmLibraryArg._TriggerBeforeAdLink();
+      gameInstance.Module.Wortal.TriggerBeforeAdLink();
     },
     afterAd: () => {
-      gameInstance.Module.asmLibraryArg._TriggerAfterAdLink();
+      gameInstance.Module.Wortal.TriggerAfterAdLink();
     },
     noBreak: () => {
-      gameInstance.Module.asmLibraryArg._TriggerNoShowLink();
+      gameInstance.Module.Wortal.TriggerNoShowLink();
     },
   });
 }
@@ -15,19 +15,19 @@ function showInterstitialAdLink(type, placementId) {
 function showRewardedAdLink(placementId) {
   window.triggerWortalLinkAd('reward', placementId, {
     beforeAd: () => {
-      gameInstance.Module.asmLibraryArg._TriggerBeforeAdLink();
+      gameInstance.Module.Wortal.TriggerBeforeAdLink();
     },
     afterAd: () => {
-      gameInstance.Module.asmLibraryArg._TriggerAfterAdLink();
+      gameInstance.Module.Wortal.TriggerAfterAdLink();
     },
     adDismissed: () => {
-      gameInstance.Module.asmLibraryArg._TriggerAdDismissedLink();
+      gameInstance.Module.Wortal.TriggerAdDismissedLink();
     },
     adViewed: () => {
-      gameInstance.Module.asmLibraryArg._TriggerAdViewedLink();
+      gameInstance.Module.Wortal.TriggerAdViewedLink();
     },
     noBreak: () => {
-      gameInstance.Module.asmLibraryArg._TriggerNoShowLink();
+      gameInstance.Module.Wortal.TriggerNoShowLink();
     },
   });
 }
