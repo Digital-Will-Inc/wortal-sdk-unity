@@ -9,11 +9,11 @@
   <link rel="stylesheet" href="assets/css/style.css">
 
   <title>{{{ PRODUCT_NAME }}}</title>
-  <script async src="https://html5gameportal.com/embeds/wortal-1.1.3.js"></script>
-  <script src="assets/js/wortal-init-adsense.js"></script>
+  <script src="https://html5gameportal.com/embeds/wortal-1.2.0.js"></script>
+  <script src="assets/js/wortal-init.js"></script>
 </head>
 <body>
-<div class="black-cover" id="black-cover"></div>
+<div class="loading-cover" id="loading-cover"></div>
 <div class="webgl-wrapper">
   <div class="webgl-content">
     <div id="progress" class="progress Dark">
@@ -26,11 +26,7 @@
     </div>
   </div>
 </div>
-
-<script src="assets/js/loader.js"></script>
-<script src="assets/js/instance-adsense.js"></script>
-<script src="assets/js/ads.js"></script>
-<!-- Press F to toggle full screen -->
-<script src="assets/js/fullscreen.js"></script>
+<script src="Build/{{{ LOADER_FILENAME }}}"></script>
+<script src="assets/js/wortal-loader.js"></script>
 </body>
 </html>

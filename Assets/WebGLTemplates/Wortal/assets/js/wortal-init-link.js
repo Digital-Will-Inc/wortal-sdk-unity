@@ -2,16 +2,16 @@ window.addEventListener("load", () => {
   window.initWortalLink(function () {
     if (window.wortalLink) {
       wortalLink = window.wortalLink;
-      Promise.all([ShowGame(), wortalLink.initializeAsync()])
+      Promise.all([showGame(), wortalLink.initializeAsync()])
         .then(() => {
           wortalLink.startGameAsync();
         })
     } else {
-      ShowGame();
+      showGame();
     }
   });
 });
 
-function ShowGame() {
-  document.getElementById("black-cover").hidden = true;
+function showGame() {
+  document.getElementById("loading-cover").hidden = true;
 }
