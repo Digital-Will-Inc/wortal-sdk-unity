@@ -68,21 +68,6 @@ namespace DigitalWill
         }
 
         [DllImport("__Internal")]
-        private static extern void TriggerBeforeAdLink();
-
-        [DllImport("__Internal")]
-        private static extern void TriggerAfterAdLink();
-
-        [DllImport("__Internal")]
-        private static extern void TriggerAdDismissedLink();
-
-        [DllImport("__Internal")]
-        private static extern void TriggerAdViewedLink();
-
-        [DllImport("__Internal")]
-        private static extern void TriggerNoShowLink();
-
-        [DllImport("__Internal")]
         private static extern void ShowInterstitialAdLink(string type, string placementId,
                                                              BeforeAdDelegate beforeAdCallback,
                                                              AfterAdDelegate afterAdCallback,

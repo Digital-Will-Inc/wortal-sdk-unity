@@ -65,27 +65,6 @@ namespace DigitalWill
         }
 
         [DllImport("__Internal")]
-        private static extern void TriggerBeforeAdAdSense();
-
-        [DllImport("__Internal")]
-        private static extern void TriggerAfterAdAdSense();
-
-        [DllImport("__Internal")]
-        private static extern void TriggerAdBreakDoneAdSense();
-
-        [DllImport("__Internal")]
-        private static extern void TriggerBeforeRewardAdSense();
-
-        [DllImport("__Internal")]
-        private static extern void TriggerAdDismissedAdSense();
-
-        [DllImport("__Internal")]
-        private static extern void TriggerAdViewedAdSense();
-
-        [DllImport("__Internal")]
-        private static extern void TriggerNoShowAdSense();
-
-        [DllImport("__Internal")]
         private static extern void ShowRewardedAdAdSense();
 
         [DllImport("__Internal")]
