@@ -110,7 +110,8 @@ namespace DigitalWill
             {
                 Platform.AdSense => new AdSense(),
                 Platform.Link => new Link(),
-                _ => new AdSense(),
+                Platform.Debug => new DebugAds(),
+                _ => new DebugAds(),
             };
 
             Language = LanguageUtil.GetLanguage(GetBrowserLanguage());
