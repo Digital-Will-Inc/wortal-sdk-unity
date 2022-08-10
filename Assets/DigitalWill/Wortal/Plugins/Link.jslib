@@ -34,7 +34,7 @@ mergeInto(LibraryManager.library, {
     Module.Wortal.beforeAdPointerLink = beforeAdCallback;
     Module.Wortal.afterAdPointerLink = afterAdCallback;
     Module.Wortal.noBreakPointerLink = noBreakCallback;
-    showInterstitialAdLink(UTF8ToString(type), UTF8ToString(placementId));
+    showInterstitialAdLink(UTF8ToString(type), UTF8ToString(adUnitId), UTF8ToString(description));
   },
 
   ShowRewardedAdLink: function(adUnitId, description, beforeAdCallback, afterAdCallback, adDismissedCallback, adViewedCallback, noBreakCallback) {
@@ -43,7 +43,7 @@ mergeInto(LibraryManager.library, {
     Module.Wortal.adDismissedPointerLink = adDismissedCallback;
     Module.Wortal.adViewedPointerLink = adViewedCallback;
     Module.Wortal.noBreakPointerLink = noShowCallback;
-    showRewardedAdLink('reward', UTF8ToString(placementId));
+    showRewardedAdLink('reward', UTF8ToString(adUnitId), UTF8ToString(description));
   },
 
 });
