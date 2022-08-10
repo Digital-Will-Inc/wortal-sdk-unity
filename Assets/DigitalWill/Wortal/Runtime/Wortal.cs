@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
+using AOT;
 using UnityEngine;
 
 namespace DigitalWill
@@ -120,15 +121,6 @@ namespace DigitalWill
             Debug.Log(LOG_PREFIX + $"Preferred language: {Language.ToString()}.");
         }
 
-        [DllImport("__Internal")]
-        private static extern string GetPlatform();
-
-        [DllImport("__Internal")]
-        private static extern string GetBrowserLanguage();
-
-        [DllImport("__Internal")]
-        private static extern void OpenLink(string url);
-
         private static void InitSettings()
         {
             try
@@ -148,6 +140,7 @@ namespace DigitalWill
                 case "wortal":
                     return Platform.AdSense;
                 case "link":
+                    GetLinkAdUnitIds(LinkAdUnitCallback);
                     return Platform.Link;
                 case "viber":
                     return Platform.Viber;
@@ -156,5 +149,37 @@ namespace DigitalWill
                     return Platform.Debug;
             }
         }
+
+        [DllImport("__Internal")]
+        private static extern string GetPlatform();
+
+        [DllImport("__Internal")]
+        private static extern string GetBrowserLanguage();
+
+        [DllImport("__Internal")]
+        private static extern void GetLinkAdUnitIds(Action<string, string> callback);
+
+        [DllImport("__Internal")]
+        private static extern void OpenLink(string url);
+
+        [MonoPInvokeCallback(typeof(Action<string, string>))]
+        private static void LinkAdUnitCallback(string interstitialId, string rewardedId)
+        {
+            if (string.IsNullOrEmpty(interstitialId) || string.IsNullOrEmpty(rewardedId))
+            {
+                Debug.LogWarning(LOG_PREFIX + "Link AdUnit IDs invalid or missing. Ad calls will not be made.");
+            }
+
+            _settings.LinkInterstitialId = interstitialId;
+            _settings.LinkRewardedId = rewardedId;
+        }
+    }
+
+    public enum Platform
+    {
+        Debug,
+        AdSense,
+        Link,
+        Viber,
     }
 }
