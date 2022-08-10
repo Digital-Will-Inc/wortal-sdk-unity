@@ -24,4 +24,4 @@ mergeInto(LibraryManager.library, {
     triggerShowRewardedAdFn();
   },
 
-};
+});
