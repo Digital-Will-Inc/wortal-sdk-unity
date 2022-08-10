@@ -6,7 +6,7 @@ using AOT;
 namespace DigitalWill
 {
     /// <summary>
-    /// Handles ads provided by AdSense.
+    /// Provides ads for games deployed to the Wortal. These ads are served by Google AdSense.
     /// </summary>
     internal class AdSense : IAdProvider
     {
@@ -20,7 +20,7 @@ namespace DigitalWill
         private delegate void AdViewedDelegate();
         private delegate void NoShowDelegate();
 
-        public void ShowInterstitialAd(Placement type, string name)
+        public void ShowInterstitialAd(Placement type, string description)
         {
             string typeArg;
             switch (type)
@@ -44,17 +44,17 @@ namespace DigitalWill
 
             ShowInterstitialAdAdSense(
                 typeArg,
-                name,
+                description,
                 BeforeAdCallback,
                 AfterAdCallback,
                 AdBreakDoneCallback,
                 NoShowCallback);
         }
 
-        public void ShowRewardedAd(string name)
+        public void ShowRewardedAd(string description)
         {
             RequestRewardedAdAdSense(
-                name,
+                description,
                 BeforeAdCallback,
                 AfterAdCallback,
                 AdBreakDoneCallback,

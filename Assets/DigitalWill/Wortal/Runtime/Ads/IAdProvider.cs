@@ -1,7 +1,7 @@
 namespace DigitalWill
 {
     /// <summary>
-    /// Interface for ad providers. Used for implementation ad calls for different platforms.
+    /// Interface for ad provider services. Will call ads based on the platform the game is deployed to.
     /// </summary>
     public interface IAdProvider
     {
@@ -9,12 +9,12 @@ namespace DigitalWill
         /// Shows an interstitial ad.
         /// </summary>
         /// <param name="type">Type of ad placement.</param>
-        /// <param name="name">Name of the ad placement.</param>
-        void ShowInterstitialAd(Placement type, string name);
+        /// <param name="description">Description of the ad being shown. Ex: NextLevel</param>
+        void ShowInterstitialAd(Placement type, string description);
         /// <summary>
-        /// Requests a rewarded ad. Should be called before <see cref="ShowRewardedAd"/>.
+        /// Shows a rewarded ad.
         /// </summary>
-        /// <param name="name">Name of the ad to be shown.</param>
-        void ShowRewardedAd(string name);
+        /// <param name="description">Description of the ad being shown. Ex: ReviveAndContinue</param>
+        void ShowRewardedAd(string description);
     }
 }

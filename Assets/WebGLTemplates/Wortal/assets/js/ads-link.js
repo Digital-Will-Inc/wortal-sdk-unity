@@ -1,5 +1,5 @@
-function showInterstitialAdLink(type, placementId) {
-  window.triggerWortalLinkAd(type, placementId, {
+function showInterstitialAdLink(type, adUnitId, description) {
+  window.triggerWortalAd(type, adUnitId, description, {
     beforeAd: () => {
       gameInstance.Module.Wortal.TriggerBeforeAdLink();
     },
@@ -12,8 +12,8 @@ function showInterstitialAdLink(type, placementId) {
   });
 }
 
-function showRewardedAdLink(placementId) {
-  window.triggerWortalLinkAd('reward', placementId, {
+function showRewardedAdLink(adUnitId, description) {
+  window.triggerWortalAd('reward', adUnitId, description, {
     beforeAd: () => {
       gameInstance.Module.Wortal.TriggerBeforeAdLink();
     },
