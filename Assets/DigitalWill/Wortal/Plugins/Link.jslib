@@ -1,5 +1,35 @@
 mergeInto(LibraryManager.library, {
 
+  GetLinkInterstitialId: function () {
+    window.wortalGame.getAdUnitsAsync().then((adUnits) => {
+      console.log(adUnits);
+      for (let i = 0; i < adUnits.Length; i++) {
+        if (adUnits[i].type == 'INTERSTITIAL') {
+          let idStr = adUnits[i].id;
+          let bufferSize = lengthBytesUTF8(idStr) + 1;
+          let buffer = _malloc(bufferSize);
+          stringToUTF8(idStr, buffer, bufferSize);
+          return buffer;
+        }
+      }
+    });
+  },
+
+  GetLinkRewardedId: function () {
+    window.wortalGame.getAdUnitsAsync().then((adUnits) => {
+      console.log(adUnits);
+      for (let i = 0; i < adUnits.Length; i++) {
+        if (adUnits[i].type == 'REWARDED_VIDEO') {
+          let idStr = adUnits[i].id;
+          let bufferSize = lengthBytesUTF8(idStr) + 1;
+          let buffer = _malloc(bufferSize);
+          stringToUTF8(idStr, buffer, bufferSize);
+          return buffer;
+        }
+      }
+    });
+  },
+
   ShowInterstitialAdLink: function(type, placementId, beforeAdCallback, afterAdCallback, noBreakCallback) {
     Module.Wortal.beforeAdPointerLink = beforeAdCallback;
     Module.Wortal.afterAdPointerLink = afterAdCallback;
@@ -16,4 +46,4 @@ mergeInto(LibraryManager.library, {
     showRewardedAdLink('reward', UTF8ToString(placementId));
   },
 
-};
+});
