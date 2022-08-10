@@ -28,11 +28,11 @@ if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
 };
 
 createUnityInstance(canvas, config, (progress) => {
-  if (window.wortalLink) {
-    window.wortalLink.setLoadingProgress(100 * progress);
+  if (window.wortalGame) {
+    window.wortalGame.setLoadingProgress(100 * progress);
   }
 }).then((unityInstance) => {
-  window.wortalLink.setLoadingProgress(100);
+  window.wortalGame.setLoadingProgress(100);
   gameInstance = unityInstance;
   console.log('[Wortal] Module Args loaded.');
   console.log(gameInstance.Module.Wortal);
