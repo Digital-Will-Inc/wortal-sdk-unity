@@ -5,7 +5,7 @@ using UnityEngine;
 namespace DigitalWill
 {
     /// <summary>
-    /// Handles ads provided by Rakuten Games Link.
+    /// Provides ads for games deployed to the Link Game Platform.
     /// </summary>
     internal class Link : IAdProvider
     {
@@ -15,13 +15,7 @@ namespace DigitalWill
         private delegate void AdViewedDelegate();
         private delegate void NoShowDelegate();
 
-        /// <summary>
-        /// Shows an interstitial ad for the Link platform.
-        /// </summary>
-        /// <param name="type">Type of ad placement.</param>
-        /// <param name="placementId">Ad placement ID. Not required for Link ads, value will not be used.</param>
-        /// <remarks>The Link ad placement ID is set in the Wortal settings and this method derives its value from there. Any placementId passed in here will be ignored.</remarks>
-        public void ShowInterstitialAd(Placement type, string placementId = null)
+        public void ShowInterstitialAd(Placement type, string description)
         {
             string typeArg;
             switch (type)
@@ -46,20 +40,17 @@ namespace DigitalWill
             ShowInterstitialAdLink(
                 typeArg,
                 Wortal.Settings.LinkInterstitialId,
+                description,
                 BeforeAdCallback,
                 AfterAdCallback,
                 NoShowCallback);
         }
 
-        /// <summary>
-        /// Shows a rewarded ad for the Link platform.
-        /// </summary>
-        /// <param name="placementId">Ad placement ID. Not required for Link ads, value will not be used.</param>
-        /// <remarks>The Link ad placement ID is set in the Wortal settings and this method derives its value from there. Any placementId passed in here will be ignored.</remarks>
-        public void ShowRewardedAd(string placementId = null)
+        public void ShowRewardedAd(string description)
         {
             ShowRewardedAdLink(
                 Wortal.Settings.LinkRewardedId,
+                description,
                 BeforeAdCallback,
                 AfterAdCallback,
                 AdDismissedCallback,
@@ -68,13 +59,13 @@ namespace DigitalWill
         }
 
         [DllImport("__Internal")]
-        private static extern void ShowInterstitialAdLink(string type, string placementId,
+        private static extern void ShowInterstitialAdLink(string type, string adUnitId, string description,
                                                              BeforeAdDelegate beforeAdCallback,
                                                              AfterAdDelegate afterAdCallback,
                                                              NoShowDelegate noShowDelegate);
 
         [DllImport("__Internal")]
-        private static extern void ShowRewardedAdLink(string placementId, BeforeAdDelegate beforeAdCallback,
+        private static extern void ShowRewardedAdLink(string adUnitId, string description, BeforeAdDelegate beforeAdCallback,
                                                             AfterAdDelegate afterAdCallback,
                                                             AdDismissedDelegate adDismissedDelegate,
                                                             AdViewedDelegate adViewedDelegate,
