@@ -1,10 +1,13 @@
+const progress = document.querySelector('#progress');
+
 window.addEventListener("load", () => {
-  window.initWortalLink(function () {
-    if (window.wortalLink) {
-      wortalLink = window.wortalLink;
-      Promise.all([showGame(), wortalLink.initializeAsync()])
+  window.initWortal(function () {
+    if (window.wortalGame) {
+      progress.style.display = "none";
+      wortalGame = window.wortalGame;
+      Promise.all([showGame(), wortalGame.initializeAsync()])
         .then(() => {
-          wortalLink.startGameAsync();
+          wortalGame.startGameAsync();
         })
     } else {
       showGame();
@@ -13,5 +16,5 @@ window.addEventListener("load", () => {
 });
 
 function showGame() {
-  document.getElementById("loading-cover").hidden = true;
+  document.getElementById("loading-cover").style.display = "none";
 }
