@@ -1,20 +1,15 @@
-const progress = document.querySelector('#progress');
-
 window.addEventListener("load", () => {
   window.initWortal(function () {
     if (window.wortalGame) {
-      progress.style.display = "none";
+      document.querySelector('#progress').style.display = "none"; // Use Link's loading progress bar.
       wortalGame = window.wortalGame;
-      Promise.all([showGame(), wortalGame.initializeAsync()])
-        .then(() => {
-          wortalGame.startGameAsync();
+      wortalGame.initializeAsync()]).then(() => {
+        document.getElementById("loading-cover").style.display = "none";
+        wortalGame.startGameAsync();
         })
     } else {
-      showGame();
+      document.getElementById("loading-cover").style.display = "none";
+      console.error("[Wortal] Failed to find wortalGame.");
     }
   });
 });
-
-function showGame() {
-  document.getElementById("loading-cover").style.display = "none";
-}
