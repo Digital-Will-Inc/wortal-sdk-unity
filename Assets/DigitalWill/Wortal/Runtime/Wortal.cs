@@ -111,6 +111,7 @@ namespace DigitalWill
             {
                 Platform.AdSense => new AdSense(),
                 Platform.Link => new Link(),
+                Platform.Viber => new Viber(),
                 Platform.Debug => new DebugAds(),
                 _ => new DebugAds(),
             };
