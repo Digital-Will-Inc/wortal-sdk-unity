@@ -5,7 +5,6 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <link rel="stylesheet" href="assets/css/reset.css">
   <link rel="stylesheet" href="assets/css/style.css">
 
   <title>{{{ PRODUCT_NAME }}}</title>
@@ -14,17 +13,11 @@
 </head>
 <body>
 <div class="loading-cover" id="loading-cover"></div>
-<div class="webgl-wrapper">
-  <div class="webgl-content">
-    <div id="progress" class="progress Dark">
-      <div class="empty">
-        <div id="progressBar" class="full"></div>
-      </div>
-    </div>
-    <div id="unityContainer">
-      <canvas id="unity-canvas" style="background: {{{ BACKGROUND_FILENAME ? 'url(\'Build/' + BACKGROUND_FILENAME.replace(/'/g, '%27') + '\') center / cover' : BACKGROUND_COLOR }}}"></canvas>
-    </div>
-  </div>
+<div id="progress" class="progress Dark">
+  <div id="progressBar" class="full"></div>
+</div>
+<div id="unity-container" class="unity-desktop">
+  <canvas id="unity-canvas" style="background: {{{ BACKGROUND_FILENAME ? 'url(\'Build/' + BACKGROUND_FILENAME.replace(/'/g, '%27') + '\') center / cover' : BACKGROUND_COLOR }}}"></canvas>
 </div>
 <script src="Build/{{{ LOADER_FILENAME }}}"></script>
 <script src="assets/js/wortal-loader.js"></script>
