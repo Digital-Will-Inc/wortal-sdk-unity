@@ -1,69 +1,33 @@
 Module['Wortal'] = Module['Wortal'] || {};
 
-Module['Wortal'].TriggerBeforeAdAdSense = function() {
-  dynCall_v(Module.Wortal.beforeAdPointerAdSense);
+// Global pointers
+
+Module['Wortal'].TriggerBeforeAd = function() {
+  dynCall_v(Module.Wortal.beforeAdPointer);
 }
 
-Module['Wortal'].TriggerAfterAdAdSense = function() {
-  dynCall_v(Module.Wortal.afterAdPointerAdSense);
+Module['Wortal'].TriggerAfterAd = function() {
+  dynCall_v(Module.Wortal.afterAdPointer);
 }
 
-Module['Wortal'].TriggerAdBreakDoneAdSense = function() {
-  dynCall_v(Module.Wortal.adBreakDonePointerAdSense);
+Module['Wortal'].TriggerAdDismissed = function() {
+  dynCall_v(Module.Wortal.adDismissedPointer);
 }
 
-Module['Wortal'].TriggerBeforeRewardAdSense = function() {
-  dynCall_v(Module.Wortal.beforeRewardPointerAdSense);
+Module['Wortal'].TriggerAdViewed = function() {
+  dynCall_v(Module.Wortal.adViewedPointer);
 }
 
-Module['Wortal'].TriggerAdDismissedAdSense = function() {
-  dynCall_v(Module.Wortal.adDismissedPointerAdSense);
+Module['Wortal'].TriggerNoShow = function() {
+  dynCall_v(Module.Wortal.noShowPointer);
 }
 
-Module['Wortal'].TriggerAdViewedAdSense = function() {
-  dynCall_v(Module.Wortal.adViewedPointerAdSense);
+// AdSense specific pointers
+
+Module['Wortal'].TriggerAdBreakDone = function() {
+  dynCall_v(Module.Wortal.adBreakDonePointer);
 }
 
-Module['Wortal'].TriggerNoShowAdSense = function() {
-  dynCall_v(Module.Wortal.noShowPointerAdSense);
-}
-
-Module['Wortal'].TriggerBeforeAdLink = function() {
-  dynCall_v(Module.Wortal.beforeAdPointerLink);
-}
-
-Module['Wortal'].TriggerAfterAdLink = function() {
-  dynCall_v(Module.Wortal.afterAdPointerLink);
-}
-
-Module['Wortal'].TriggerAdDismissedLink = function() {
-  dynCall_v(Module.Wortal.adDismissedPointerLink);
-}
-
-Module['Wortal'].TriggerAdViewedLink = function() {
-  dynCall_v(Module.Wortal.adViewedPointerLink);
-}
-
-Module['Wortal'].TriggerNoShowLink = function() {
-  dynCall_v(Module.Wortal.noBreakPointerLink);
-}
-
-Module['Wortal'].TriggerBeforeAdViber = function() {
-  dynCall_v(Module.Wortal.beforeAdPointerViber);
-}
-
-Module['Wortal'].TriggerAfterAdViber = function() {
-  dynCall_v(Module.Wortal.afterAdPointerViber);
-}
-
-Module['Wortal'].TriggerAdDismissedViber = function() {
-  dynCall_v(Module.Wortal.adDismissedPointerViber);
-}
-
-Module['Wortal'].TriggerAdViewedViber = function() {
-  dynCall_v(Module.Wortal.adViewedPointerViber);
-}
-
-Module['Wortal'].TriggerNoShowViber = function() {
-  dynCall_v(Module.Wortal.noBreakPointerViber);
+Module['Wortal'].TriggerBeforeReward = function() {
+  dynCall_v(Module.Wortal.beforeRewardPointer);
 }

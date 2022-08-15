@@ -3,16 +3,16 @@ var showRewardedAdFn;
 function showInterstitialAdAdSense(type, name) {
   window.triggerWortalAd(type, "", name, {
     beforeAd: () => {
-      gameInstance.Module.Wortal.TriggerBeforeAdAdSense();
+      gameInstance.Module.Wortal.TriggerBeforeAd();
     },
     afterAd: () => {
-      gameInstance.Module.Wortal.TriggerAfterAdAdSense();
+      gameInstance.Module.Wortal.TriggerAfterAd();
     },
     adBreakDone: (placementInfo) => {
-      gameInstance.Module.Wortal.TriggerAdBreakDoneAdSense();
+      gameInstance.Module.Wortal.TriggerAdBreakDone();
     },
     noShow: () => {
-      gameInstance.Module.Wortal.TriggerNoShowAdSense();
+      gameInstance.Module.Wortal.TriggerNoShow();
     },
   });
 }
@@ -20,26 +20,26 @@ function showInterstitialAdAdSense(type, name) {
 function showRewardedAdAdSense(name) {
   window.triggerWortalAd('reward', "", name, {
     beforeAd: () => {
-      gameInstance.Module.Wortal.TriggerBeforeAdAdSense();
+      gameInstance.Module.Wortal.TriggerBeforeAd();
     },
     afterAd: () => {
-      gameInstance.Module.Wortal.TriggerAfterAdAdSense();
+      gameInstance.Module.Wortal.TriggerAfterAd();
     },
     adBreakDone: (placementInfo) => {
-      gameInstance.Module.Wortal.TriggerAdBreakDoneAdSense();
+      gameInstance.Module.Wortal.TriggerAdBreakDone();
     },
     beforeReward: (showAdFn) => {
       showRewardedAdFn = showAdFn;
-      gameInstance.Module.Wortal.TriggerBeforeRewardAdSense();
+      gameInstance.Module.Wortal.TriggerBeforeReward();
     },
     adDismissed: () => {
-      gameInstance.Module.Wortal.TriggerAdDismissedAdSense();
+      gameInstance.Module.Wortal.TriggerAdDismissed();
     },
     adViewed: () => {
-      gameInstance.Module.Wortal.TriggerAdViewedAdSense();
+      gameInstance.Module.Wortal.TriggerAdViewed();
     },
     noShow: () => {
-      gameInstance.Module.Wortal.TriggerNoShowAdSense();
+      gameInstance.Module.Wortal.TriggerNoShow();
     },
   });
 }

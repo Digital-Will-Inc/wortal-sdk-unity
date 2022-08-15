@@ -12,13 +12,8 @@ namespace DigitalWill
     {
         private static bool _isAdEventTriggered;
 
-        private delegate void BeforeAdDelegate();
-        private delegate void AfterAdDelegate();
         private delegate void AdBreakDoneDelegate();
         private delegate void BeforeRewardDelegate();
-        private delegate void AdDismissedDelegate();
-        private delegate void AdViewedDelegate();
-        private delegate void NoShowDelegate();
 
         public void ShowInterstitialAd(Placement type, string description)
         {
@@ -69,28 +64,28 @@ namespace DigitalWill
 
         [DllImport("__Internal")]
         private static extern void ShowInterstitialAdAdSense(string type, string name,
-                                                             BeforeAdDelegate beforeAdCallback,
-                                                             AfterAdDelegate afterAdCallback,
+                                                             IAdProvider.BeforeAdDelegate beforeAdCallback,
+                                                             IAdProvider.AfterAdDelegate afterAdCallback,
                                                              AdBreakDoneDelegate adBreakDoneDelegate,
-                                                             NoShowDelegate noShowDelegate);
+                                                             IAdProvider.NoShowDelegate noShowDelegate);
 
         [DllImport("__Internal")]
-        private static extern void RequestRewardedAdAdSense(string name, BeforeAdDelegate beforeAdCallback,
-                                                            AfterAdDelegate afterAdCallback,
+        private static extern void RequestRewardedAdAdSense(string name, IAdProvider.BeforeAdDelegate beforeAdCallback,
+                                                            IAdProvider.AfterAdDelegate afterAdCallback,
                                                             AdBreakDoneDelegate adBreakDoneDelegate,
                                                             BeforeRewardDelegate beforeRewardDelegate,
-                                                            AdDismissedDelegate adDismissedDelegate,
-                                                            AdViewedDelegate adViewedDelegate,
-                                                            NoShowDelegate noShowDelegate);
+                                                            IAdProvider.AdDismissedDelegate adDismissedDelegate,
+                                                            IAdProvider.AdViewedDelegate adViewedDelegate,
+                                                            IAdProvider.NoShowDelegate noShowDelegate);
 
-        [MonoPInvokeCallback(typeof(BeforeAdDelegate))]
+        [MonoPInvokeCallback(typeof(IAdProvider.BeforeAdDelegate))]
         private static void BeforeAdCallback()
         {
             Debug.Log("[Wortal] BeforeAdCallback");
             Wortal.CallBeforeAd();
         }
 
-        [MonoPInvokeCallback(typeof(AfterAdDelegate))]
+        [MonoPInvokeCallback(typeof(IAdProvider.AfterAdDelegate))]
         private static void AfterAdCallback()
         {
             // We don't trigger an event here because it's redundant. If this is called, AdBreakDone will be called
@@ -120,21 +115,21 @@ namespace DigitalWill
             ShowRewardedAdAdSense();
         }
 
-        [MonoPInvokeCallback(typeof(AdDismissedDelegate))]
+        [MonoPInvokeCallback(typeof(IAdProvider.AdDismissedDelegate))]
         private static void AdDismissedCallback()
         {
             Debug.Log("[Wortal] AdDismissedCallback");
             Wortal.CallAdDismissed();
         }
 
-        [MonoPInvokeCallback(typeof(AdViewedDelegate))]
+        [MonoPInvokeCallback(typeof(IAdProvider.AdViewedDelegate))]
         private static void AdViewedCallback()
         {
             Debug.Log("[Wortal] AdViewedCallback");
             Wortal.CallAdViewed();
         }
 
-        [MonoPInvokeCallback(typeof(NoShowDelegate))]
+        [MonoPInvokeCallback(typeof(IAdProvider.NoShowDelegate))]
         private static void NoShowCallback()
         {
             // We check this because if AdSense decides not to show the player an ad, we'll receive an AdBreakDone

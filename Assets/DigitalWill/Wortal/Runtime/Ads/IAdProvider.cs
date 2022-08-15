@@ -5,6 +5,12 @@ namespace DigitalWill
     /// </summary>
     public interface IAdProvider
     {
+        public delegate void BeforeAdDelegate();
+        public delegate void AfterAdDelegate();
+        public delegate void AdDismissedDelegate();
+        public delegate void AdViewedDelegate();
+        public delegate void NoShowDelegate();
+
         /// <summary>
         /// Shows an interstitial ad.
         /// </summary>

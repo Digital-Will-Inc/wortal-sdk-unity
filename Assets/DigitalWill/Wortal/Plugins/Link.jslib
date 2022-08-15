@@ -16,19 +16,19 @@ mergeInto(LibraryManager.library, {
     });
   },
 
-  ShowInterstitialAdLink: function(type, adUnitId, description, beforeAdCallback, afterAdCallback, noBreakCallback) {
-    Module.Wortal.beforeAdPointerLink = beforeAdCallback;
-    Module.Wortal.afterAdPointerLink = afterAdCallback;
-    Module.Wortal.noBreakPointerLink = noBreakCallback;
+  ShowInterstitialAdLink: function(type, adUnitId, description, beforeAdCallback, afterAdCallback, noShowCallback) {
+    Module.Wortal.beforeAdPointer = beforeAdCallback;
+    Module.Wortal.afterAdPointer = afterAdCallback;
+    Module.Wortal.noShowPointer = noShowCallback;
     showInterstitialAdLink(UTF8ToString(type), UTF8ToString(adUnitId), UTF8ToString(description));
   },
 
-  ShowRewardedAdLink: function(adUnitId, description, beforeAdCallback, afterAdCallback, adDismissedCallback, adViewedCallback, noBreakCallback) {
-    Module.Wortal.beforeAdPointerLink = beforeAdCallback;
-    Module.Wortal.afterAdPointerLink = afterAdCallback;
-    Module.Wortal.adDismissedPointerLink = adDismissedCallback;
-    Module.Wortal.adViewedPointerLink = adViewedCallback;
-    Module.Wortal.noBreakPointerLink = noShowCallback;
+  ShowRewardedAdLink: function(adUnitId, description, beforeAdCallback, afterAdCallback, adDismissedCallback, adViewedCallback, noShowCallback) {
+    Module.Wortal.beforeAdPointer = beforeAdCallback;
+    Module.Wortal.afterAdPointer = afterAdCallback;
+    Module.Wortal.adDismissedPointer = adDismissedCallback;
+    Module.Wortal.adViewedPointer = adViewedCallback;
+    Module.Wortal.noShowPointer = noShowCallback;
     showRewardedAdLink('reward', UTF8ToString(adUnitId), UTF8ToString(description));
   },
 
