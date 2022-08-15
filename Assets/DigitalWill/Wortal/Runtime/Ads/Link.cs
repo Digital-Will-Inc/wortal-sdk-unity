@@ -9,12 +9,6 @@ namespace DigitalWill
     /// </summary>
     internal class Link : IAdProvider
     {
-        private delegate void BeforeAdDelegate();
-        private delegate void AfterAdDelegate();
-        private delegate void AdDismissedDelegate();
-        private delegate void AdViewedDelegate();
-        private delegate void NoShowDelegate();
-
         public void ShowInterstitialAd(Placement type, string description)
         {
             string adUnitId = Wortal.Settings.LinkInterstitialId;
@@ -74,46 +68,46 @@ namespace DigitalWill
 
         [DllImport("__Internal")]
         private static extern void ShowInterstitialAdLink(string type, string adUnitId, string description,
-                                                             BeforeAdDelegate beforeAdCallback,
-                                                             AfterAdDelegate afterAdCallback,
-                                                             NoShowDelegate noShowDelegate);
+                                                             IAdProvider.BeforeAdDelegate beforeAdCallback,
+                                                             IAdProvider.AfterAdDelegate afterAdCallback,
+                                                             IAdProvider.NoShowDelegate noShowDelegate);
 
         [DllImport("__Internal")]
-        private static extern void ShowRewardedAdLink(string adUnitId, string description, BeforeAdDelegate beforeAdCallback,
-                                                            AfterAdDelegate afterAdCallback,
-                                                            AdDismissedDelegate adDismissedDelegate,
-                                                            AdViewedDelegate adViewedDelegate,
-                                                            NoShowDelegate noShowDelegate);
+        private static extern void ShowRewardedAdLink(string adUnitId, string description, IAdProvider.BeforeAdDelegate beforeAdCallback,
+                                                            IAdProvider.AfterAdDelegate afterAdCallback,
+                                                            IAdProvider.AdDismissedDelegate adDismissedDelegate,
+                                                            IAdProvider.AdViewedDelegate adViewedDelegate,
+                                                            IAdProvider.NoShowDelegate noShowDelegate);
 
-        [MonoPInvokeCallback(typeof(BeforeAdDelegate))]
+        [MonoPInvokeCallback(typeof(IAdProvider.BeforeAdDelegate))]
         private static void BeforeAdCallback()
         {
             Debug.Log("[Wortal] BeforeAdCallback");
             Wortal.CallBeforeAd();
         }
 
-        [MonoPInvokeCallback(typeof(AfterAdDelegate))]
+        [MonoPInvokeCallback(typeof(IAdProvider.AfterAdDelegate))]
         private static void AfterAdCallback()
         {
             Debug.Log("[Wortal] AfterAdCallback");
             Wortal.CallAdDone();
         }
 
-        [MonoPInvokeCallback(typeof(AdDismissedDelegate))]
+        [MonoPInvokeCallback(typeof(IAdProvider.AdDismissedDelegate))]
         private static void AdDismissedCallback()
         {
             Debug.Log("[Wortal] AdDismissedCallback");
             Wortal.CallAdDismissed();
         }
 
-        [MonoPInvokeCallback(typeof(AdViewedDelegate))]
+        [MonoPInvokeCallback(typeof(IAdProvider.AdViewedDelegate))]
         private static void AdViewedCallback()
         {
             Debug.Log("[Wortal] AdViewedCallback");
             Wortal.CallAdViewed();
         }
 
-        [MonoPInvokeCallback(typeof(NoShowDelegate))]
+        [MonoPInvokeCallback(typeof(IAdProvider.NoShowDelegate))]
         private static void NoShowCallback()
         {
             Debug.Log("[Wortal] NoShowCallback");

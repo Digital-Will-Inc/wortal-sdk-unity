@@ -1,13 +1,13 @@
 function showInterstitialAdLink(type, adUnitId, description) {
   window.triggerWortalAd(type, adUnitId, description, {
     beforeAd: () => {
-      gameInstance.Module.Wortal.TriggerBeforeAdLink();
+      gameInstance.Module.Wortal.TriggerBeforeAd();
     },
     afterAd: () => {
-      gameInstance.Module.Wortal.TriggerAfterAdLink();
+      gameInstance.Module.Wortal.TriggerAfterAd();
     },
     noBreak: () => {
-      gameInstance.Module.Wortal.TriggerNoShowLink();
+      gameInstance.Module.Wortal.TriggerNoShow();
     },
   });
 }
@@ -15,19 +15,19 @@ function showInterstitialAdLink(type, adUnitId, description) {
 function showRewardedAdLink(adUnitId, description) {
   window.triggerWortalAd('reward', adUnitId, description, {
     beforeAd: () => {
-      gameInstance.Module.Wortal.TriggerBeforeAdLink();
+      gameInstance.Module.Wortal.TriggerBeforeAd();
     },
     afterAd: () => {
-      gameInstance.Module.Wortal.TriggerAfterAdLink();
+      gameInstance.Module.Wortal.TriggerAfterAd();
     },
     adDismissed: () => {
-      gameInstance.Module.Wortal.TriggerAdDismissedLink();
+      gameInstance.Module.Wortal.TriggerAdDismissed();
     },
     adViewed: () => {
-      gameInstance.Module.Wortal.TriggerAdViewedLink();
+      gameInstance.Module.Wortal.TriggerAdViewed();
     },
     noBreak: () => {
-      gameInstance.Module.Wortal.TriggerNoShowLink();
+      gameInstance.Module.Wortal.TriggerNoShow();
     },
   });
 }

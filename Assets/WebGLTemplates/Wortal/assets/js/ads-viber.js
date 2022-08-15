@@ -1,13 +1,13 @@
 function showInterstitialAdViber(type, adUnitId, description) {
   window.triggerWortalAd(type, adUnitId, description, {
     beforeAd: () => {
-      gameInstance.Module.Wortal.TriggerBeforeAdViber();
+      gameInstance.Module.Wortal.TriggerBeforeAd();
     },
     afterAd: () => {
-      gameInstance.Module.Wortal.TriggerAfterAdViber();
+      gameInstance.Module.Wortal.TriggerAfterAd();
     },
     noBreak: () => {
-      gameInstance.Module.Wortal.TriggerNoShowViber();
+      gameInstance.Module.Wortal.TriggerNoShow();
     },
   });
 }
@@ -15,19 +15,19 @@ function showInterstitialAdViber(type, adUnitId, description) {
 function showRewardedAdViber(adUnitId, description) {
   window.triggerWortalAd('reward', adUnitId, description, {
     beforeAd: () => {
-      gameInstance.Module.Wortal.TriggerBeforeAdViber();
+      gameInstance.Module.Wortal.TriggerBeforeAd();
     },
     afterAd: () => {
-      gameInstance.Module.Wortal.TriggerAfterAdViber();
+      gameInstance.Module.Wortal.TriggerAfterAd();
     },
     adDismissed: () => {
-      gameInstance.Module.Wortal.TriggerAdDismissedViber();
+      gameInstance.Module.Wortal.TriggerAdDismissed();
     },
     adViewed: () => {
-      gameInstance.Module.Wortal.TriggerAdViewedViber();
+      gameInstance.Module.Wortal.TriggerAdViewed();
     },
     noBreak: () => {
-      gameInstance.Module.Wortal.TriggerNoShowViber();
+      gameInstance.Module.Wortal.TriggerNoShow();
     },
   });
 }
