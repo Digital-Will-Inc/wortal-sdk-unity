@@ -47,3 +47,23 @@ Module['Wortal'].TriggerAdViewedLink = function() {
 Module['Wortal'].TriggerNoShowLink = function() {
   dynCall_v(Module.Wortal.noBreakPointerLink);
 }
+
+Module['Wortal'].TriggerBeforeAdViber = function() {
+  dynCall_v(Module.Wortal.beforeAdPointerViber);
+}
+
+Module['Wortal'].TriggerAfterAdViber = function() {
+  dynCall_v(Module.Wortal.afterAdPointerViber);
+}
+
+Module['Wortal'].TriggerAdDismissedViber = function() {
+  dynCall_v(Module.Wortal.adDismissedPointerViber);
+}
+
+Module['Wortal'].TriggerAdViewedViber = function() {
+  dynCall_v(Module.Wortal.adViewedPointerViber);
+}
+
+Module['Wortal'].TriggerNoShowViber = function() {
+  dynCall_v(Module.Wortal.noBreakPointerViber);
+}
