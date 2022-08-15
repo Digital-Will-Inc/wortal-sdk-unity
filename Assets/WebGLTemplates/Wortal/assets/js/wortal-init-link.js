@@ -3,7 +3,7 @@ window.addEventListener("load", () => {
     if (window.wortalGame) {
       document.querySelector('#progress').style.display = "none"; // Use Link's loading progress bar.
       wortalGame = window.wortalGame;
-      wortalGame.initializeAsync()]).then(() => {
+      wortalGame.initializeAsync().then(() => {
         document.getElementById("loading-cover").style.display = "none";
         wortalGame.startGameAsync();
         })
