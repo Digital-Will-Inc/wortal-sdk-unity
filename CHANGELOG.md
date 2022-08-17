@@ -4,6 +4,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.1.0] - 2022-08-17
+### Added
+- Viper Play support
+- Platform check on load
+- Fetch Link Ad Unit IDs on load
+- Support for Unity 2021.2+
+- Runtime script loading for different platforms
+- Brazilian Portuguese locale detection
+- Option to disable language check
+
+### Fixed
+- Missing ad unit IDs in Link ad calls
+- Typo in wortal-init-link
+
+### Changed
+- Consolidated pointers and delegates into globals instead of platform specific
+- Refactored stylesheet for flexibility
+- AdDone event is now AfterAd for consistency across the SDK
+- AdTimedOut event has been removed
+- Rewarded Ad events names shortened
+- Removed several less common languages/locales
+
 ## [4.0.0] - 2022-07-07
 ### Added
 - Rakuten Games Link support
