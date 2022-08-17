@@ -13,7 +13,7 @@ namespace DigitalWill
         {
             Debug.Log("[Wortal] Ads currently not supported on Viber.");
             Wortal.CallBeforeAd();
-            Wortal.CallAdDone();
+            Wortal.CallAfterAd();
 
             //TODO: finish implementation when Viber ads are supported
 /*
@@ -54,7 +54,7 @@ namespace DigitalWill
             Debug.Log("[Wortal] Ads currently not supported on Viber.");
             Wortal.CallBeforeAd();
             Wortal.CallAdDismissed();
-            Wortal.CallAdDone();
+            Wortal.CallAfterAd();
 
             //TODO: finish implementation when Viber ads are supported
 /*
@@ -95,7 +95,7 @@ namespace DigitalWill
         private static void AfterAdCallback()
         {
             Debug.Log("[Wortal] AfterAdCallback");
-            Wortal.CallAdDone();
+            Wortal.CallAfterAd();
         }
 
         [MonoPInvokeCallback(typeof(IAdProvider.AdDismissedDelegate))]
@@ -116,7 +116,7 @@ namespace DigitalWill
         private static void NoShowCallback()
         {
             Debug.Log("[Wortal] NoShowCallback");
-            Wortal.CallAdTimedOut();
+            Wortal.CallAfterAd();
         }
     }
 }

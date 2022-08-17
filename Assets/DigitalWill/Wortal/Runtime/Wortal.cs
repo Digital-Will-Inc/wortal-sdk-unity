@@ -24,19 +24,15 @@ namespace DigitalWill
         /// An ad request has finished. This does not guarantee an ad was shown, only that the request to the provider
         /// has finished and the player can resume the game now.
         /// </summary>
-        public static event Action AdDone;
-        /// <summary>
-        /// A timeout was reached before an ad was shown. This is possibly due to ad blockers or other browser extensions.
-        /// </summary>
-        public static event Action AdTimedOut;
+        public static event Action AfterAd;
         /// <summary>
         /// A rewarded ad was successfully viewed and the player should be given a reward.
         /// </summary>
-        public static event Action RewardedAdViewed;
+        public static event Action AdViewed;
         /// <summary>
         /// A rewarded ad was dismissed and the player should not receive a reward.
         /// </summary>
-        public static event Action RewardedAdDismissed;
+        public static event Action AdDismissed;
         /// <summary>
         /// Subscribe to be notified when the language has been parsed and set.
         /// </summary>
@@ -99,10 +95,9 @@ namespace DigitalWill
         }
 
         internal static void CallBeforeAd() => BeforeAd?.Invoke();
-        internal static void CallAdDone() => AdDone?.Invoke();
-        internal static void CallAdTimedOut() => AdTimedOut?.Invoke();
-        internal static void CallAdDismissed() => RewardedAdDismissed?.Invoke();
-        internal static void CallAdViewed() => RewardedAdViewed?.Invoke();
+        internal static void CallAfterAd() => AfterAd?.Invoke();
+        internal static void CallAdDismissed() => AdDismissed?.Invoke();
+        internal static void CallAdViewed() => AdViewed?.Invoke();
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void Init()
