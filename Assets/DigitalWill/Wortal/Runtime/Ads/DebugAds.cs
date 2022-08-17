@@ -9,7 +9,7 @@ namespace DigitalWill
         public void ShowInterstitialAd(Placement type, string name)
         {
             Wortal.CallBeforeAd();
-            Wortal.CallAdDone();
+            Wortal.CallAfterAd();
         }
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace DigitalWill
                     break;
             }
 
-            Wortal.CallAdDone();
+            Wortal.CallAfterAd();
         }
     }
 }

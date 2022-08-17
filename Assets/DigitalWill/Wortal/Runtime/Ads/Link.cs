@@ -90,7 +90,7 @@ namespace DigitalWill
         private static void AfterAdCallback()
         {
             Debug.Log("[Wortal] AfterAdCallback");
-            Wortal.CallAdDone();
+            Wortal.CallAfterAd();
         }
 
         [MonoPInvokeCallback(typeof(IAdProvider.AdDismissedDelegate))]
@@ -111,7 +111,7 @@ namespace DigitalWill
         private static void NoShowCallback()
         {
             Debug.Log("[Wortal] NoShowCallback");
-            Wortal.CallAdTimedOut();
+            Wortal.CallAfterAd();
         }
     }
 }
