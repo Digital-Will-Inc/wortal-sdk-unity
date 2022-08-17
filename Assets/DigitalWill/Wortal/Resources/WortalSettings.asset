@@ -12,8 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2a5d7311600ea74591b7c9b2346c8b2, type: 3}
   m_Name: WortalSettings
   m_EditorClassIdentifier: 
-  _platform: 0
-  _linkInterstitialId: 
-  _linkRewardedId: 
+  _enableLanguageCheck: 1
   _defaultLanguage: 0
   _supportedLanguages: 0000000001000000

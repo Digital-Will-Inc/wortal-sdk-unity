@@ -111,6 +111,11 @@ namespace DigitalWill
                 _ => new DebugAds(),
             };
 
+            if (!_settings.EnableLanguageCheck)
+            {
+                return;
+            }
+
             Language = LanguageUtil.GetLanguage(GetBrowserLanguage());
             LanguageSet?.Invoke(Language);
             IsLanguageSet = true;
