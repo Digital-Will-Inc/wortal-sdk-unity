@@ -25,6 +25,10 @@ namespace DigitalWill
                 {
                     language = HandleChineseLocales(code);
                 }
+                else if (languageCode == "pt")
+                {
+                    language = HandlePortugueseLocales(code);
+                }
                 else
                 {
                     if (!_languages.TryGetValue(languageCode, out language))
@@ -78,6 +82,28 @@ namespace DigitalWill
             return Language.ChineseSimplified;
         }
 
+        private static Language HandlePortugueseLocales(string code)
+        {
+            string locale = null;
+            if (code.Length >= 5)
+            {
+                locale = code.Substring(3, 2).ToLower();
+            }
+
+            if (locale == null || locale == "pt")
+            {
+                return Language.Portuguese;
+            }
+
+            if (locale == "br")
+            {
+                return Language.BrazilianPortuguese;
+            }
+
+            Debug.LogWarning($"[Wortal] Failed to find Portuguese locale: {locale}");
+            return Language.Portuguese;
+        }
+
         private static readonly Dictionary<string, Language> _languages = new Dictionary<string, Language>()
         {
             { "en", Language.English },
@@ -90,31 +116,13 @@ namespace DigitalWill
             { "ko", Language.Korean },
             { "zhcn", Language.ChineseSimplified },
             { "zhtw", Language.ChineseTraditional },
+            { "ptbr", Language.BrazilianPortuguese},
             { "ru", Language.Russian },
             { "pl", Language.Polish },
             { "tr", Language.Turkish },
             { "ar", Language.Arabic },
             { "th", Language.Thai },
             { "vi", Language.Vietnamese },
-            { "id", Language.Indonesian },
-            { "ms", Language.Malay },
-            { "tl", Language.Tagalog },
-            { "da", Language.Danish },
-            { "sv", Language.Swedish },
-            { "nl", Language.Dutch },
-            { "fi", Language.Finnish },
-            { "no", Language.Norwegian },
-            { "ua", Language.Ukrainian },
-            { "ro", Language.Romanian },
-            { "bg", Language.Bulgarian },
-            { "hu", Language.Hungarian },
-            { "hr", Language.Croatian },
-            { "cs", Language.Czech },
-            { "he", Language.Hebrew },
-            { "hi", Language.Hindi },
-            { "ur", Language.Urdu },
-            { "ne", Language.Nepali },
-            { "fa", Language.Farsi },
         };
     }
 }
