@@ -15,6 +15,7 @@ namespace DigitalWill
             if (string.IsNullOrEmpty(adUnitId))
             {
                 Debug.LogError("[Wortal] Link interstitial AdUnit ID missing or invalid. No ads will be shown.");
+                Wortal.CallAfterAd();
                 return;
             }
 
@@ -38,7 +39,7 @@ namespace DigitalWill
                     return;
             }
 
-            ShowInterstitialAdLink(
+            ShowInterstitialAd(
                 typeArg,
                 adUnitId,
                 description,
@@ -53,10 +54,11 @@ namespace DigitalWill
             if (string.IsNullOrEmpty(adUnitId))
             {
                 Debug.LogError("[Wortal] Link rewarded AdUnit ID missing or invalid. No ads will be shown.");
+                Wortal.CallAfterAd();
                 return;
             }
 
-            ShowRewardedAdLink(
+            RequestRewardedAd(
                 adUnitId,
                 description,
                 BeforeAdCallback,
@@ -67,17 +69,17 @@ namespace DigitalWill
         }
 
         [DllImport("__Internal")]
-        private static extern void ShowInterstitialAdLink(string type, string adUnitId, string description,
+        private static extern void ShowInterstitialAd(string type, string adUnitId, string description,
                                                              IAdProvider.BeforeAdDelegate beforeAdCallback,
                                                              IAdProvider.AfterAdDelegate afterAdCallback,
                                                              IAdProvider.NoShowDelegate noShowDelegate);
 
         [DllImport("__Internal")]
-        private static extern void ShowRewardedAdLink(string adUnitId, string description, IAdProvider.BeforeAdDelegate beforeAdCallback,
-                                                            IAdProvider.AfterAdDelegate afterAdCallback,
-                                                            IAdProvider.AdDismissedDelegate adDismissedDelegate,
-                                                            IAdProvider.AdViewedDelegate adViewedDelegate,
-                                                            IAdProvider.NoShowDelegate noShowDelegate);
+        private static extern void RequestRewardedAd(string adUnitId, string description, IAdProvider.BeforeAdDelegate beforeAdCallback,
+                                                     IAdProvider.AfterAdDelegate afterAdCallback,
+                                                     IAdProvider.AdDismissedDelegate adDismissedDelegate,
+                                                     IAdProvider.AdViewedDelegate adViewedDelegate,
+                                                     IAdProvider.NoShowDelegate noShowDelegate);
 
         [MonoPInvokeCallback(typeof(IAdProvider.BeforeAdDelegate))]
         private static void BeforeAdCallback()
