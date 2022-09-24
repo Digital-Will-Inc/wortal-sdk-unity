@@ -8,8 +8,8 @@ indent_style = space
 insert_final_newline = true
 trim_trailing_whitespace = true
 
-[*.{c,class,cpp,cs,go,h,json,kt,m,mm,php,py,rs,swift}]
+[*.{c,class,cpp,cs,go,h,js,json,kt,m,mm,php,py,rs,swift,ts}]
 indent_size = 4
 
-[*.{css,htm,html,js,jslib,lua,rb,sass,scss,sh,sql,ts,xaml,xml,yml,yaml}]
+[*.{css,htm,html,lua,rb,sass,scss,sh,sql,xaml,xml,yml,yaml}]
 indent_size = 2
