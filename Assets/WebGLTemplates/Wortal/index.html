@@ -9,7 +9,7 @@
 
   <title>{{{ PRODUCT_NAME }}}</title>
   <script src="https://html5gameportal.com/embeds/wortal-1.2.0.js"></script>
-  <script src="assets/js/wortal-init.js"></script>
+  <script src="assets/js/init.js"></script>
 </head>
 <body>
 <div class="loading-cover" id="loading-cover"></div>
@@ -20,6 +20,7 @@
   <canvas id="unity-canvas" style="background: {{{ BACKGROUND_FILENAME ? 'url(\'Build/' + BACKGROUND_FILENAME.replace(/'/g, '%27') + '\') center / cover' : BACKGROUND_COLOR }}}"></canvas>
 </div>
 <script src="Build/{{{ LOADER_FILENAME }}}"></script>
-<script src="assets/js/wortal-loader.js"></script>
+<script src="assets/js/instance.js"></script>
+<script src="assets/js/ads.js"></script>
 </body>
 </html>
