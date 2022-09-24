@@ -28,11 +28,11 @@ namespace DigitalWill
         /// <summary>
         /// A rewarded ad was successfully viewed and the player should be given a reward.
         /// </summary>
-        public static event Action AdViewed;
+        public static event Action RewardPlayer;
         /// <summary>
         /// A rewarded ad was dismissed and the player should not receive a reward.
         /// </summary>
-        public static event Action AdDismissed;
+        public static event Action RewardSkipped;
         /// <summary>
         /// Subscribe to be notified when the language has been parsed and set.
         /// </summary>
@@ -92,10 +92,10 @@ namespace DigitalWill
             OpenLink(url);
         }
 
-        internal static void CallBeforeAd() => BeforeAd?.Invoke();
-        internal static void CallAfterAd() => AfterAd?.Invoke();
-        internal static void CallAdDismissed() => AdDismissed?.Invoke();
-        internal static void CallAdViewed() => AdViewed?.Invoke();
+        internal static void InvokeBeforeAd() => BeforeAd?.Invoke();
+        internal static void InvokeAfterAd() => AfterAd?.Invoke();
+        internal static void InvokeRewardSkipped() => RewardSkipped?.Invoke();
+        internal static void InvokeRewardPlayer() => RewardPlayer?.Invoke();
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void Init()
