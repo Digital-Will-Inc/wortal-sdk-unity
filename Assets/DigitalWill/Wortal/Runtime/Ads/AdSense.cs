@@ -37,46 +37,49 @@ namespace DigitalWill
                     return;
             }
 
-            ShowInterstitialAdAdSense(
+            ShowInterstitialAd(
                 typeArg,
+                "",
                 description,
                 BeforeAdCallback,
                 AfterAdCallback,
-                AdBreakDoneCallback,
-                NoShowCallback);
+                NoShowCallback,
+                AdBreakDoneCallback);
         }
 
         public void ShowRewardedAd(string description)
         {
-            RequestRewardedAdAdSense(
+            RequestRewardedAd(
                 description,
+                "",
                 BeforeAdCallback,
                 AfterAdCallback,
-                AdBreakDoneCallback,
-                BeforeRewardCallback,
                 AdDismissedCallback,
                 AdViewedCallback,
-                NoShowCallback);
+                NoShowCallback,
+                BeforeRewardCallback,
+                AdBreakDoneCallback);
         }
 
         [DllImport("__Internal")]
-        private static extern void ShowRewardedAdAdSense();
+        private static extern void ShowRewardedAd();
 
         [DllImport("__Internal")]
-        private static extern void ShowInterstitialAdAdSense(string type, string name,
-                                                             IAdProvider.BeforeAdDelegate beforeAdCallback,
-                                                             IAdProvider.AfterAdDelegate afterAdCallback,
-                                                             AdBreakDoneDelegate adBreakDoneDelegate,
-                                                             IAdProvider.NoShowDelegate noShowDelegate);
+        private static extern void ShowInterstitialAd(string type, string adUnitId, string description,
+                                                      IAdProvider.BeforeAdDelegate beforeAdCallback,
+                                                      IAdProvider.AfterAdDelegate afterAdCallback,
+                                                      IAdProvider.NoShowDelegate noShowDelegate,
+                                                      AdBreakDoneDelegate adBreakDoneDelegate);
 
         [DllImport("__Internal")]
-        private static extern void RequestRewardedAdAdSense(string name, IAdProvider.BeforeAdDelegate beforeAdCallback,
-                                                            IAdProvider.AfterAdDelegate afterAdCallback,
-                                                            AdBreakDoneDelegate adBreakDoneDelegate,
-                                                            BeforeRewardDelegate beforeRewardDelegate,
-                                                            IAdProvider.AdDismissedDelegate adDismissedDelegate,
-                                                            IAdProvider.AdViewedDelegate adViewedDelegate,
-                                                            IAdProvider.NoShowDelegate noShowDelegate);
+        private static extern void RequestRewardedAd(string adUnitId, string description,
+                                                     IAdProvider.BeforeAdDelegate beforeAdCallback,
+                                                     IAdProvider.AfterAdDelegate afterAdCallback,
+                                                     IAdProvider.AdDismissedDelegate adDismissedDelegate,
+                                                     IAdProvider.AdViewedDelegate adViewedDelegate,
+                                                     IAdProvider.NoShowDelegate noShowDelegate,
+                                                     BeforeRewardDelegate beforeRewardDelegate,
+                                                     AdBreakDoneDelegate adBreakDoneDelegate);
 
         [MonoPInvokeCallback(typeof(IAdProvider.BeforeAdDelegate))]
         private static void BeforeAdCallback()
@@ -112,7 +115,7 @@ namespace DigitalWill
             // We could delay here and give the dev or player the opportunity to start the ad, but we'll keep
             // it simple for now and just show the ad.
             Debug.Log("[Wortal] BeforeRewardCallback");
-            ShowRewardedAdAdSense();
+            ShowRewardedAd();
         }
 
         [MonoPInvokeCallback(typeof(IAdProvider.AdDismissedDelegate))]

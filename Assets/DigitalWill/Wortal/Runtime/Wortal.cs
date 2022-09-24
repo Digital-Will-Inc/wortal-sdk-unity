@@ -55,9 +55,7 @@ namespace DigitalWill
             get
             {
                 if (_settings == null)
-                {
                     InitSettings();
-                }
 
                 return _settings;
             }
@@ -102,6 +100,7 @@ namespace DigitalWill
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void Init()
         {
+            Debug.Log(LOG_PREFIX + "Initializing Wortal SDK for Unity..");
             _ads = ParsePlatform(GetPlatform()) switch
             {
                 Platform.AdSense => new AdSense(),
@@ -111,10 +110,8 @@ namespace DigitalWill
                 _ => new DebugAds(),
             };
 
-            if (!_settings.EnableLanguageCheck)
-            {
+            if (!Settings.EnableLanguageCheck)
                 return;
-            }
 
             Language = LanguageUtil.GetLanguage(GetBrowserLanguage());
             LanguageSet?.Invoke(Language);
@@ -167,12 +164,11 @@ namespace DigitalWill
         private static void LinkAdUnitCallback(string interstitialId, string rewardedId)
         {
             if (string.IsNullOrEmpty(interstitialId) || string.IsNullOrEmpty(rewardedId))
-            {
                 Debug.LogWarning(LOG_PREFIX + "Link AdUnit IDs invalid or missing. Ad calls will not be made.");
-            }
 
-            _settings.LinkInterstitialId = interstitialId;
-            _settings.LinkRewardedId = rewardedId;
+            Settings.LinkInterstitialId = interstitialId;
+            Settings.LinkRewardedId = rewardedId;
+            Debug.Log(LOG_PREFIX + "Link AdUnitIds fetched.");
         }
     }
 

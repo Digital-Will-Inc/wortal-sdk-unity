@@ -39,7 +39,7 @@ namespace DigitalWill
                     return;
             }
 
-            ShowInterstitialAdViber(
+            ShowInterstitialAd(
                 typeArg,
                 adUnitId,
                 description,
@@ -60,7 +60,7 @@ namespace DigitalWill
 /*
             string adUnitId = "id";
 
-            ShowRewardedAdViber(
+            RequestRewardedAd(
                 adUnitId,
                 description,
                 BeforeAdCallback,
@@ -72,17 +72,17 @@ namespace DigitalWill
         }
 
         [DllImport("__Internal")]
-        private static extern void ShowInterstitialAdViber(string type, string adUnitId, string description,
+        private static extern void ShowInterstitialAd(string type, string adUnitId, string description,
                                                              IAdProvider.BeforeAdDelegate beforeAdCallback,
                                                              IAdProvider.AfterAdDelegate afterAdCallback,
                                                              IAdProvider.NoShowDelegate noShowDelegate);
 
         [DllImport("__Internal")]
-        private static extern void ShowRewardedAdViber(string adUnitId, string description, IAdProvider.BeforeAdDelegate beforeAdCallback,
-                                                            IAdProvider.AfterAdDelegate afterAdCallback,
-                                                            IAdProvider.AdDismissedDelegate adDismissedDelegate,
-                                                            IAdProvider.AdViewedDelegate adViewedDelegate,
-                                                            IAdProvider.NoShowDelegate noShowDelegate);
+        private static extern void RequestRewardedAd(string adUnitId, string description, IAdProvider.BeforeAdDelegate beforeAdCallback,
+                                                     IAdProvider.AfterAdDelegate afterAdCallback,
+                                                     IAdProvider.AdDismissedDelegate adDismissedDelegate,
+                                                     IAdProvider.AdViewedDelegate adViewedDelegate,
+                                                     IAdProvider.NoShowDelegate noShowDelegate);
 
         [MonoPInvokeCallback(typeof(IAdProvider.BeforeAdDelegate))]
         private static void BeforeAdCallback()
