@@ -11,7 +11,7 @@ namespace DigitalWill
     {
         public void ShowInterstitialAd(Placement type, string description)
         {
-            string adUnitId = Wortal.Settings.LinkInterstitialId;
+            string adUnitId = Wortal.LinkInterstitialId;
             if (string.IsNullOrEmpty(adUnitId))
             {
                 Debug.LogError("[Wortal] Link interstitial AdUnit ID missing or invalid. No ads will be shown.");
@@ -50,7 +50,7 @@ namespace DigitalWill
 
         public void ShowRewardedAd(string description)
         {
-            string adUnitId = Wortal.Settings.LinkRewardedId;
+            string adUnitId = Wortal.LinkRewardedId;
             if (string.IsNullOrEmpty(adUnitId))
             {
                 Debug.LogError("[Wortal] Link rewarded AdUnit ID missing or invalid. No ads will be shown.");
