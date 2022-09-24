@@ -85,7 +85,7 @@ namespace DigitalWill
         private static void BeforeAdCallback()
         {
             Debug.Log("[Wortal] BeforeAdCallback");
-            Wortal.CallBeforeAd();
+            Wortal.InvokeBeforeAd();
         }
 
         [MonoPInvokeCallback(typeof(IAdProvider.AfterAdDelegate))]
@@ -100,7 +100,7 @@ namespace DigitalWill
         private static void AdBreakDoneCallback()
         {
             Debug.Log("[Wortal] AdBreakDoneCallback");
-            Wortal.CallAfterAd();
+            Wortal.InvokeAfterAd();
 
             // If AdSense doesn't serve an ad, we'll still receive this callback, but the Wortal SDK will have
             // triggered a 500ms timeout before it triggers the NoShow callback. We set this flag to avoid firing
@@ -122,14 +122,14 @@ namespace DigitalWill
         private static void AdDismissedCallback()
         {
             Debug.Log("[Wortal] AdDismissedCallback");
-            Wortal.CallAdDismissed();
+            Wortal.InvokeRewardSkipped();
         }
 
         [MonoPInvokeCallback(typeof(IAdProvider.AdViewedDelegate))]
         private static void AdViewedCallback()
         {
             Debug.Log("[Wortal] AdViewedCallback");
-            Wortal.CallAdViewed();
+            Wortal.InvokeRewardPlayer();
         }
 
         [MonoPInvokeCallback(typeof(IAdProvider.NoShowDelegate))]
@@ -145,7 +145,7 @@ namespace DigitalWill
             }
 
             Debug.Log("[Wortal] NoShowCallback");
-            Wortal.CallAfterAd();
+            Wortal.InvokeAfterAd();
         }
     }
 }

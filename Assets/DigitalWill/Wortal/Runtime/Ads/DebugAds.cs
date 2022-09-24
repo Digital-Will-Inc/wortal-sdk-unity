@@ -8,8 +8,8 @@ namespace DigitalWill
     {
         public void ShowInterstitialAd(Placement type, string name)
         {
-            Wortal.CallBeforeAd();
-            Wortal.CallAfterAd();
+            Wortal.InvokeBeforeAd();
+            Wortal.InvokeAfterAd();
         }
 
         /// <summary>
@@ -18,22 +18,22 @@ namespace DigitalWill
         /// <param name="name">"true" to trigger the AdViewed event or "false" to trigger the AdDismissed event.</param>
         public void ShowRewardedAd(string name)
         {
-            Wortal.CallBeforeAd();
+            Wortal.InvokeBeforeAd();
 
             switch (name)
             {
                 case "true":
-                    Wortal.CallAdViewed();
+                    Wortal.InvokeRewardPlayer();
                     break;
                 case "false":
-                    Wortal.CallAdDismissed();
+                    Wortal.InvokeRewardSkipped();
                     break;
                 default:
-                    Wortal.CallAdViewed();
+                    Wortal.InvokeRewardPlayer();
                     break;
             }
 
-            Wortal.CallAfterAd();
+            Wortal.InvokeAfterAd();
         }
     }
 }

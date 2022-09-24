@@ -15,7 +15,7 @@ namespace DigitalWill
             if (string.IsNullOrEmpty(adUnitId))
             {
                 Debug.LogError("[Wortal] Link interstitial AdUnit ID missing or invalid. No ads will be shown.");
-                Wortal.CallAfterAd();
+                Wortal.InvokeAfterAd();
                 return;
             }
 
@@ -54,7 +54,7 @@ namespace DigitalWill
             if (string.IsNullOrEmpty(adUnitId))
             {
                 Debug.LogError("[Wortal] Link rewarded AdUnit ID missing or invalid. No ads will be shown.");
-                Wortal.CallAfterAd();
+                Wortal.InvokeAfterAd();
                 return;
             }
 
@@ -85,35 +85,35 @@ namespace DigitalWill
         private static void BeforeAdCallback()
         {
             Debug.Log("[Wortal] BeforeAdCallback");
-            Wortal.CallBeforeAd();
+            Wortal.InvokeBeforeAd();
         }
 
         [MonoPInvokeCallback(typeof(IAdProvider.AfterAdDelegate))]
         private static void AfterAdCallback()
         {
             Debug.Log("[Wortal] AfterAdCallback");
-            Wortal.CallAfterAd();
+            Wortal.InvokeAfterAd();
         }
 
         [MonoPInvokeCallback(typeof(IAdProvider.AdDismissedDelegate))]
         private static void AdDismissedCallback()
         {
             Debug.Log("[Wortal] AdDismissedCallback");
-            Wortal.CallAdDismissed();
+            Wortal.InvokeRewardSkipped();
         }
 
         [MonoPInvokeCallback(typeof(IAdProvider.AdViewedDelegate))]
         private static void AdViewedCallback()
         {
             Debug.Log("[Wortal] AdViewedCallback");
-            Wortal.CallAdViewed();
+            Wortal.InvokeRewardPlayer();
         }
 
         [MonoPInvokeCallback(typeof(IAdProvider.NoShowDelegate))]
         private static void NoShowCallback()
         {
             Debug.Log("[Wortal] NoShowCallback");
-            Wortal.CallAfterAd();
+            Wortal.InvokeAfterAd();
         }
     }
 }
