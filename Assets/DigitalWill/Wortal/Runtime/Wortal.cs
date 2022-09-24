@@ -13,7 +13,6 @@ namespace DigitalWill
         private const string LOG_PREFIX = "[Wortal] ";
 
         private static IAdProvider _ads;
-        private static WortalSettings _settings;
 
         /// <summary>
         /// An ad was requested and successfully returned. This is fired before the ad is shown so it can be used
@@ -33,63 +32,28 @@ namespace DigitalWill
         /// A rewarded ad was dismissed and the player should not receive a reward.
         /// </summary>
         public static event Action RewardSkipped;
-        /// <summary>
-        /// Subscribe to be notified when the language has been parsed and set.
-        /// </summary>
-        public static event Action<Language> LanguageSet;
+
+        public static string LinkInterstitialId { get; private set; }
+        public static string LinkRewardedId { get; private set; }
 
         /// <summary>
-        /// Has the Language been set yet or not.
-        /// </summary>
-        public static bool IsLanguageSet { get; private set; }
-        /// <summary>
-        /// Language to be used for localization.
-        /// </summary>
-        public static Language Language { get; private set; }
-
-        /// <summary>
-        /// Settings asset for the wortal.
-        /// </summary>
-        public static WortalSettings Settings
-        {
-            get
-            {
-                if (_settings == null)
-                    InitSettings();
-
-                return _settings;
-            }
-        }
-
-        /// <summary>
-        /// Shows an interstitial ad.
+        /// Shows an interstitial ad. Game should be paused on the BeforeAd event and resumed on the AfterAd event.
         /// </summary>
         /// <param name="type">Type of ad placement.</param>
-        /// <param name="name">Name of the ad placement.</param>
-        public static void ShowInterstitialAd(Placement type, string name)
+        /// <param name="description">Description of the ad placement. Ex: "NextLevel"</param>
+        public static void ShowInterstitialAd(Placement type, string description)
         {
-            _ads.ShowInterstitialAd(type, name);
+            _ads.ShowInterstitialAd(type, description);
         }
 
         /// <summary>
-        /// Shows a rewarded ad.
+        /// Shows a rewarded ad. Game should be paused on the BeforeAd event and resumed on the AfterAd event.
+        /// Player should be rewarded on the RewardPlayer event and not on the RewardSkipped event.
         /// </summary>
-        /// <param name="name">Name of the ad to be shown.</param>
-        public static void ShowRewardedAd(string name)
+        /// <param name="description">Description of the ad placement. Ex: "ReviveAndContinue"</param>
+        public static void ShowRewardedAd(string description)
         {
-            _ads.ShowRewardedAd(name);
-        }
-
-        /// <summary>
-        /// Opens a link to a website with the URL provided. Will open in a new browser tab.
-        /// </summary>
-        /// <param name="url">URL to open.</param>
-        internal static void OpenWebLink(string url)
-        {
-            // We make this internal so it hopefully isn't abused by anyone. It is used to link to an app store
-            // page for a game to offer players the mobile version. We don't want games to be opening random
-            // webpages via our plugin for obvious security reasons.
-            OpenLink(url);
+            _ads.ShowRewardedAd(description);
         }
 
         internal static void InvokeBeforeAd() => BeforeAd?.Invoke();
@@ -109,26 +73,6 @@ namespace DigitalWill
                 Platform.Debug => new DebugAds(),
                 _ => new DebugAds(),
             };
-
-            if (!Settings.EnableLanguageCheck)
-                return;
-
-            Language = LanguageUtil.GetLanguage(GetBrowserLanguage());
-            LanguageSet?.Invoke(Language);
-            IsLanguageSet = true;
-            Debug.Log(LOG_PREFIX + $"Preferred language: {Language.ToString()}.");
-        }
-
-        private static void InitSettings()
-        {
-            try
-            {
-                _settings = Resources.Load<WortalSettings>("WortalSettings");
-            }
-            catch (Exception e)
-            {
-                Debug.LogError(LOG_PREFIX + $"Failed to initialize. WortalSettings are missing. \n{e}");
-            }
         }
 
         private static Platform ParsePlatform(string platform)
@@ -152,13 +96,7 @@ namespace DigitalWill
         private static extern string GetPlatform();
 
         [DllImport("__Internal")]
-        private static extern string GetBrowserLanguage();
-
-        [DllImport("__Internal")]
         private static extern void GetLinkAdUnitIds(Action<string, string> callback);
-
-        [DllImport("__Internal")]
-        private static extern void OpenLink(string url);
 
         [MonoPInvokeCallback(typeof(Action<string, string>))]
         private static void LinkAdUnitCallback(string interstitialId, string rewardedId)
@@ -166,8 +104,8 @@ namespace DigitalWill
             if (string.IsNullOrEmpty(interstitialId) || string.IsNullOrEmpty(rewardedId))
                 Debug.LogWarning(LOG_PREFIX + "Link AdUnit IDs invalid or missing. Ad calls will not be made.");
 
-            Settings.LinkInterstitialId = interstitialId;
-            Settings.LinkRewardedId = rewardedId;
+            LinkInterstitialId = interstitialId;
+            LinkRewardedId = rewardedId;
             Debug.Log(LOG_PREFIX + "Link AdUnitIds fetched.");
         }
     }

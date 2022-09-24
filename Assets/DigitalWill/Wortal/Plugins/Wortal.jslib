@@ -8,14 +8,6 @@ mergeInto(LibraryManager.library, {
     return buffer;
   },
 
-  GetBrowserLanguage: function () {
-    var languageStr = navigator.language;
-    var bufferSize = lengthBytesUTF8(languageStr) + 1;
-    var buffer = _malloc(bufferSize);
-    stringToUTF8(languageStr, buffer, bufferSize);
-    return buffer;
-  },
-
   GetLinkAdUnitIds: function(callback) {
     window.wortalGame.getAdUnitsAsync().then((adUnits) => {
       let iStr = adUnits[0].id;
@@ -30,11 +22,6 @@ mergeInto(LibraryManager.library, {
 
       Module.dynCall_vii(callback, iPtr, rPtr);
     });
-  },
-
-  OpenLink: function(url) {
-    url = Pointer_stringify(url);
-    window.open(url, '_blank');
   },
 
   ShowInterstitialAd: function (type, adUnitId, description, beforeAdCallback, afterAdCallback, noShowCallback,
