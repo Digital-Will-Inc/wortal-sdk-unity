@@ -1,56 +1,60 @@
-var showRewardedAdFn;
 
-function showInterstitialAd(type, adUnitId, description) {
-    window.triggerWortalAd(type, adUnitId, description, {
+function showInterstitialAd(placement, description) {
+    window.triggerWortalAd(placement, gameData.linkInterstitialId, description, {
         beforeAd: () => {
+            console.log("[Wortal] BeforeAd");
             gameInstance.Module.Wortal.TriggerBeforeAd();
         },
         afterAd: () => {
+            console.log("[Wortal] AfterAd");
+            gameInstance.Module.Wortal.TriggerAfterAd();
+        },
+        noShow: () => {
+            console.log("[Wortal] NoShow");
+            gameInstance.Module.Wortal.TriggerAfterAd();
+        },
+        noBreak: () => {
+            console.log("[Wortal] NoBreak");
             gameInstance.Module.Wortal.TriggerAfterAd();
         },
         adBreakDone: (placementInfo) => {
-            gameInstance.Module.Wortal.TriggerAdBreakDone();
-        },
-        noShow: () => {
-            gameInstance.Module.Wortal.TriggerNoShow();
-        },
-        noBreak: () => {
-            gameInstance.Module.Wortal.TriggerNoShow();
+            console.log("[Wortal] AdBreakDone");
         },
     });
 }
 
-function showRewardedAd(adUnitId, description) {
-    window.triggerWortalAd('reward', adUnitId, description, {
+function showRewardedAd(description) {
+    window.triggerWortalAd('reward', gameData.linkRewardedId, description, {
         beforeAd: () => {
+            console.log("[Wortal] BeforeAd");
             gameInstance.Module.Wortal.TriggerBeforeAd();
         },
         afterAd: () => {
+            console.log("[Wortal] AfterAd");
             gameInstance.Module.Wortal.TriggerAfterAd();
         },
-        adBreakDone: (placementInfo) => {
-            gameInstance.Module.Wortal.TriggerAdBreakDone();
-        },
-        beforeReward: (showAdFn) => {
-            showRewardedAdFn = showAdFn;
-            gameInstance.Module.Wortal.TriggerBeforeReward();
-        },
         adDismissed: () => {
+            console.log("[Wortal] AdDismissed");
             gameInstance.Module.Wortal.TriggerAdDismissed();
         },
         adViewed: () => {
+            console.log("[Wortal] AdViewed");
             gameInstance.Module.Wortal.TriggerAdViewed();
         },
         noShow: () => {
-            gameInstance.Module.Wortal.TriggerNoShow();
+            console.log("[Wortal] NoShow");
+            gameInstance.Module.Wortal.TriggerAfterAd();
         },
         noBreak: () => {
-            gameInstance.Module.Wortal.TriggerNoShow();
+            console.log("[Wortal] NoBreak");
+            gameInstance.Module.Wortal.TriggerAfterAd();
+        },
+        beforeReward: (showAdFn) => {
+            showAdFn(); // This is necessary to trigger the rewarded ad to play on AdSense after its returned.
+            console.log("[Wortal] BeforeReward");
+        },
+        adBreakDone: (placementInfo) => {
+            console.log("[Wortal] AdBreakDone");
         },
     });
-}
-
-function triggerShowRewardedAdFn() {
-    console.log("[Wortal] ShowRewardedAd");
-    showRewardedAdFn();
 }

@@ -27,24 +27,21 @@ if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
     config.devicePixelRatio = 1;
 };
 
-let platform = window.getWortalPlatform();
 createUnityInstance(canvas, config, (progress) => {
-    if (platform === 'link' || platform === 'viber') {
+    if (gameData.platform === 'link' || gameData.platform === 'viber') {
         if (window.wortalGame) {
             window.wortalGame.setLoadingProgress(100 * progress);
-        } else {
-            console.log('[Wortal] Waiting for wortalGame to load..');
         }
     } else {
         progressBar.style.width = `${100 * progress}%`;
     }
 }).then((unityInstance) => {
-    if (platform === 'link' || platform === 'viber') {
+    if (gameData.platform === 'link' || gameData.platform === 'viber') {
         window.wortalGame.setLoadingProgress(100);
     } else {
         progress.style.display = 'none';
     }
     gameInstance = unityInstance;
-    console.log('[Wortal] Module Args loaded.');
+    console.log('[Wortal] Module loaded.');
     console.log(gameInstance.Module.Wortal);
 });

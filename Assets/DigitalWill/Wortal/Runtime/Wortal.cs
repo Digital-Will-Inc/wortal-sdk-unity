@@ -1,6 +1,4 @@
 using System;
-using System.Runtime.InteropServices;
-using AOT;
 using UnityEngine;
 
 namespace DigitalWill
@@ -10,9 +8,8 @@ namespace DigitalWill
     /// </summary>
     public static class Wortal
     {
-        private const string LOG_PREFIX = "[Wortal] ";
-
-        private static IAdProvider _ads;
+        private static WortalAds _ads;
+        private static WortalAnalytics _analytics;
 
         /// <summary>
         /// An ad was requested and successfully returned. This is fired before the ad is shown so it can be used
@@ -32,9 +29,6 @@ namespace DigitalWill
         /// A rewarded ad was dismissed and the player should not receive a reward.
         /// </summary>
         public static event Action RewardSkipped;
-
-        public static string LinkInterstitialId { get; private set; }
-        public static string LinkRewardedId { get; private set; }
 
         /// <summary>
         /// Shows an interstitial ad. Game should be paused on the BeforeAd event and resumed on the AfterAd event.
@@ -56,6 +50,55 @@ namespace DigitalWill
             _ads.ShowRewardedAd(description);
         }
 
+        /// <summary>
+        /// Logs the start of a level. Also starts ticking the level timer.
+        /// </summary>
+        /// <param name="level">Level being played.</param>
+        public static void LogLevelStart(string level)
+        {
+            _analytics.LevelStartEvent(level);
+        }
+
+        /// <summary>
+        /// Logs the end of a level. If the level name is the same as the previous call to LogLevelStart then
+        /// this will add the time spent in the level to the analytics data.
+        /// </summary>
+        /// <param name="level">Level that was played.</param>
+        /// <param name="score">Score the player achieved.</param>
+        public static void LogLevelEnd(string level, string score)
+        {
+            _analytics.LevelEndEvent(level, score);
+        }
+
+        /// <summary>
+        /// Logs the player leveling up.
+        /// </summary>
+        /// <param name="level">Level the player achieved.</param>
+        public static void LogLevelUp(string level)
+        {
+            _analytics.LevelUpEvent(level);
+        }
+
+        /// <summary>
+        /// Logs the player's score.
+        /// </summary>
+        /// <param name="score">Score the player achieved.</param>
+        public static void LogScore(string score)
+        {
+            _analytics.ScoreEvent(score);
+        }
+
+        /// <summary>
+        /// Logs a game choice the player has made. This can be a powerful tool for understanding how players
+        /// are interacting with the game and help with balancing the game.
+        /// </summary>
+        /// <param name="decision">Decision the player was faced with.</param>
+        /// <param name="choice">Choice the player made.</param>
+        public static void LogGameChoice(string decision, string choice)
+        {
+            _analytics.GameChoiceEvent(decision, choice);
+        }
+
         internal static void InvokeBeforeAd() => BeforeAd?.Invoke();
         internal static void InvokeAfterAd() => AfterAd?.Invoke();
         internal static void InvokeRewardSkipped() => RewardSkipped?.Invoke();
@@ -64,57 +107,9 @@ namespace DigitalWill
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void Init()
         {
-            Debug.Log(LOG_PREFIX + "Initializing Wortal SDK for Unity..");
-            _ads = ParsePlatform(GetPlatform()) switch
-            {
-                Platform.AdSense => new AdSense(),
-                Platform.Link => new Link(),
-                Platform.Viber => new Viber(),
-                Platform.Debug => new DebugAds(),
-                _ => new DebugAds(),
-            };
+            _ads = new WortalAds();
+            _analytics = new WortalAnalytics();
+            Debug.Log("Wortal SDK for Unity initialized.");
         }
-
-        private static Platform ParsePlatform(string platform)
-        {
-            switch (platform)
-            {
-                case "wortal":
-                    return Platform.AdSense;
-                case "link":
-                    GetLinkAdUnitIds(LinkAdUnitCallback);
-                    return Platform.Link;
-                case "viber":
-                    return Platform.Viber;
-                default:
-                    Debug.LogWarning(LOG_PREFIX + "Could not determine platform. Switching to debug mode.");
-                    return Platform.Debug;
-            }
-        }
-
-        [DllImport("__Internal")]
-        private static extern string GetPlatform();
-
-        [DllImport("__Internal")]
-        private static extern void GetLinkAdUnitIds(Action<string, string> callback);
-
-        [MonoPInvokeCallback(typeof(Action<string, string>))]
-        private static void LinkAdUnitCallback(string interstitialId, string rewardedId)
-        {
-            if (string.IsNullOrEmpty(interstitialId) || string.IsNullOrEmpty(rewardedId))
-                Debug.LogWarning(LOG_PREFIX + "Link AdUnit IDs invalid or missing. Ad calls will not be made.");
-
-            LinkInterstitialId = interstitialId;
-            LinkRewardedId = rewardedId;
-            Debug.Log(LOG_PREFIX + "Link AdUnitIds fetched.");
-        }
-    }
-
-    public enum Platform
-    {
-        Debug,
-        AdSense,
-        Link,
-        Viber,
     }
 }
