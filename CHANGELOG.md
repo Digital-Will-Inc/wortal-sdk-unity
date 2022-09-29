@@ -4,9 +4,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.2.0] - 2022-09-29
+### Added
+- Analytics API
+
+### Fixed
+- No callbacks if Link AdUnitID missing
+- Type being passed into showRewardedAd
+- Possible type error when setting load progress bar
+
+### Changed
+- Moved logic and data to JS
+- Consolidated JS scripts
+- Renamed reward events for clarity
+- Removed platform specific ad implementations
+- Removed unused delegates and callbacks
+- Removed Localization helpers
+- Removed OpenLink API for security reasons
+- Removed WortalSettings
+
 ## [4.1.0] - 2022-08-17
 ### Added
-- Viper Play support
+- Viber Play support
 - Platform check on load
 - Fetch Link Ad Unit IDs on load
 - Support for Unity 2021.2+

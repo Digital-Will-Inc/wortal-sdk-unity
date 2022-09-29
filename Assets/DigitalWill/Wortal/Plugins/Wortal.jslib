@@ -1,52 +1,36 @@
 mergeInto(LibraryManager.library, {
 
-  GetPlatform: function () {
-    var platformStr = window.getWortalPlatform();
-    var bufferSize = lengthBytesUTF8(platformStr) + 1;
-    var buffer = _malloc(bufferSize);
-    stringToUTF8(platformStr, buffer, bufferSize);
-    return buffer;
-  },
+    ShowInterstitialAd: function (placement, description, beforeAdCallback, afterAdCallback) {
+        Module.Wortal.beforeAdPointer = beforeAdCallback;
+        Module.Wortal.afterAdPointer = afterAdCallback;
+        showInterstitialAd(UTF8ToString(placement), UTF8ToString(description));
+    },
 
-  GetLinkAdUnitIds: function(callback) {
-    window.wortalGame.getAdUnitsAsync().then((adUnits) => {
-      let iStr = adUnits[0].id;
-      let iLen = lengthBytesUTF8(iStr) + 1;
-      let iPtr = _malloc(iLen);
-      stringToUTF8(iStr, iPtr, iLen);
-
-      let rStr = adUnits[1].id;
-      let rLen = lengthBytesUTF8(rStr) + 1;
-      let rPtr = _malloc(rLen);
-      stringToUTF8(rStr, rPtr, rLen);
-
-      Module.dynCall_vii(callback, iPtr, rPtr);
-    });
-  },
-
-  ShowInterstitialAd: function (type, adUnitId, description, beforeAdCallback, afterAdCallback, noShowCallback,
-                                adBreakDoneCallback) {
-    Module.Wortal.beforeAdPointer = beforeAdCallback;
-    Module.Wortal.afterAdPointer = afterAdCallback;
-    Module.Wortal.noShowPointer = noShowCallback;
-    Module.Wortal.adBreakDonePointer = adBreakDoneCallback;
-    showInterstitialAd(UTF8ToString(type), UTF8ToString(adUnitId), UTF8ToString(description));
-  },
-
-    RequestRewardedAd: function (adUnitId, description, beforeAdCallback, afterAdCallback, adDismissedCallback, adViewedCallback, noShowCallback,
-                                 beforeRewardCallback, adBreakDoneCallback) {
+    ShowRewardedAd: function (description, beforeAdCallback, afterAdCallback, adDismissedCallback, adViewedCallback) {
         Module.Wortal.beforeAdPointer = beforeAdCallback;
         Module.Wortal.afterAdPointer = afterAdCallback;
         Module.Wortal.adDismissedPointer = adDismissedCallback;
         Module.Wortal.adViewedPointer = adViewedCallback;
-        Module.Wortal.noShowPointer = noShowCallback;
-        Module.Wortal.beforeRewardPointer = beforeRewardCallback;
-        Module.Wortal.adBreakDonePointer = adBreakDoneCallback;
-        showRewardedAd(UTF8ToString(adUnitId), UTF8ToString(description));
+        showRewardedAd(UTF8ToString(description));
     },
 
-  ShowRewardedAd: function () {
-    triggerShowRewardedAdFn();
-  },
+    LogLevelStart: function (level) {
+        logLevelStart(UTF8ToString(level));
+    },
 
+    LogLevelEnd: function (level, score) {
+        logLevelEnd(UTF8ToString(level), UTF8ToString(score));
+    },
+
+    LogLevelUp: function (level) {
+        logLevelUp(UTF8ToString(level));
+    },
+
+    LogScore: function (score) {
+        logScore(UTF8ToString(score));
+    },
+
+    LogGameChoice: function (decision, choice) {
+        logGameChoice(UTF8ToString(decision), UTF8ToString(choice));
+    }
 });
