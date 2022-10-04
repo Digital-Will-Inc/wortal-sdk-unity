@@ -32,6 +32,10 @@ window.addEventListener("load", () => {
             });
         }
         console.log("[Wortal] Initialized");
+    }, function () {
+        console.log("[Wortal] Ad blocker detected.");
+        _removeLoadingCover();
+        gameData.isAdBlocked = true;
     });
 
     window.addEventListener("visibilitychange", function () {

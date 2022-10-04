@@ -1,5 +1,11 @@
 
 function showInterstitialAd(placement, description) {
+    if (gameData.isAdBlocked) {
+        console.log("[Wortal] Ads blocked");
+        gameInstance.Module.Wortal.TriggerAfterAd();
+        return;
+    }
+
     window.triggerWortalAd(placement, gameData.linkInterstitialId, description, {
         beforeAd: () => {
             console.log("[Wortal] BeforeAd");
@@ -24,6 +30,13 @@ function showInterstitialAd(placement, description) {
 }
 
 function showRewardedAd(description) {
+    if (gameData.isAdBlocked) {
+        console.log("[Wortal] Ads blocked");
+        gameInstance.Module.Wortal.TriggerAdDismissed();
+        gameInstance.Module.Wortal.TriggerAfterAd();
+        return;
+    }
+
     window.triggerWortalAd('reward', gameData.linkRewardedId, description, {
         beforeAd: () => {
             console.log("[Wortal] BeforeAd");
