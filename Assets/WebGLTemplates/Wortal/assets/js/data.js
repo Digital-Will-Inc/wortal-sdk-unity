@@ -3,7 +3,7 @@
     platform: window.getWortalPlatform(),
     browser: navigator.userAgent,
     country: "",
-    isAdBlocked = false,
+    isAdBlocked: false,
     linkInterstitialId: "",
     linkRewardedId: "",
     gameTimer: 0,
