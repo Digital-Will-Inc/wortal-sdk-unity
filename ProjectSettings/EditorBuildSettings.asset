@@ -4,5 +4,8 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/DigitalWill/Wortal/Example/WortalExampleScene.unity
+    guid: b97cc36cd5a750448ac646fb6dc2a276
   m_configObjects: {}
