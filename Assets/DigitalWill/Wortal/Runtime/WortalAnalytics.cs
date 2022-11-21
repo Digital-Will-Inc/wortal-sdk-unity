@@ -1,50 +1,124 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace DigitalWill
+namespace DigitalWill.WortalSDK
 {
     /// <summary>
-    /// Analytics handler for the Wortal.
+    /// Analytics API
     /// </summary>
-    internal class WortalAnalytics
+    public class WortalAnalytics
     {
-        public void LevelStartEvent(string level)
+        /// <summary>
+        /// Logs the start of a level.
+        /// </summary>
+        /// <param name="level">Name of the level.</param>
+        /// <example>
+        /// <code>Wortal.Analytics.LogLevelStart("Level 3");</code>
+        /// </example>
+        public void LogLevelStart(string level)
         {
-            LogLevelStart(level);
+            LogLevelStartJS(level);
         }
 
-        public void LevelEndEvent(string level, string score)
+        /// <summary>
+        /// Logs the end of a level.
+        /// To ensure the level timer is recorded the level name must match the name passed into the
+        /// previous logLevelStart call. If it does not match then the timer will be logged at 0.
+        /// </summary>
+        /// <param name="level">Name of the level.</param>
+        /// <param name="score">Score the player achieved.</param>
+        /// <param name="wasCompleted">Was the level completed or not.</param>
+        /// <example>
+        /// <code>Wortal.Analytics.LogLevelEnd("Level 3", "100", true);</code>
+        /// </example>
+        public void LogLevelEnd(string level, string score, bool wasCompleted)
         {
-            LogLevelEnd(level, score);
+            LogLevelEndJS(level, score, wasCompleted);
         }
 
-        public void LevelUpEvent(string level)
+        /// <summary>
+        /// Logs the player achieving a new level.
+        /// </summary>
+        /// <param name="level">Level the player achieved.</param>
+        /// <example>
+        /// <code>Wortal.Analytics.LogLevelUp("Level 7");</code>
+        /// </example>
+        public void LogLevelUp(string level)
         {
-            LogLevelUp(level);
+            LogLevelUpJS(level);
         }
 
-        public void ScoreEvent(string score)
+        /// <summary>
+        /// Logs the player's score.
+        /// </summary>
+        /// <param name="score">Score the player achieved.</param>
+        /// <example>
+        /// <code>Wortal.Analytics.LogScore("100");</code>
+        /// </example>
+        public void LogScore(string score)
         {
-            LogScore(score);
+            LogScoreJS(score);
         }
 
-        public void GameChoiceEvent(string decision, string choice)
+        /// <summary>
+        /// Logs the start of a tutorial.
+        /// </summary>
+        /// <param name="tutorial">Name of the tutorial.</param>
+        /// <example>
+        /// <code>Wortal.Analytics.LogTutorialStart("First Play");</code>
+        /// </example>
+        public void LogTutorialStart(string tutorial)
         {
-            LogGameChoice(decision, choice);
+            LogTutorialStartJS(tutorial);
+        }
+
+        /// <summary>
+        /// Logs the end of a tutorial.
+        /// To ensure the level timer is recorded the tutorial name must match the name passed into the
+        /// previous logTutorialStart call. If it does not match then the timer will be logged at 0.
+        /// </summary>
+        /// <param name="tutorial">Name of the tutorial.</param>
+        /// <param name="wasCompleted">Was the tutorial completed.</param>
+        /// <example>
+        /// <code>Wortal.Analytics.LogTutorialEnd("First Play", true);</code>
+        /// </example>
+        public void LogTutorialEnd(string tutorial, bool wasCompleted)
+        {
+            LogTutorialEndJS(tutorial, wasCompleted);
+        }
+
+        /// <summary>
+        /// Logs a choice the player made in the game. This can be a powerful tool for balancing the game and understanding
+        /// what content the players are interacting with the most.
+        /// </summary>
+        /// <param name="decision">Decision the player was faced with.</param>
+        /// <param name="choice">Choice the player made.</param>
+        /// <example>
+        /// <code>Wortal.Analytics.LogGameChoice("Character", "Blue");</code>
+        /// </example>
+        public void LogGameChoice(string decision, string choice)
+        {
+            LogGameChoiceJS(decision, choice);
         }
 
         [DllImport("__Internal")]
-        private static extern void LogLevelStart(string level);
+        private static extern void LogLevelStartJS(string level);
 
         [DllImport("__Internal")]
-        private static extern void LogLevelEnd(string level, string score);
+        private static extern void LogLevelEndJS(string level, string score, bool wasCompleted);
 
         [DllImport("__Internal")]
-        private static extern void LogLevelUp(string level);
+        private static extern void LogLevelUpJS(string level);
 
         [DllImport("__Internal")]
-        private static extern void LogScore(string score);
+        private static extern void LogScoreJS(string score);
 
         [DllImport("__Internal")]
-        private static extern void LogGameChoice(string decision, string choice);
+        private static extern void LogTutorialStartJS(string tutorial);
+
+        [DllImport("__Internal")]
+        private static extern void LogTutorialEndJS(string tutorial, bool wasCompleted);
+
+        [DllImport("__Internal")]
+        private static extern void LogGameChoiceJS(string decision, string choice);
     }
 }

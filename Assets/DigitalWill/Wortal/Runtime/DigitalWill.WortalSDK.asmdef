@@ -1,6 +1,6 @@
 {
-    "name": "DigitalWill.Wortal",
-    "rootNamespace": "DigitalWill",
+    "name": "DigitalWill.WortalSDK",
+    "rootNamespace": "DigitalWill.WortalSDK",
     "references": [],
     "includePlatforms": [
         "Editor",
