@@ -9,48 +9,30 @@ namespace DigitalWill.WortalSDK
     /// </summary>
     public class WortalAds
     {
-        private delegate void BeforeAdDelegate();
-        private delegate void AfterAdDelegate();
-        private delegate void AdDismissedDelegate();
-        private delegate void AdViewedDelegate();
+        private static Action _beforeAdCallback;
+        private static Action _afterAdCallback;
+        private static Action _adDismissedCallback;
+        private static Action _adViewedCallback;
 
-        /// <summary>
-        /// An ad was requested and successfully returned. This is fired before the ad is shown so it can be used
-        /// for pausing the game, muting audio, etc.
-        /// </summary>
-        public event Action BeforeAd;
-        /// <summary>
-        /// An ad request has finished. This does not guarantee an ad was shown, only that the request to the provider
-        /// has finished and the player can resume the game now.
-        /// </summary>
-        public event Action AfterAd;
-        /// <summary>
-        /// A rewarded ad was successfully viewed and the player should be given a reward.
-        /// </summary>
-        public event Action RewardPlayer;
-        /// <summary>
-        /// A rewarded ad was dismissed and the player should not receive a reward.
-        /// </summary>
-        public event Action RewardSkipped;
-
+#region Public API
         /// <summary>
         /// Shows an interstitial ad. These can be shown at various points in the game such as a level end, restart or a timed
         /// interval in games with longer levels.
         /// </summary>
         /// <param name="placement">Placement type for the ad.</param>
         /// <param name="description">Description of the placement.</param>
-        /// <example>
-        /// // Player reached the next level.
-        /// <code>Wortal.Ads.ShowInterstitial(Placement.Next, "NextLevel");</code>
-        ///
-        /// // Player paused the game.
-        /// <code>Wortal.Ads.ShowInterstitial(Placement.Pause, "PausedGame");</code>
-        ///
-        /// // Player opened the IAP shop.
-        /// <code>Wortal.Ads.ShowInterstitial(Placement.Browse, "BrowseShop");</code>
-        /// </example>
-        public void ShowInterstitial(Placement placement, string description)
+        /// <param name="beforeAdCallback">Callback for before the ad is shown. Pause the game here.</param>
+        /// <param name="afterAdCallback">Callback for after the ad is shown. Resume the game here.</param>
+        /// <example><code>
+        /// Wortal.Ads.ShowInterstitial(Placement.Next, "NextLevel",
+        ///     () => PauseGame(),
+        ///     () => ResumeGame());
+        /// </code></example>
+        public void ShowInterstitial(Placement placement, string description,
+                                     Action beforeAdCallback, Action afterAdCallback)
         {
+            _beforeAdCallback = beforeAdCallback;
+            _afterAdCallback = afterAdCallback;
             ShowInterstitialJS(
                 placement.ToString().ToLower(),
                 description,
@@ -63,11 +45,24 @@ namespace DigitalWill.WortalSDK
         /// must be notified of the ad and give permission to show before it can be shown.
         /// </summary>
         /// <param name="description">Description of the placement.</param>
-        /// <example>
-        /// <code>Wortal.Ads.ShowRewarded("ReviveAndContinue");</code>
-        /// </example>
-        public void ShowRewarded(string description)
+        /// <param name="beforeAdCallback">Callback for before the ad is shown. Pause the game here.</param>
+        /// <param name="afterAdCallback">Callback for after the ad is shown. Resume the game here.</param>
+        /// <param name="adDismissedCallback">Callback for when the player dismissed the ad. Do not reward the player.</param>
+        /// <param name="adViewedCallback">Callback for when the player has successfully watched the ad. Reward the player here.</param>
+        /// <example><code>
+        /// Wortal.Ads.ShowRewarded("ReviveAndContinue",
+        ///     () => PauseGame(),
+        ///     () => ResumeGame(),
+        ///     () => DontReward(),
+        ///     () => RewardPlayer());
+        ///</code></example>
+        public void ShowRewarded(string description, Action beforeAdCallback, Action afterAdCallback,
+                                 Action adDismissedCallback, Action adViewedCallback)
         {
+            _beforeAdCallback = beforeAdCallback;
+            _afterAdCallback = afterAdCallback;
+            _adDismissedCallback = adDismissedCallback;
+            _adViewedCallback = adViewedCallback;
             ShowRewardedJS(
                 description,
                 BeforeAdCallback,
@@ -75,42 +70,45 @@ namespace DigitalWill.WortalSDK
                 AdDismissedCallback,
                 AdViewedCallback);
         }
+#endregion Public API
 
+#region JSlib Interface
         [DllImport("__Internal")]
         private static extern void ShowInterstitialJS(string type, string description,
-                                                      BeforeAdDelegate beforeAdCallback,
-                                                      AfterAdDelegate afterAdCallback);
+                                                      Action beforeAdCallback,
+                                                      Action afterAdCallback);
 
         [DllImport("__Internal")]
         private static extern void ShowRewardedJS(string description,
-                                                     BeforeAdDelegate beforeAdCallback,
-                                                     AfterAdDelegate afterAdCallback,
-                                                     AdDismissedDelegate adDismissedDelegate,
-                                                     AdViewedDelegate adViewedDelegate);
+                                                  Action beforeAdCallback,
+                                                  Action afterAdCallback,
+                                                  Action adDismissedCallback,
+                                                  Action adViewedCallback);
 
-        [MonoPInvokeCallback(typeof(BeforeAdDelegate))]
+        [MonoPInvokeCallback(typeof(Action))]
         private static void BeforeAdCallback()
         {
-            Wortal.Ads.BeforeAd?.Invoke();
+            _beforeAdCallback?.Invoke();
         }
 
-        [MonoPInvokeCallback(typeof(AfterAdDelegate))]
+        [MonoPInvokeCallback(typeof(Action))]
         private static void AfterAdCallback()
         {
-            Wortal.Ads.AfterAd?.Invoke();
+            _afterAdCallback?.Invoke();
         }
 
-        [MonoPInvokeCallback(typeof(AdDismissedDelegate))]
+        [MonoPInvokeCallback(typeof(Action))]
         private static void AdDismissedCallback()
         {
-            Wortal.Ads.RewardSkipped?.Invoke();
+            _adDismissedCallback?.Invoke();
         }
 
-        [MonoPInvokeCallback(typeof(AdViewedDelegate))]
+        [MonoPInvokeCallback(typeof(Action))]
         private static void AdViewedCallback()
         {
-            Wortal.Ads.RewardPlayer?.Invoke();
+            _adViewedCallback?.Invoke();
         }
+#endregion JSlib Interface
     }
 
     /// <summary>
