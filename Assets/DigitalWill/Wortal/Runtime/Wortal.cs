@@ -1,3 +1,6 @@
+using System;
+using AOT;
+using Newtonsoft.Json;
 using UnityEngine;
 
 namespace DigitalWill.WortalSDK
@@ -7,6 +10,8 @@ namespace DigitalWill.WortalSDK
     /// </summary>
     public static class Wortal
     {
+        public static Action<WortalError> WortalError;
+
         /// <summary>
         /// Ads API
         /// </summary>
@@ -49,5 +54,23 @@ namespace DigitalWill.WortalSDK
             Session = new WortalSession();
             Debug.Log("[Wortal] Unity SDK initialization complete.");
         }
+
+        [MonoPInvokeCallback(typeof(Action<string>))]
+        public static void WortalErrorCallback(string error)
+        {
+            var wortalError = JsonConvert.DeserializeObject<WortalError>(error);
+            WortalError?.Invoke(wortalError);
+        }
+    }
+
+    [Serializable]
+    public struct WortalError
+    {
+        [JsonProperty("code")]
+        public string Code;
+        [JsonProperty("message")]
+        public string Message;
+        [JsonProperty("context")]
+        public string Context;
     }
 }
