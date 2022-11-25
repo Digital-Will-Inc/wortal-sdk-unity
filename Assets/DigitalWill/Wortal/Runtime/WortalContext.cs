@@ -11,11 +11,11 @@ namespace DigitalWill.WortalSDK
     /// </summary>
     public class WortalContext
     {
-        private static Action _contextChooseCallback;
-        private static Action<int> _contextShareCallback;
-        private static Action _contextUpdateCallback;
-        private static Action _contextCreateCallback;
-        private static Action _contextSwitchCallback;
+        private static Action _chooseCallback;
+        private static Action<int> _shareCallback;
+        private static Action _updateCallback;
+        private static Action _createCallback;
+        private static Action _switchCallback;
 
 #region Public API
         /// <summary>
@@ -28,38 +28,23 @@ namespace DigitalWill.WortalSDK
         /// </example>
         public string GetID()
         {
-            return GetContextIdJS();
+            return ContextGetIdJS();
         }
 
-        ///  <summary>
-        ///  Opens the platform UI to select friends to invite and play with.
-        ///  </summary>
-        ///  <param name="payload">Object defining the options for the context choice.</param>
-        ///  <param name="callback">Void callback event triggered when the async JS function resolves.</param>
-        ///  <param name="errorCallback">Error callback event with <see cref="WortalError"/> describing the error.</param>
-        ///  <example>
-        ///  <code>var payload = new WortalContext.ContextPayload
-        /// {
-        ///     Image = "dataURLToBase64Image",
-        ///     Text = new WortalContext.LocalizableContent
-        ///     {
-        ///         Default = "Play",
-        ///         Localizations = new Dictionary&lt;string, string&gt;
-        ///         {
-        ///             {"en_US", "Play"},
-        ///             {"ja_JP", "プレイ"},
-        ///         },
-        ///     },
-        ///     Data = new Dictionary&lt;string, object&gt;
-        ///     {
-        ///         {"current_level", 1},
-        ///     },
-        /// };
-        /// Wortal.Context.ChooseAsync(payload, callback, errorCallback);</code>
+        /// <summary>
+        /// Opens the platform UI to select friends to invite and play with.
+        /// </summary>
+        /// <param name="payload">Object defining the options for the context choice.</param>
+        /// <param name="callback">Void callback event triggered when the async JS function resolves.</param>
+        /// <param name="errorCallback">Error callback event with <see cref="WortalError"/> describing the error.</param>
+        /// <example>
+        /// <code>Wortal.Context.ChooseAsync(payload,
+        /// () => Debug.Log("New context: " + Wortal.Context.GetID()),
+        /// error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));</code>
         /// </example>
         public void Choose(ContextPayload payload, Action callback, Action<WortalError> errorCallback)
         {
-            _contextChooseCallback = callback;
+            _chooseCallback = callback;
             Wortal.WortalError = errorCallback;
             string payloadObj = JsonConvert.SerializeObject(payload);
             ContextChooseJS(payloadObj, ContextChooseCallback, Wortal.WortalErrorCallback);
@@ -72,19 +57,13 @@ namespace DigitalWill.WortalSDK
         /// <param name="callback">Callback event that contains int with number of friends this was shared with. Fired after JS async function resolves.</param>
         /// <param name="errorCallback">Error callback event with <see cref="WortalError"/> describing the error.</param>
         /// <example>
-        /// <code>var payload = new WortalContext.ContextPayload
-        /// {
-        ///     Image = "dataURLToBase64Image",
-        ///     Text = new WortalContext.LocalizableContent
-        ///     {
-        ///         Default = "Let's Play!",
-        ///     },
-        /// };
-        /// Wortal.Context.ShareAsync(payload, callback, errorCallback);</code>
+        /// <code>Wortal.Context.ShareAsync(payload,
+        /// shareResult => Debug.Log("Number of shares: " + shareResult),
+        /// error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));</code>
         /// </example>
         public void Share(ContextPayload payload, Action<int> callback, Action<WortalError> errorCallback)
         {
-            _contextShareCallback = callback;
+            _shareCallback = callback;
             Wortal.WortalError = errorCallback;
             string payloadObj = JsonConvert.SerializeObject(payload);
             ContextShareJS(payloadObj, ContextShareCallback, Wortal.WortalErrorCallback);
@@ -97,19 +76,13 @@ namespace DigitalWill.WortalSDK
         /// <param name="callback">Void callback event triggered when the async JS function resolves.</param>
         /// <param name="errorCallback">Error callback event with <see cref="WortalError"/> describing the error.</param>
         /// <example>
-        /// <code>var payload = new WortalContext.ContextPayload
-        /// {
-        ///     Image = "dataURLToBase64Image",
-        ///     Text = new WortalContext.LocalizableContent
-        ///     {
-        ///         Default = "We Played!",
-        ///     },
-        /// };
-        /// Wortal.Context.UpdateAsync(payload, callback, errorCallback);</code>
+        /// <code>Wortal.Context.UpdateAsync(payload,
+        /// () => Debug.Log("Update sent"),
+        /// error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));</code>
         /// </example>
         public void Update(ContextPayload payload, Action callback, Action<WortalError> errorCallback)
         {
-            _contextUpdateCallback = callback;
+            _updateCallback = callback;
             Wortal.WortalError = errorCallback;
             string payloadObj = JsonConvert.SerializeObject(payload);
             ContextUpdateJS(payloadObj, ContextUpdateCallback, Wortal.WortalErrorCallback);
@@ -122,11 +95,13 @@ namespace DigitalWill.WortalSDK
         /// <param name="callback">Void callback event triggered when the async JS function resolves.</param>
         /// <param name="errorCallback">Error callback event with <see cref="WortalError"/> describing the error.</param>
         /// <example>
-        /// <code>Wortal.Context.Create("somePlayerId", callback, errorCallback);</code>
+        /// <code>Wortal.Context.Create("somePlayerId",
+        /// () => Debug.Log("New context: " + Wortal.Context.GetID(),
+        /// error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));</code>
         /// </example>
         public void Create(string playerId, Action callback, Action<WortalError> errorCallback)
         {
-            _contextCreateCallback = callback;
+            _createCallback = callback;
             Wortal.WortalError = errorCallback;
             ContextCreateJS(playerId, ContextCreateCallback, Wortal.WortalErrorCallback);
         }
@@ -138,11 +113,13 @@ namespace DigitalWill.WortalSDK
         /// <param name="callback">Void callback event triggered when the async JS function resolves.</param>
         /// <param name="errorCallback">Error callback event with <see cref="WortalError"/> describing the error.</param>
         /// <example>
-        /// <code>Wortal.Context.Switch("someContextId", callback, errorCallback);</code>
+        /// <code>Wortal.Context.Switch("someContextId",
+        /// () => Debug.Log("New context: " + Wortal.Context.GetID(),
+        /// error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));</code>
         /// </example>
         public void Switch(string contextId, Action callback, Action<WortalError> errorCallback)
         {
-            _contextSwitchCallback = callback;
+            _switchCallback = callback;
             Wortal.WortalError = errorCallback;
             ContextSwitchJS(contextId, ContextSwitchCallback, Wortal.WortalErrorCallback);
         }
@@ -150,7 +127,7 @@ namespace DigitalWill.WortalSDK
 
 #region WASM Interface
         [DllImport("__Internal")]
-        private static extern string GetContextIdJS();
+        private static extern string ContextGetIdJS();
 
         [DllImport("__Internal")]
         private static extern void ContextChooseJS(string payload, Action callback, Action<string> errorCallback);
@@ -170,35 +147,57 @@ namespace DigitalWill.WortalSDK
         [MonoPInvokeCallback(typeof(Action))]
         private static void ContextChooseCallback()
         {
-            _contextChooseCallback?.Invoke();
+            _chooseCallback?.Invoke();
         }
 
         [MonoPInvokeCallback(typeof(Action<int>))]
         private static void ContextShareCallback(int shareResult)
         {
-            _contextShareCallback?.Invoke(shareResult);
+            _shareCallback?.Invoke(shareResult);
         }
 
         [MonoPInvokeCallback(typeof(Action))]
         private static void ContextUpdateCallback()
         {
-            _contextUpdateCallback?.Invoke();
+            _updateCallback?.Invoke();
         }
 
         [MonoPInvokeCallback(typeof(Action))]
         private static void ContextCreateCallback()
         {
-            _contextCreateCallback?.Invoke();
+            _createCallback?.Invoke();
         }
 
         [MonoPInvokeCallback(typeof(Action))]
         private static void ContextSwitchCallback()
         {
-            _contextSwitchCallback?.Invoke();
+            _switchCallback?.Invoke();
         }
 #endregion WASM Interface
 
 #region Payload Objects
+        /// <summary>
+        /// Payload used for methods in the Context API.
+        /// <example>
+        /// <code>var payload = new WortalContext.ContextPayload
+        /// {
+        ///     Image = "dataURLToBase64Image",
+        ///     Text = new WortalContext.LocalizableContent
+        ///     {
+        ///         Default = "Play",
+        ///         Localizations = new Dictionary&lt;string, string&gt;
+        ///         {
+        ///             {"en_US", "Play"},
+        ///             {"ja_JP", "プレイ"},
+        ///         },
+        ///     },
+        ///     Data = new Dictionary&lt;string, object&gt;
+        ///     {
+        ///         {"current_level", 1},
+        ///     },
+        /// };</code>
+        /// </example>
+        /// </summary>
         [Serializable]
         public struct ContextPayload
         {
@@ -315,6 +314,9 @@ namespace DigitalWill.WortalSDK
             public string Template;
         }
 
+        /// <summary>
+        /// Used to pass localized key-value pairs for content being used in the context API.
+        /// </summary>
         [Serializable]
         public struct LocalizableContent
         {

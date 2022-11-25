@@ -1,6 +1,6 @@
 ﻿mergeInto(LibraryManager.library, {
 
-    GetContextIdJS: function () {
+    ContextGetIdJS: function () {
         var languageStr = window.Wortal.context.getId();
         if (languageStr === null) {
             languageStr = "";
