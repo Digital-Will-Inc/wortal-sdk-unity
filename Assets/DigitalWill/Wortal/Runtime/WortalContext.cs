@@ -23,9 +23,6 @@ namespace DigitalWill.WortalSDK
         /// </summary>
         /// <returns>String ID of the current context if one exists. Null if the player is playing solo. Empty string if the
         /// game is being played on a platform that does not currently support context.</returns>
-        /// <example>
-        /// <code>string id = Wortal.Context.GetID();</code>
-        /// </example>
         public string GetID()
         {
             return ContextGetIdJS();
@@ -37,11 +34,11 @@ namespace DigitalWill.WortalSDK
         /// <param name="payload">Object defining the options for the context choice.</param>
         /// <param name="callback">Void callback event triggered when the async JS function resolves.</param>
         /// <param name="errorCallback">Error callback event with <see cref="WortalError"/> describing the error.</param>
-        /// <example>
-        /// <code>Wortal.Context.ChooseAsync(payload,
-        /// () => Debug.Log("New context: " + Wortal.Context.GetID()),
-        /// error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));</code>
-        /// </example>
+        /// <example><code>
+        /// Wortal.Context.ChooseAsync(payload,
+        ///     () => Debug.Log("New context: " + Wortal.Context.GetID()),
+        ///     error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
+        /// </code></example>
         public void Choose(ContextPayload payload, Action callback, Action<WortalError> errorCallback)
         {
             _chooseCallback = callback;
@@ -56,11 +53,11 @@ namespace DigitalWill.WortalSDK
         /// <param name="payload">Object defining the share message.</param>
         /// <param name="callback">Callback event that contains int with number of friends this was shared with. Fired after JS async function resolves.</param>
         /// <param name="errorCallback">Error callback event with <see cref="WortalError"/> describing the error.</param>
-        /// <example>
-        /// <code>Wortal.Context.ShareAsync(payload,
-        /// shareResult => Debug.Log("Number of shares: " + shareResult),
-        /// error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));</code>
-        /// </example>
+        /// <example><code>
+        /// Wortal.Context.ShareAsync(payload,
+        ///     shareResult => Debug.Log("Number of shares: " + shareResult),
+        ///     error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
+        /// </code></example>
         public void Share(ContextPayload payload, Action<int> callback, Action<WortalError> errorCallback)
         {
             _shareCallback = callback;
@@ -75,11 +72,11 @@ namespace DigitalWill.WortalSDK
         /// <param name="payload">Object defining the update message.</param>
         /// <param name="callback">Void callback event triggered when the async JS function resolves.</param>
         /// <param name="errorCallback">Error callback event with <see cref="WortalError"/> describing the error.</param>
-        /// <example>
-        /// <code>Wortal.Context.UpdateAsync(payload,
-        /// () => Debug.Log("Update sent"),
-        /// error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));</code>
-        /// </example>
+        /// <example><code>
+        /// Wortal.Context.UpdateAsync(payload,
+        ///     () => Debug.Log("Update sent"),
+        ///     error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
+        /// </code></example>
         public void Update(ContextPayload payload, Action callback, Action<WortalError> errorCallback)
         {
             _updateCallback = callback;
@@ -94,11 +91,11 @@ namespace DigitalWill.WortalSDK
         /// <param name="playerId">ID of player to create a context with.</param>
         /// <param name="callback">Void callback event triggered when the async JS function resolves.</param>
         /// <param name="errorCallback">Error callback event with <see cref="WortalError"/> describing the error.</param>
-        /// <example>
-        /// <code>Wortal.Context.Create("somePlayerId",
-        /// () => Debug.Log("New context: " + Wortal.Context.GetID(),
-        /// error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));</code>
-        /// </example>
+        /// <example><code>
+        /// Wortal.Context.Create("somePlayerId",
+        ///     () => Debug.Log("New context: " + Wortal.Context.GetID(),
+        ///     error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
+        /// </code></example>
         public void Create(string playerId, Action callback, Action<WortalError> errorCallback)
         {
             _createCallback = callback;
@@ -112,11 +109,11 @@ namespace DigitalWill.WortalSDK
         /// <param name="contextId">ID of the context to switch to.</param>
         /// <param name="callback">Void callback event triggered when the async JS function resolves.</param>
         /// <param name="errorCallback">Error callback event with <see cref="WortalError"/> describing the error.</param>
-        /// <example>
-        /// <code>Wortal.Context.Switch("someContextId",
-        /// () => Debug.Log("New context: " + Wortal.Context.GetID(),
-        /// error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));</code>
-        /// </example>
+        /// <example><code>
+        /// Wortal.Context.Switch("someContextId",
+        ///     () => Debug.Log("New context: " + Wortal.Context.GetID(),
+        ///     error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
+        /// </code></example>
         public void Switch(string contextId, Action callback, Action<WortalError> errorCallback)
         {
             _switchCallback = callback;
@@ -125,7 +122,7 @@ namespace DigitalWill.WortalSDK
         }
 #endregion Public API
 
-#region WASM Interface
+#region JSlib Interface
         [DllImport("__Internal")]
         private static extern string ContextGetIdJS();
 
@@ -173,175 +170,7 @@ namespace DigitalWill.WortalSDK
         {
             _switchCallback?.Invoke();
         }
-#endregion WASM Interface
-
-#region Payload Objects
-        /// <summary>
-        /// Payload used for methods in the Context API.
-        /// <example>
-        /// <code>var payload = new WortalContext.ContextPayload
-        /// {
-        ///     Image = "dataURLToBase64Image",
-        ///     Text = new WortalContext.LocalizableContent
-        ///     {
-        ///         Default = "Play",
-        ///         Localizations = new Dictionary&lt;string, string&gt;
-        ///         {
-        ///             {"en_US", "Play"},
-        ///             {"ja_JP", "プレイ"},
-        ///         },
-        ///     },
-        ///     Data = new Dictionary&lt;string, object&gt;
-        ///     {
-        ///         {"current_level", 1},
-        ///     },
-        /// };</code>
-        /// </example>
-        /// </summary>
-        [Serializable]
-        public struct ContextPayload
-        {
-            /// <summary>
-            /// URL of base64 encoded image to be displayed. This is required for the payload to be sent.
-            /// </summary>
-            [JsonProperty("image")]
-            public string Image;
-
-            /// <summary>
-            /// Message body. This is required for the payload to be sent.
-            /// </summary>
-            [JsonProperty("text")]
-            public LocalizableContent Text;
-
-            /// <summary>
-            /// Text of the call-to-action button.
-            /// </summary>
-            [JsonProperty("caption", NullValueHandling = NullValueHandling.Ignore, DefaultValueHandling = DefaultValueHandling.Ignore)]
-            public LocalizableContent Caption;
-
-            /// <summary>
-            /// Text of the call-to-action button.
-            /// </summary>
-            [JsonProperty("cta", NullValueHandling = NullValueHandling.Ignore, DefaultValueHandling = DefaultValueHandling.Ignore)]
-            public LocalizableContent CTA;
-
-            /// <summary>
-            /// Object passed to any session launched from this context message.
-            /// Its size must be less than or equal to 1000 chars when stringified.
-            /// It can be accessed from <code>Wortal.Context.GetEntryPointData()</code>.
-            /// </summary>
-            [JsonProperty("data", NullValueHandling = NullValueHandling.Ignore)]
-            public Dictionary<string, object> Data;
-
-            /// <summary>
-            /// An array of filters to be applied to the friend list. Only the first filter is currently used.
-            /// </summary>
-            /// <remarks>Use <see cref="ContextFilter"/> here.</remarks>
-            [JsonProperty("filters", NullValueHandling = NullValueHandling.Ignore)]
-            public string[] Filters;
-
-            /// <summary>
-            /// Context maximum size.
-            /// </summary>
-            [JsonProperty("maxSize", DefaultValueHandling = DefaultValueHandling.Ignore)]
-            public int MaxSize;
-
-            /// <summary>
-            /// Context minimum size.
-            /// </summary>
-            [JsonProperty("minSize", DefaultValueHandling = DefaultValueHandling.Ignore)]
-            public int MinSize;
-
-            /// <summary>
-            /// Specify how long a friend should be filtered out after the current player sends them a message.
-            /// This parameter only applies when `NEW_INVITATIONS_ONLY` filter is used.
-            /// When not specified, it will filter out any friend who has been sent a message.
-            /// </summary>
-            [JsonProperty("hoursSinceInvitation", DefaultValueHandling = DefaultValueHandling.Ignore)]
-            public int HoursSinceInvitation;
-
-            /// <summary>
-            /// Optional customizable text field in the share UI.
-            /// This can be used to describe the incentive a user can get from sharing.
-            /// </summary>
-            [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore, DefaultValueHandling = DefaultValueHandling.Ignore)]
-            public LocalizableContent Description;
-
-            /// <summary>
-            /// Message format to be used. There's no visible difference among the available options.
-            /// </summary>
-            /// <remarks>Use <see cref="IntentType"/> here.</remarks>
-            [JsonProperty("intent", NullValueHandling = NullValueHandling.Ignore)]
-            public string Intent;
-
-            /// <summary>
-            /// Optional property to switch share UI mode.
-            /// </summary>
-            /// <remarks>Use <see cref="UIType"/> here.</remarks>
-            [JsonProperty("ui", NullValueHandling = NullValueHandling.Ignore)]
-            public string UI;
-
-            /// <summary>
-            /// Defines the minimum number of players to be selected to start sharing.
-            /// </summary>
-            [JsonProperty("minShare", DefaultValueHandling = DefaultValueHandling.Ignore)]
-            public int MinShare;
-
-            /// <summary>
-            /// Defines how the update message should be delivered.
-            /// </summary>
-            /// <remarks>Use <see cref="StrategyType"/> here.</remarks>
-            [JsonProperty("strategy", NullValueHandling = NullValueHandling.Ignore)]
-            public string Strategy;
-
-            /// <summary>
-            /// Specifies if the message should trigger push notification.
-            /// </summary>
-            /// <remarks>Use <see cref="NotificationsType"/> here.</remarks>
-            [JsonProperty("notifications", NullValueHandling = NullValueHandling.Ignore)]
-            public string Notifications;
-
-            /// <summary>
-            /// Not used.
-            /// </summary>
-            [JsonProperty("action", NullValueHandling = NullValueHandling.Ignore)]
-            public string Action;
-
-            /// <summary>
-            /// Not used.
-            /// </summary>
-            [JsonProperty("template", NullValueHandling = NullValueHandling.Ignore)]
-            public string Template;
-        }
-
-        /// <summary>
-        /// Used to pass localized key-value pairs for content being used in the context API.
-        /// </summary>
-        /// <remarks>If no localizable content is required then pass only the Default string.</remarks>
-        /// <example>
-        /// <code>var content = new LocalizableContent
-        ///     Default = "Play",
-        ///     Localizations = new Dictionary&lt;string, string&gt;
-        ///     {
-        ///         {"en_US", "Play"},
-        ///         {"ja_JP", "プレイ"},
-        ///     }</code>
-        /// </example>
-        [Serializable]
-        public struct LocalizableContent
-        {
-            /// <summary>
-            /// Text that will be used if no matching locale is found.
-            /// </summary>
-            [JsonProperty("default", NullValueHandling = NullValueHandling.Ignore)]
-            public string Default;
-            /// <summary>
-            /// Key value pairs of localized strings.
-            /// </summary>
-            [JsonProperty("localizations", NullValueHandling = NullValueHandling.Ignore)]
-            public Dictionary<string, string> Localizations;
-        }
-#endregion Payload Objects
+#endregion JSlib Interface
 
 #region Type Constants
         /// <summary>
@@ -422,4 +251,174 @@ namespace DigitalWill.WortalSDK
         }
 #endregion Type Constants
     }
+
+#region Payload Objects
+    /// <summary>
+    /// Payload used for methods in the Context API.
+    /// <example><code>
+    /// var payload = new ContextPayload
+    /// {
+    ///     Image = "dataURLToBase64Image",
+    ///     Text = new LocalizableContent
+    ///     {
+    ///         Default = "Play",
+    ///         Localizations = new Dictionary&lt;string, string&gt;
+    ///         {
+    ///             {"en_US", "Play"},
+    ///             {"ja_JP", "プレイ"},
+    ///         },
+    ///     },
+    ///     Data = new Dictionary&lt;string, object&gt;
+    ///     {
+    ///         {"current_level", 1},
+    ///     },
+    /// };
+    /// </code></example>
+    /// </summary>
+    [Serializable]
+    public struct ContextPayload
+    {
+        /// <summary>
+        /// URL of base64 encoded image to be displayed. This is required for the payload to be sent.
+        /// </summary>
+        [JsonProperty("image")]
+        public string Image;
+
+        /// <summary>
+        /// Message body. This is required for the payload to be sent.
+        /// </summary>
+        [JsonProperty("text")]
+        public LocalizableContent Text;
+
+        /// <summary>
+        /// Text of the call-to-action button.
+        /// </summary>
+        [JsonProperty("caption", NullValueHandling = NullValueHandling.Ignore, DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public LocalizableContent Caption;
+
+        /// <summary>
+        /// Text of the call-to-action button.
+        /// </summary>
+        [JsonProperty("cta", NullValueHandling = NullValueHandling.Ignore, DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public LocalizableContent CTA;
+
+        /// <summary>
+        /// Object passed to any session launched from this context message.
+        /// Its size must be less than or equal to 1000 chars when stringified.
+        /// It can be accessed from <code>Wortal.Context.GetEntryPointData()</code>.
+        /// </summary>
+        [JsonProperty("data", NullValueHandling = NullValueHandling.Ignore)]
+        public Dictionary<string, object> Data;
+
+        /// <summary>
+        /// An array of filters to be applied to the friend list. Only the first filter is currently used.
+        /// </summary>
+        /// <remarks>Use <see cref="ContextFilter"/> here.</remarks>
+        [JsonProperty("filters", NullValueHandling = NullValueHandling.Ignore)]
+        public string[] Filters;
+
+        /// <summary>
+        /// Context maximum size.
+        /// </summary>
+        [JsonProperty("maxSize", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public int MaxSize;
+
+        /// <summary>
+        /// Context minimum size.
+        /// </summary>
+        [JsonProperty("minSize", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public int MinSize;
+
+        /// <summary>
+        /// Specify how long a friend should be filtered out after the current player sends them a message.
+        /// This parameter only applies when `NEW_INVITATIONS_ONLY` filter is used.
+        /// When not specified, it will filter out any friend who has been sent a message.
+        /// </summary>
+        [JsonProperty("hoursSinceInvitation", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public int HoursSinceInvitation;
+
+        /// <summary>
+        /// Optional customizable text field in the share UI.
+        /// This can be used to describe the incentive a user can get from sharing.
+        /// </summary>
+        [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore, DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public LocalizableContent Description;
+
+        /// <summary>
+        /// Message format to be used. There's no visible difference among the available options.
+        /// </summary>
+        /// <remarks>Use <see cref="IntentType"/> here.</remarks>
+        [JsonProperty("intent", NullValueHandling = NullValueHandling.Ignore)]
+        public string Intent;
+
+        /// <summary>
+        /// Optional property to switch share UI mode.
+        /// </summary>
+        /// <remarks>Use <see cref="UIType"/> here.</remarks>
+        [JsonProperty("ui", NullValueHandling = NullValueHandling.Ignore)]
+        public string UI;
+
+        /// <summary>
+        /// Defines the minimum number of players to be selected to start sharing.
+        /// </summary>
+        [JsonProperty("minShare", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public int MinShare;
+
+        /// <summary>
+        /// Defines how the update message should be delivered.
+        /// </summary>
+        /// <remarks>Use <see cref="StrategyType"/> here.</remarks>
+        [JsonProperty("strategy", NullValueHandling = NullValueHandling.Ignore)]
+        public string Strategy;
+
+        /// <summary>
+        /// Specifies if the message should trigger push notification.
+        /// </summary>
+        /// <remarks>Use <see cref="NotificationsType"/> here.</remarks>
+        [JsonProperty("notifications", NullValueHandling = NullValueHandling.Ignore)]
+        public string Notifications;
+
+        /// <summary>
+        /// Not used.
+        /// </summary>
+        [JsonProperty("action", NullValueHandling = NullValueHandling.Ignore)]
+        public string Action;
+
+        /// <summary>
+        /// Not used.
+        /// </summary>
+        [JsonProperty("template", NullValueHandling = NullValueHandling.Ignore)]
+        public string Template;
+    }
+
+    /// <summary>
+    /// Used to pass localized key-value pairs for content being used in the context API.
+    /// </summary>
+    /// <remarks>If no localizable content is required then pass only the Default string.</remarks>
+    /// <example><code>
+    /// var content = new LocalizableContent
+    /// {
+    ///     Default = "Play",
+    ///     Localizations = new Dictionary&lt;string, string&gt;
+    ///     {
+    ///         {"en_US", "Play"},
+    ///         {"ja_JP", "プレイ"},
+    ///     }
+    /// }
+    /// </code></example>
+    [Serializable]
+    public struct LocalizableContent
+    {
+        /// <summary>
+        /// Text that will be used if no matching locale is found.
+        /// </summary>
+        [JsonProperty("default", NullValueHandling = NullValueHandling.Ignore)]
+        public string Default;
+        /// <summary>
+        /// Key value pairs of localized strings.
+        /// </summary>
+        [JsonProperty("localizations", NullValueHandling = NullValueHandling.Ignore)]
+        public Dictionary<string, string> Localizations;
+    }
+#endregion Payload Objects
 }
