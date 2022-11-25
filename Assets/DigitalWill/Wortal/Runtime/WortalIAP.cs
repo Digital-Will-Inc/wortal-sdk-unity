@@ -31,11 +31,11 @@ namespace DigitalWill.WortalSDK
         /// </summary>
         /// <param name="callback">Callback with array of products representing the IAP catalog. Fired after JS async function resolves.</param>
         /// <param name="errorCallback">Error callback event with <see cref="WortalError"/> describing the error.</param>
-        /// <example>
-        /// <code>Wortal.IAP.GetCatalog(
-        /// catalog => Debug.Log(catalog[0].Title),
-        /// error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));</code>
-        /// </example>
+        /// <example><code>
+        /// Wortal.IAP.GetCatalog(
+        ///     catalog => Debug.Log(catalog[0].Title),
+        ///     error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
+        /// </code></example>
         public void GetCatalog(Action<Product[]> callback, Action<WortalError> errorCallback)
         {
             _getCatalogCallback = callback;
@@ -49,11 +49,11 @@ namespace DigitalWill.WortalSDK
         /// </summary>
         /// <param name="callback">Callback with array of purchases the player owns. Fired after JS async function resolves.</param>
         /// <param name="errorCallback">Error callback event with <see cref="WortalError"/> describing the error.</param>
-        /// <example>
-        /// <code>Wortal.IAP.GetPurchases(
-        /// purchases => Debug.Log(purchases[0].PurchaseToken), // Use this token to consume purchase
-        /// error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));</code>
-        /// </example>
+        /// <example><code>
+        /// Wortal.IAP.GetPurchases(
+        ///     purchases => Debug.Log(purchases[0].PurchaseToken), // Use this token to consume purchase
+        ///     error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
+        /// </code></example>
         public void GetPurchases(Action<Purchase[]> callback, Action<WortalError> errorCallback)
         {
             _getPurchasesCallback = callback;
@@ -67,14 +67,14 @@ namespace DigitalWill.WortalSDK
         /// <param name="purchase">Object defining the product ID and purchase information.</param>
         /// <param name="callback">Callback with info about the purchase, if successful. Fired after JS async function resolves.</param>
         /// <param name="errorCallback">Error callback event with <see cref="WortalError"/> describing the error.</param>
-        /// <example>
-        /// <code>Wortal.IAP.MakePurchase(new WortalIAP.PurchaseConfig
-        /// {
-        ///     ProductID = "id.code.for.product",
-        /// },
-        /// purchase => Debug.Log(purchase.PurchaseToken), // Use this token to consume purchase
-        /// error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));</code>
-        /// </example>
+        /// <example><code>
+        /// Wortal.IAP.MakePurchase(new WortalIAP.PurchaseConfig
+        ///     {
+        ///         ProductID = "id.code.for.product",
+        ///     },
+        ///     purchase => Debug.Log(purchase.PurchaseToken), // Use this token to consume purchase
+        ///     error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
+        /// </code></example>
         public void MakePurchase(PurchaseConfig purchase, Action<Purchase> callback, Action<WortalError> errorCallback)
         {
             _makePurchaseCallback = callback;
@@ -90,11 +90,11 @@ namespace DigitalWill.WortalSDK
         /// <param name="token">String representing the PurchaseToken of the item to consume.</param>
         /// <param name="callback">Void callback event triggered when the async JS function resolves.</param>
         /// <param name="errorCallback">Error callback event with <see cref="WortalError"/> describing the error.</param>
-        /// <example>
-        /// <code>Wortal.IAP.ConsumePurchase("PurchaseToken",
-        /// () => DoSomethingWithConsumedPurchase(),
-        /// error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));</code>
-        /// </example>
+        /// <example><code>
+        /// Wortal.IAP.ConsumePurchase("PurchaseToken",
+        ///     () => DoSomethingWithConsumedPurchase(),
+        ///     error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
+        /// </code></example>
         public void ConsumePurchase(string token, Action callback, Action<WortalError> errorCallback)
         {
             _consumePurchaseCallback = callback;
@@ -103,7 +103,7 @@ namespace DigitalWill.WortalSDK
         }
 #endregion Public API
 
-#region WASM Interface
+#region JSlib Interface
         [DllImport("__Internal")]
         private static extern bool IAPIsEnabledJS();
 
@@ -145,7 +145,7 @@ namespace DigitalWill.WortalSDK
         {
             _consumePurchaseCallback?.Invoke();
         }
-#endregion WASM Interface
+#endregion JSlib Interface
 
 #region Types
         [Serializable]

@@ -7,13 +7,14 @@ namespace DigitalWill.WortalSDK
     /// </summary>
     public class WortalAnalytics
     {
+#region Public API
         /// <summary>
         /// Logs the start of a level.
         /// </summary>
         /// <param name="level">Name of the level.</param>
-        /// <example>
-        /// <code>Wortal.Analytics.LogLevelStart("Level 3");</code>
-        /// </example>
+        /// <example><code>
+        /// Wortal.Analytics.LogLevelStart("Level 3");
+        /// </code></example>
         public void LogLevelStart(string level)
         {
             LogLevelStartJS(level);
@@ -27,9 +28,9 @@ namespace DigitalWill.WortalSDK
         /// <param name="level">Name of the level.</param>
         /// <param name="score">Score the player achieved.</param>
         /// <param name="wasCompleted">Was the level completed or not.</param>
-        /// <example>
-        /// <code>Wortal.Analytics.LogLevelEnd("Level 3", "100", true);</code>
-        /// </example>
+        /// <example><code>
+        /// Wortal.Analytics.LogLevelEnd("Level 3", "100", true);
+        /// </code></example>
         public void LogLevelEnd(string level, string score, bool wasCompleted)
         {
             LogLevelEndJS(level, score, wasCompleted);
@@ -39,9 +40,9 @@ namespace DigitalWill.WortalSDK
         /// Logs the player achieving a new level.
         /// </summary>
         /// <param name="level">Level the player achieved.</param>
-        /// <example>
-        /// <code>Wortal.Analytics.LogLevelUp("Level 7");</code>
-        /// </example>
+        /// <example><code>
+        /// Wortal.Analytics.LogLevelUp("Level 7");
+        /// </code></example>
         public void LogLevelUp(string level)
         {
             LogLevelUpJS(level);
@@ -51,9 +52,9 @@ namespace DigitalWill.WortalSDK
         /// Logs the player's score.
         /// </summary>
         /// <param name="score">Score the player achieved.</param>
-        /// <example>
-        /// <code>Wortal.Analytics.LogScore("100");</code>
-        /// </example>
+        /// <example><code>
+        /// Wortal.Analytics.LogScore("100");
+        /// </code></example>
         public void LogScore(string score)
         {
             LogScoreJS(score);
@@ -63,9 +64,9 @@ namespace DigitalWill.WortalSDK
         /// Logs the start of a tutorial.
         /// </summary>
         /// <param name="tutorial">Name of the tutorial.</param>
-        /// <example>
-        /// <code>Wortal.Analytics.LogTutorialStart("First Play");</code>
-        /// </example>
+        /// <example><code>
+        /// Wortal.Analytics.LogTutorialStart("First Play");
+        /// </code></example>
         public void LogTutorialStart(string tutorial)
         {
             LogTutorialStartJS(tutorial);
@@ -78,9 +79,9 @@ namespace DigitalWill.WortalSDK
         /// </summary>
         /// <param name="tutorial">Name of the tutorial.</param>
         /// <param name="wasCompleted">Was the tutorial completed.</param>
-        /// <example>
-        /// <code>Wortal.Analytics.LogTutorialEnd("First Play", true);</code>
-        /// </example>
+        /// <example><code>
+        /// Wortal.Analytics.LogTutorialEnd("First Play", true);
+        /// </code></example>
         public void LogTutorialEnd(string tutorial, bool wasCompleted)
         {
             LogTutorialEndJS(tutorial, wasCompleted);
@@ -92,14 +93,16 @@ namespace DigitalWill.WortalSDK
         /// </summary>
         /// <param name="decision">Decision the player was faced with.</param>
         /// <param name="choice">Choice the player made.</param>
-        /// <example>
-        /// <code>Wortal.Analytics.LogGameChoice("Character", "Blue");</code>
-        /// </example>
+        /// <example><code>
+        /// Wortal.Analytics.LogGameChoice("Character", "Blue");
+        /// </code></example>
         public void LogGameChoice(string decision, string choice)
         {
             LogGameChoiceJS(decision, choice);
         }
+#endregion Public API
 
+#region JSlib Interface
         [DllImport("__Internal")]
         private static extern void LogLevelStartJS(string level);
 
@@ -120,5 +123,6 @@ namespace DigitalWill.WortalSDK
 
         [DllImport("__Internal")]
         private static extern void LogGameChoiceJS(string decision, string choice);
+#endregion JSlib Interface
     }
 }
