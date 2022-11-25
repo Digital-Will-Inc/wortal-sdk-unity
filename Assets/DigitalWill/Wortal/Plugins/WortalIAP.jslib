@@ -7,10 +7,10 @@
     IAPGetCatalogJS: function (callback, errorCallback) {
         window.Wortal.iap.getCatalogAsync()
             .then(result => {
-                var catalogStr = JSON.stringify(result);
-                var bufferSize = lengthBytesUTF8(catalogStr) + 1;
+                var resultStr = JSON.stringify(result);
+                var bufferSize = lengthBytesUTF8(resultStr) + 1;
                 var buffer = _malloc(bufferSize);
-                stringToUTF8(catalogStr, buffer, bufferSize);
+                stringToUTF8(resultStr, buffer, bufferSize);
                 return Module.dynCall_vi(callback, buffer);
             })
             .catch(error => {
@@ -25,10 +25,10 @@
     IAPGetPurchasesJS: function (callback, errorCallback) {
         window.Wortal.iap.getPurchasesAsync()
             .then(result => {
-                var purchasesStr = JSON.stringify(result);
-                var bufferSize = lengthBytesUTF8(purchasesStr) + 1;
+                var resultStr = JSON.stringify(result);
+                var bufferSize = lengthBytesUTF8(resultStr) + 1;
                 var buffer = _malloc(bufferSize);
-                stringToUTF8(purchasesStr, buffer, bufferSize);
+                stringToUTF8(resultStr, buffer, bufferSize);
                 return Module.dynCall_vi(callback, buffer);
             })
             .catch(error => {
@@ -45,10 +45,10 @@
         purchaseJson = JSON.parse(purchaseStr);
         window.Wortal.iap.makePurchaseAsync(purchaseJson)
             .then(result => {
-                var purchaseStr = JSON.stringify(result);
-                var bufferSize = lengthBytesUTF8(purchaseStr) + 1;
+                var resultStr = JSON.stringify(result);
+                var bufferSize = lengthBytesUTF8(resultStr) + 1;
                 var buffer = _malloc(bufferSize);
-                stringToUTF8(purchaseStr, buffer, bufferSize);
+                stringToUTF8(resultStr, buffer, bufferSize);
                 return Module.dynCall_vi(callback, buffer);
             })
             .catch(error => {
