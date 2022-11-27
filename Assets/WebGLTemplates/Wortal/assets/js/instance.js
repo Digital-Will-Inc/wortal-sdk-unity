@@ -44,6 +44,4 @@ createUnityInstance(canvas, config, (progress) => {
         window.Wortal.setLoadingProgress(100);
     }
     gameInstance = unityInstance;
-    console.log('[Wortal] Unity SDK module loaded.');
-    console.log(gameInstance.Module.Wortal);
 });
