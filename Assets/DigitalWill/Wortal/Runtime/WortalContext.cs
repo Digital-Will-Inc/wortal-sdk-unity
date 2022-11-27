@@ -176,6 +176,7 @@ namespace DigitalWill.WortalSDK
         /// <summary>
         /// Available options for the ContextFilter type in the SDK Core.
         /// </summary>
+        [Serializable]
         public static class ContextFilter
         {
             /// <summary>
@@ -199,6 +200,7 @@ namespace DigitalWill.WortalSDK
         /// <summary>
         /// Available options for the Strategy type in the SDK Core.
         /// </summary>
+        [Serializable]
         public static class StrategyType
         {
             /// <summary>
@@ -218,6 +220,7 @@ namespace DigitalWill.WortalSDK
         /// <summary>
         /// Available options for the UI type in the SDK Core.
         /// </summary>
+        [Serializable]
         public static class UIType
         {
             /// <summary>
@@ -233,6 +236,7 @@ namespace DigitalWill.WortalSDK
         /// <summary>
         /// Available options for the Intent type in the SDK Core.
         /// </summary>
+        [Serializable]
         public static class IntentType
         {
             public const string INVITE = "INVITE";
@@ -244,6 +248,7 @@ namespace DigitalWill.WortalSDK
         /// <summary>
         /// Available options for the Notifications type in the SDK Core.
         /// </summary>
+        [Serializable]
         public static class NotificationsType
         {
             public const string NO_PUSH = "NO_PUSH";
@@ -313,7 +318,7 @@ namespace DigitalWill.WortalSDK
         /// <summary>
         /// An array of filters to be applied to the friend list. Only the first filter is currently used.
         /// </summary>
-        /// <remarks>Use <see cref="ContextFilter"/> here.</remarks>
+        /// <remarks>Use <see cref="WortalContext.ContextFilter"/> here.</remarks>
         [JsonProperty("filters", NullValueHandling = NullValueHandling.Ignore)]
         public string[] Filters;
 
@@ -347,14 +352,14 @@ namespace DigitalWill.WortalSDK
         /// <summary>
         /// Message format to be used. There's no visible difference among the available options.
         /// </summary>
-        /// <remarks>Use <see cref="IntentType"/> here.</remarks>
+        /// <remarks>Use <see cref="WortalContext.IntentType"/> here.</remarks>
         [JsonProperty("intent", NullValueHandling = NullValueHandling.Ignore)]
         public string Intent;
 
         /// <summary>
         /// Optional property to switch share UI mode.
         /// </summary>
-        /// <remarks>Use <see cref="UIType"/> here.</remarks>
+        /// <remarks>Use <see cref="WortalContext.UIType"/> here.</remarks>
         [JsonProperty("ui", NullValueHandling = NullValueHandling.Ignore)]
         public string UI;
 
@@ -367,14 +372,14 @@ namespace DigitalWill.WortalSDK
         /// <summary>
         /// Defines how the update message should be delivered.
         /// </summary>
-        /// <remarks>Use <see cref="StrategyType"/> here.</remarks>
+        /// <remarks>Use <see cref="WortalContext.StrategyType"/> here.</remarks>
         [JsonProperty("strategy", NullValueHandling = NullValueHandling.Ignore)]
         public string Strategy;
 
         /// <summary>
         /// Specifies if the message should trigger push notification.
         /// </summary>
-        /// <remarks>Use <see cref="NotificationsType"/> here.</remarks>
+        /// <remarks>Use <see cref="WortalContext.NotificationsType"/> here.</remarks>
         [JsonProperty("notifications", NullValueHandling = NullValueHandling.Ignore)]
         public string Notifications;
 
