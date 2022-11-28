@@ -4,7 +4,6 @@ using System.Runtime.InteropServices;
 using AOT;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using UnityEngine;
 
 namespace DigitalWill.WortalSDK
 {
@@ -13,7 +12,7 @@ namespace DigitalWill.WortalSDK
 	/// </summary>
 	public class WortalPlayer
     {
-        private static Action<JObject> _getDataCallback;
+        private static Action<IDictionary<string, object>> _getDataCallback;
         private static Action _setDataCallback;
         private static Action<WortalPlayer[]> _getConnectedPlayersCallback;
         private static Action<string, string> _getSignedPlayerInfoCallback;
@@ -59,12 +58,25 @@ namespace DigitalWill.WortalSDK
         /// Gets the game data with the specific keys from the platform's storage.
         /// </summary>
         /// <param name="keys">Array of keys for the data to get.</param>
-        /// <param name="callback">Callback with the player's data. Data can be any type.</param>
+        /// <param name="callback">Callback with the player's data. Data can be any type and is stored in IDictionary&lt;string, object&gt;</param>
         /// <param name="errorCallback">Error callback event with <see cref="WortalError"/> describing the error.</param>
         /// <example><code>
-        ///
-        /// </code></example>
-        public void GetData(string[] keys, Action<JObject> callback, Action<WortalError> errorCallback)
+        /// Wortal.Player.GetData(new[] { "items", "lives" },
+        ///     data =>
+        ///     {
+        ///         // Check the return values types before casting or operating on them.
+        ///         foreach (KeyValuePair&lt;string, object&gt; kvp in data)
+        ///         {
+        ///             Debug.Log("Key name: " + kvp.Key);
+        ///             Debug.Log("Value type: " + kvp.Value.GetType());
+        ///         }
+        ///         // Nested objects should de-serialize as IDictionary&lt;string, object&gt;
+        ///         var items = (Dictionary&lt;string, object&gt;)data["items"];
+        ///         Debug.Log("Coins: " + items["coins"]);
+        ///     },
+        ///     error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
+        ///</code></example>
+        public void GetData(string[] keys, Action<IDictionary<string, object>> callback, Action<WortalError> errorCallback)
         {
             _getDataCallback = callback;
             Wortal.WortalError = errorCallback;
@@ -79,9 +91,21 @@ namespace DigitalWill.WortalSDK
         /// <param name="callback">Void callback that's fired when the JS promise resolves.</param>
         /// <param name="errorCallback">Error callback event with <see cref="WortalError"/> describing the error.</param>
         /// <example><code>
-        ///
-        /// </code></example>
-        public void SetData(JObject data, Action callback, Action<WortalError> errorCallback)
+        /// Dictionary&lt;string, object&gt; data = new()
+        /// {
+        ///    { "items", new Dictionary&lt;string, int&gt;
+        ///        {
+        ///            { "coins", 100 },
+        ///            { "boosters", 2 },
+        ///        }
+        ///    },
+        ///    { "lives", 3 },
+        /// };
+        /// Wortal.Player.SetData(data,
+        ///     () => Debug.Log("Data set"),
+        ///     error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
+        ///</code></example>
+        public void SetData(IDictionary<string, object> data, Action callback, Action<WortalError> errorCallback)
         {
             _setDataCallback = callback;
             Wortal.WortalError = errorCallback;
@@ -96,8 +120,14 @@ namespace DigitalWill.WortalSDK
         /// <param name="callback">Callback with array of matching players. Fired when the JS promise resolves.</param>
         /// <param name="errorCallback">Error callback event with <see cref="WortalError"/> describing the error.</param>
         /// <example><code>
-        ///
-        /// </code></example>
+        /// var payload = new WortalPlayer.PlayerPayload
+        /// {
+        ///    Filter = WortalPlayer.PlayerFilter.ALL,
+        /// };
+        /// Wortal.Player.GetConnectedPlayers(payload,
+        ///     players => Debug.Log(players[0].GetName()),
+        ///     error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
+        ///</code></example>
         public void GetConnectedPlayers(PlayerPayload payload, Action<WortalPlayer[]> callback, Action<WortalError> errorCallback)
         {
             _getConnectedPlayersCallback = callback;
@@ -113,8 +143,10 @@ namespace DigitalWill.WortalSDK
         /// <param name="callback">Callback with the player ID and signature. Fired when the JS promise resolves.</param>
         /// <param name="errorCallback">Error callback event with <see cref="WortalError"/> describing the error.</param>
         /// <example><code>
-        ///
-        /// </code></example>
+        /// Wortal.Player.GetSignedPlayerInfo(
+        ///     (id, signature) => Debug.Log("ID: " + id + "\nSignature: " + signature),
+        ///     error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
+        ///</code></example>
         public void GetSignedPlayerInfo(Action<string, string> callback, Action<WortalError> errorCallback)
         {
             _getSignedPlayerInfoCallback = callback;
@@ -152,7 +184,7 @@ namespace DigitalWill.WortalSDK
         private static void PlayerGetDataCallback(string data)
         {
             // Data is Record<string, unknown> in JS.
-            JObject dataObj = JsonConvert.DeserializeObject<JObject>(data);
+            IDictionary<string, object> dataObj = JsonConvert.DeserializeObject<JObject>(data).ToDictionary();
             _getDataCallback?.Invoke(dataObj);
         }
 
