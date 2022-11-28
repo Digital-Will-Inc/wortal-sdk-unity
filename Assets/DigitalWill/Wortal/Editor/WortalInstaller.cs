@@ -27,7 +27,8 @@ namespace DigitalWill.WortalEditor
 
             // Some platforms do not support compression, and some do not support the decompression fallback.
             PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Disabled;
-            Debug.Log(LOG_PREFIX + "Disabling compression..");
+            PlayerSettings.WebGL.decompressionFallback = false;
+            Debug.Log(LOG_PREFIX + "Disabling compression and fallback..");
 
             // This is necessary to prevent code stripping that will break some methods that return
             // a serialized array of objects, such as Leaderboard.GetConnectedPlayersEntries and IAP.GetCatalog.
