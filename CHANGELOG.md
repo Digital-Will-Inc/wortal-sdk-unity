@@ -4,6 +4,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [5.0.0] - 2022-11-28
+### Breaking Change
+- API access is now by module (Wortal.Ads, Wortal.Analytics)
+
+### Added
+- Context API
+- In-App Purchase API
+- Leaderboard API
+- Player API
+- Session API
+- Example scene
+- Examples in documentation
+
+### Changed
+- Extension now uses Wortal SDK Core
+- Removed Wortal module from WASM build
+- Removed Ad callback events, callbacks are now passed in directly
+- WortalInstaller now warns for incorrect settings on load
+
 ## [4.2.1] - 2022-10-04
 ### Added
 - Support for ad blockers

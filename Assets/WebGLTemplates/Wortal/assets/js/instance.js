@@ -1,19 +1,18 @@
 const container = document.querySelector('#unity-container');
 const canvas = document.querySelector('#unity-canvas');
-const loadingCover = document.querySelector('#loading-cover');
 
 const config = {
     dataUrl: "Build/{{{ DATA_FILENAME }}}",
     frameworkUrl: "Build/{{{ FRAMEWORK_FILENAME }}}",
-    #if USE_WASM
+#if USE_WASM
     codeUrl: "Build/{{{ CODE_FILENAME }}}",
-    #endif
-    #if MEMORY_FILENAME
+#endif
+#if MEMORY_FILENAME
     memoryUrl: "Build/{{{ MEMORY_FILENAME }}}",
-    #endif
-    #if SYMBOLS_FILENAME
+#endif
+#if SYMBOLS_FILENAME
     symbolsUrl: "Build/{{{ SYMBOLS_FILENAME }}}",
-    #endif
+#endif
     streamingAssetsUrl: "StreamingAssets",
     companyName: {{{ JSON.stringify(COMPANY_NAME) }}},
     productName: {{{ JSON.stringify(PRODUCT_NAME) }}},
@@ -28,20 +27,21 @@ if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
 };
 
 createUnityInstance(canvas, config, (progress) => {
-    if (gameData.platform === 'link' || gameData.platform === 'viber') {
-        if (window.wortalGame) {
-            window.wortalGame.setLoadingProgress(100 * progress);
+    if (window.getWortalPlatform) {
+        const currPlatform = window.getWortalPlatform();
+        if (currPlatform === 'link' || currPlatform === 'viber') {
+            if (window.Wortal) {
+                window.Wortal.setLoadingProgress(100 * progress);
+            }
+        } else {
+            progressBar.style.width = `${100 * progress}%`;
         }
-    } else {
-        progressBar.style.width = `${100 * progress}%`;
     }
 }).then((unityInstance) => {
-    if (gameData.platform === 'link' || gameData.platform === 'viber') {
-        window.wortalGame.setLoadingProgress(100);
-    } else {
-        progress.style.display = 'none';
+    progress.style.display = 'none';
+    const currPlatform = window.getWortalPlatform();
+    if (currPlatform === 'link' || currPlatform === 'viber') {
+        window.Wortal.setLoadingProgress(100);
     }
     gameInstance = unityInstance;
-    console.log('[Wortal] Module loaded.');
-    console.log(gameInstance.Module.Wortal);
 });

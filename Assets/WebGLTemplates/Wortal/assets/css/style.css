@@ -3,7 +3,7 @@ Wortal template CSS settings
 *************************
 If you force the game into portrait/landscape then you should set a background image in the canvas to fill
 in the blank spaces in the desktop view of the game. The default is to stretch the game to fill the iframe the
-game is rendered in.. which is 700x500px as of v4.1.0.
+game is rendered in.
 ************************/
 html {
   box-sizing: border-box;
@@ -34,24 +34,6 @@ body {
   width: 100%;
   height: 100%;
   background: #000;
-}
-
-/************************
-This should be left as is.
-AdSense pre-rolls require the game to not be shown until after the ad has finished.
-For Wortal deployment this is disabled in the pre-roll callback.
-For Link and Viber deployments this is disabled immediately after initializing Wortal SDK as we hook into their loading screen.
-************************/
-.loading-cover {
-  background: #000000;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  position: fixed;
-  padding: 0;
-  margin: 0;
-  z-index: 100;
 }
 
 /************************
