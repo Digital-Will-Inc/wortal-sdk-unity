@@ -19,7 +19,12 @@ namespace DigitalWill.WortalSDK
         /// Gets the data bound to the entry point.
         /// </summary>
         /// <example><code>
-        ///
+        /// var data = Wortal.Session.GetEntryPointData();
+        /// foreach (KeyValuePair&lt;string, object&gt; kvp in data)
+        /// {
+        ///     Debug.Log("Key name: " + kvp.Key);
+        ///     Debug.Log("Value type: " + kvp.Value.GetType());
+        /// }
         /// </code></example>
         public IDictionary<string, object> GetEntryPointData()
         {
@@ -31,7 +36,9 @@ namespace DigitalWill.WortalSDK
         /// Gets the entry point of where the game started from.
         /// </summary>
         /// <example><code>
-        ///
+        /// Wortal.Session.GetEntryPoint(
+        ///     entryPoint => Debug.Log(entryPoint),
+        ///     error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
         /// </code></example>
         public void GetEntryPoint(Action<string> callback, Action<WortalError> errorCallback)
         {
@@ -44,6 +51,13 @@ namespace DigitalWill.WortalSDK
         /// Sets the data for this session. This is not persistent and is only used to populate webhook events.
         /// </summary>
         /// <param name="data">Data to store for this session.</param>
+        /// <example><code>
+        /// Dictionary&lt;string, object&gt; data = new()
+        /// {
+        ///     { "referrerId", "friend1" },
+        /// };
+        /// Wortal.Session.SetSessionData(data);
+        /// </code></example>
         public void SetSessionData(IDictionary<string, object> data)
         {
             string dataJson = JsonConvert.SerializeObject(data);
