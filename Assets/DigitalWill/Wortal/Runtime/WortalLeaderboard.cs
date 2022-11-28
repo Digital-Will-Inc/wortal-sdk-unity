@@ -142,7 +142,7 @@ namespace DigitalWill.WortalSDK
         /// <param name="callback">Callback with an array of leaderboard entries. Fired after JS async function resolves.</param>
         /// <param name="errorCallback">Error callback event with <see cref="WortalError"/> describing the error.</param>
         /// <example><code>
-        /// Wortal.Leaderboard.GetConnectedPlayersEntries("global",
+        /// Wortal.Leaderboard.GetConnectedPlayersEntries("global", 10, 0,
         ///     entries => Debug.Log("Entries: " + entries.Length),
         ///     error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
         /// </code></example>
