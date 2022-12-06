@@ -35,7 +35,7 @@ Rewarded ads can be shown too. These are longer, optional ads that the player ca
 must be notified of the ad and give permission to show before it can be shown.
 
 ```csharp
-// This examples shows the game flow independent of the outcome of the ad.
+// This example shows the game flow independent of the outcome of the ad.
 Wortal.Ads.ShowRewarded("BonusCoins",
     () => PauseGame(),
     () => ResumeGame(),
@@ -189,7 +189,7 @@ Wortal.Player.GetData(new[] { "items", "lives" },
             Debug.Log("Value type: " + kvp.Value.GetType());
         }
 
-        // Nested objects should de-serialize as IDictionary&lt;string, object&gt;
+        // Nested objects should de-serialize as IDictionary<string, object>
         var items = (Dictionary<string, object>)data["items"];
         Debug.Log("Coins: " + items["coins"]);
     },
