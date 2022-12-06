@@ -25,8 +25,7 @@ namespace DigitalWill.WortalEditor
             PlayerSettings.WebGL.template = TEMPLATE_PATH;
             Debug.Log(LOG_PREFIX + "Setting WebGL template..");
 
-            // Some platforms do not support compression, and some do not support the decompression fallback.
-            PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Disabled;
+            // Some platforms do not support the decompression fallback extension type.
             PlayerSettings.WebGL.decompressionFallback = false;
             Debug.Log(LOG_PREFIX + "Disabling compression and fallback..");
 
