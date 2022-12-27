@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [5.1.1] - 2022-12-27
+### Added
+- Mock calls for testing in editor
+- Loading progress percentage in splash screen
+- Loading progress text in splash screen
+
+### Fixed
+- Incorrect logging in installer checks for compression
+
 ## [5.1.0] - 2022-12-06
 ### Added
 - Support for Game Distribution platform
