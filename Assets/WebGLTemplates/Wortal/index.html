@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=yes">
 
   <link rel="stylesheet" href="assets/css/style.css">
 
@@ -11,13 +11,16 @@
   <script src="https://cdn.html5gameportal.com/wortal-sdk/wortal-core-1.2.0.js"></script>
 </head>
 <body>
-<div id="progress" class="progress Dark">
-  <div id="progressBar" class="full"></div>
-</div>
 <div id="unity-container" class="unity-desktop">
-  <canvas id="unity-canvas" style="background: {{{ BACKGROUND_FILENAME ? 'url(\'Build/' + BACKGROUND_FILENAME.replace(/'/g, '%27') + '\') center / cover' : BACKGROUND_COLOR }}}"></canvas>
+  <canvas id="unity-canvas" width={{{ WIDTH }}} height={{{ HEIGHT }}}></canvas>
 </div>
-<script src="Build/{{{ LOADER_FILENAME }}}"></script>
+<div id="unity-loading-bar">
+  <div id="unity-progress-bar-empty">
+    <div id="unity-progress-bar-full"></div>
+    <p id ="unity-progress-value"></p><br/>
+    <p id ="unity-progress-text"></p>
+  </div>
+</div>
 <script src="assets/js/instance.js"></script>
 </body>
 </html>
