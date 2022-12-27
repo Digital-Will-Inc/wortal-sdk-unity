@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using UnityEngine;
 
 namespace DigitalWill.WortalSDK
 {
@@ -17,7 +18,11 @@ namespace DigitalWill.WortalSDK
         /// </code></example>
         public void LogLevelStart(string level)
         {
+#if UNITY_WEBGL && !UNITY_EDITOR
             LogLevelStartJS(level);
+#else
+            Debug.Log($"[Wortal] Mock Analytics.LogLevelStart({level})");
+#endif
         }
 
         /// <summary>
@@ -33,7 +38,11 @@ namespace DigitalWill.WortalSDK
         /// </code></example>
         public void LogLevelEnd(string level, string score, bool wasCompleted)
         {
+#if UNITY_WEBGL && !UNITY_EDITOR
             LogLevelEndJS(level, score, wasCompleted);
+#else
+            Debug.Log($"[Wortal] Mock Analytics.LogLevelEnd({level}, {score}, {wasCompleted})");
+#endif
         }
 
         /// <summary>
@@ -45,7 +54,11 @@ namespace DigitalWill.WortalSDK
         /// </code></example>
         public void LogLevelUp(string level)
         {
+#if UNITY_WEBGL && !UNITY_EDITOR
             LogLevelUpJS(level);
+#else
+            Debug.Log($"[Wortal] Mock Analytics.LogLevelUp({level})");
+#endif
         }
 
         /// <summary>
@@ -57,7 +70,11 @@ namespace DigitalWill.WortalSDK
         /// </code></example>
         public void LogScore(string score)
         {
+#if UNITY_WEBGL && !UNITY_EDITOR
             LogScoreJS(score);
+#else
+            Debug.Log($"[Wortal] Mock Analytics.LogScore({score})");
+#endif
         }
 
         /// <summary>
@@ -69,7 +86,11 @@ namespace DigitalWill.WortalSDK
         /// </code></example>
         public void LogTutorialStart(string tutorial)
         {
+#if UNITY_WEBGL && !UNITY_EDITOR
             LogTutorialStartJS(tutorial);
+#else
+            Debug.Log($"[Wortal] Mock Analytics.LogTutorialStart({tutorial})");
+#endif
         }
 
         /// <summary>
@@ -84,7 +105,11 @@ namespace DigitalWill.WortalSDK
         /// </code></example>
         public void LogTutorialEnd(string tutorial, bool wasCompleted)
         {
+#if UNITY_WEBGL && !UNITY_EDITOR
             LogTutorialEndJS(tutorial, wasCompleted);
+#else
+            Debug.Log($"[Wortal] Mock Analytics.LogTutorialEnd({tutorial}, {wasCompleted})");
+#endif
         }
 
         /// <summary>
@@ -98,7 +123,11 @@ namespace DigitalWill.WortalSDK
         /// </code></example>
         public void LogGameChoice(string decision, string choice)
         {
+#if UNITY_WEBGL && !UNITY_EDITOR
             LogGameChoiceJS(decision, choice);
+#else
+            Debug.Log($"[Wortal] Mock Analytics.LogGameChoice({decision}, {choice})");
+#endif
         }
 #endregion Public API
 

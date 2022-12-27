@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using AOT;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using UnityEngine;
 
 namespace DigitalWill.WortalSDK
 {
@@ -24,7 +25,12 @@ namespace DigitalWill.WortalSDK
         /// <returns>The player's ID.</returns>
         public string GetID()
         {
+#if UNITY_WEBGL && !UNITY_EDITOR
             return PlayerGetIDJS();
+#else
+            Debug.Log("[Wortal] Mock Player.GetID()");
+            return "player1";
+#endif
         }
 
         /// <summary>
@@ -33,7 +39,12 @@ namespace DigitalWill.WortalSDK
         /// <returns>The player's name.</returns>
         public string GetName()
         {
+#if UNITY_WEBGL && !UNITY_EDITOR
             return PlayerGetNameJS();
+#else
+            Debug.Log("[Wortal] Mock Player.GetName()");
+            return "Player";
+#endif
         }
 
         /// <summary>
@@ -42,7 +53,12 @@ namespace DigitalWill.WortalSDK
         /// <returns>URL of base64 image for the player's photo.</returns>
         public string GetPhoto()
         {
+#if UNITY_WEBGL && !UNITY_EDITOR
             return PlayerGetPhotoJS();
+#else
+            Debug.Log("[Wortal] Mock Player.GetPhoto()");
+            return "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
+#endif
         }
 
         /// <summary>
@@ -51,7 +67,12 @@ namespace DigitalWill.WortalSDK
         /// <returns>True if it is the first play. Some platforms always return true.</returns>
         public bool IsFirstPlay()
         {
+#if UNITY_WEBGL && !UNITY_EDITOR
             return PlayerIsFirstPlayJS();
+#else
+            Debug.Log("[Wortal] Mock Player.IsFirstPlay()");
+            return false;
+#endif
         }
 
         /// <summary>
@@ -81,7 +102,23 @@ namespace DigitalWill.WortalSDK
             _getDataCallback = callback;
             Wortal.WortalError = errorCallback;
             string keysStr = string.Join("|", keys);
+#if UNITY_WEBGL && !UNITY_EDITOR
             PlayerGetDataJS(keysStr, PlayerGetDataCallback, Wortal.WortalErrorCallback);
+#else
+            Debug.Log($"[Wortal] Mock Player.GetData({keys})");
+            Dictionary<string, object> data = new()
+            {
+                {
+                    "items", new Dictionary<string, int>
+                    {
+                        { "coins", 100 },
+                        { "boosters", 2 },
+                    }
+                },
+                { "lives", 3 },
+            };
+            PlayerGetDataCallback(JsonConvert.SerializeObject(data));
+#endif
         }
 
         /// <summary>
@@ -110,7 +147,12 @@ namespace DigitalWill.WortalSDK
             _setDataCallback = callback;
             Wortal.WortalError = errorCallback;
             string dataObj = JsonConvert.SerializeObject(data);
+#if UNITY_WEBGL && !UNITY_EDITOR
             PlayerSetDataJS(dataObj, PlayerSetDataCallback, Wortal.WortalErrorCallback);
+#else
+            Debug.Log($"[Wortal] Mock Player.SetData({data})");
+            PlayerSetDataCallback();
+#endif
         }
 
         /// <summary>
@@ -133,7 +175,21 @@ namespace DigitalWill.WortalSDK
             _getConnectedPlayersCallback = callback;
             Wortal.WortalError = errorCallback;
             string payloadStr = JsonConvert.SerializeObject(payload);
+#if UNITY_WEBGL && !UNITY_EDITOR
             PlayerGetConnectedPlayersJS(payloadStr, PlayerGetConnectedPlayersCallback, Wortal.WortalErrorCallback);
+#else
+            Debug.Log($"[Wortal] Mock Player.GetConnectedPlayers({payload})");
+            var player = new Player
+            {
+                ID = "player1",
+                Name = "Player",
+                Photo = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==",
+                IsFirstPlay = false,
+                DaysSinceFirstPlay = 0,
+            };
+            Player[] players = { player };
+            PlayerGetConnectedPlayersCallback(JsonConvert.SerializeObject(players));
+#endif
         }
 
         /// <summary>
@@ -151,7 +207,12 @@ namespace DigitalWill.WortalSDK
         {
             _getSignedPlayerInfoCallback = callback;
             Wortal.WortalError = errorCallback;
+#if UNITY_WEBGL && !UNITY_EDITOR
             PlayerGetSignedPlayerInfoJS(PlayerGetSignedPlayerInfoCallback, Wortal.WortalErrorCallback);
+#else
+            Debug.Log("[Wortal] Mock Player.GetSignedPlayerInfo()");
+            PlayerGetSignedPlayerInfoCallback("player1", "some-signature");
+#endif
         }
 #endregion Public API
 

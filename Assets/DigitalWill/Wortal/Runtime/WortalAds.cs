@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using AOT;
+using UnityEngine;
 
 namespace DigitalWill.WortalSDK
 {
@@ -33,11 +34,17 @@ namespace DigitalWill.WortalSDK
         {
             _beforeAdCallback = beforeAdCallback;
             _afterAdCallback = afterAdCallback;
+#if UNITY_WEBGL && !UNITY_EDITOR
             ShowInterstitialJS(
                 placement.ToString().ToLower(),
                 description,
                 BeforeAdCallback,
                 AfterAdCallback);
+#else
+            Debug.Log($"[Wortal] Mock Ads.ShowInterstitial({placement}, {description})");
+            BeforeAdCallback();
+            AfterAdCallback();
+#endif
         }
 
         /// <summary>
@@ -49,6 +56,7 @@ namespace DigitalWill.WortalSDK
         /// <param name="afterAdCallback">Callback for after the ad is shown. Resume the game here.</param>
         /// <param name="adDismissedCallback">Callback for when the player dismissed the ad. Do not reward the player.</param>
         /// <param name="adViewedCallback">Callback for when the player has successfully watched the ad. Reward the player here.</param>
+        /// <remarks>When calling in editor for testing, passing "dismiss" for description will trigger the adDismissedCallback. Any other description will trigger adViewedCallback.</remarks>
         /// <example><code>
         /// Wortal.Ads.ShowRewarded("ReviveAndContinue",
         ///     () => PauseGame(),
@@ -63,12 +71,26 @@ namespace DigitalWill.WortalSDK
             _afterAdCallback = afterAdCallback;
             _adDismissedCallback = adDismissedCallback;
             _adViewedCallback = adViewedCallback;
+#if UNITY_WEBGL && !UNITY_EDITOR
             ShowRewardedJS(
                 description,
                 BeforeAdCallback,
                 AfterAdCallback,
                 AdDismissedCallback,
                 AdViewedCallback);
+#else
+            Debug.Log($"[Wortal] Mock Ads.ShowRewarded({description})");
+            BeforeAdCallback();
+            AfterAdCallback();
+            if (description == "dismiss")
+            {
+                AdDismissedCallback();
+            }
+            else
+            {
+                AdViewedCallback();
+            }
+#endif
         }
 #endregion Public API
 

@@ -2,6 +2,7 @@ using System;
 using System.Runtime.InteropServices;
 using AOT;
 using Newtonsoft.Json;
+using UnityEngine;
 
 namespace DigitalWill.WortalSDK
 {
@@ -33,7 +34,17 @@ namespace DigitalWill.WortalSDK
         {
             _getLeaderboardCallback = callback;
             Wortal.WortalError = errorCallback;
+#if UNITY_WEBGL && !UNITY_EDITOR
             LeaderboardGetJS(name, LeaderboardGetCallback, Wortal.WortalErrorCallback);
+#else
+            Debug.Log($"[Wortal] Mock Leaderboard.GetLeaderboard({name})");
+            var leaderboard = new Leaderboard
+            {
+                Id = "global",
+                Name = "global",
+            };
+            LeaderboardGetCallback(JsonConvert.SerializeObject(leaderboard));
+#endif
         }
 
         /// <inheritdoc cref="SendEntry(string,int,string,System.Action{DigitalWill.WortalSDK.WortalLeaderboard.LeaderboardEntry},System.Action{DigitalWill.WortalSDK.WortalError})"/>
@@ -61,7 +72,28 @@ namespace DigitalWill.WortalSDK
         {
             _sendEntryCallback = callback;
             Wortal.WortalError = errorCallback;
+#if UNITY_WEBGL && !UNITY_EDITOR
             LeaderboardSendEntryJS(name, score, details, LeaderboardSendEntryCallback, Wortal.WortalErrorCallback);
+#else
+            Debug.Log($"[Wortal] Mock Leaderboard.SendEntry({name}, {score}, {details})");
+            var entry = new LeaderboardEntry
+            {
+                Player = new WortalPlayer.Player
+                {
+                    ID = "player1",
+                    Name = "Player",
+                    Photo = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==",
+                    IsFirstPlay = false,
+                    DaysSinceFirstPlay = 0,
+                },
+                Details = "",
+                FormattedScore = "100 points",
+                Rank = 1,
+                Score = 100,
+                Timestamp = 1672098823,
+            };
+            LeaderboardSendEntryCallback(JsonConvert.SerializeObject(entry));
+#endif
         }
 
         /// <inheritdoc cref="GetEntries(string,int,int,System.Action{DigitalWill.WortalSDK.WortalLeaderboard.LeaderboardEntry[]},System.Action{DigitalWill.WortalSDK.WortalError})"/>
@@ -87,8 +119,30 @@ namespace DigitalWill.WortalSDK
         {
             _getEntriesCallback = callback;
             Wortal.WortalError = errorCallback;
+#if UNITY_WEBGL && !UNITY_EDITOR
             LeaderboardGetEntriesJS(name, count, offset,
                 LeaderboardGetEntriesCallback, Wortal.WortalErrorCallback);
+#else
+            Debug.Log($"[Wortal] Mock Leaderboard.GetEntries({name}, {count}, {offset})");
+            var entry = new LeaderboardEntry
+            {
+                Player = new WortalPlayer.Player
+                {
+                    ID = "player1",
+                    Name = "Player",
+                    Photo = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==",
+                    IsFirstPlay = false,
+                    DaysSinceFirstPlay = 0,
+                },
+                Details = "",
+                FormattedScore = "100 points",
+                Rank = 1,
+                Score = 100,
+                Timestamp = 1672098823,
+            };
+            LeaderboardEntry[] entries = { entry };
+            LeaderboardGetEntriesCallback(JsonConvert.SerializeObject(entries));
+#endif
         }
 
         /// <summary>
@@ -106,7 +160,28 @@ namespace DigitalWill.WortalSDK
         {
             _getPlayerEntryCallback = callback;
             Wortal.WortalError = errorCallback;
+#if UNITY_WEBGL && !UNITY_EDITOR
             LeaderboardGetPlayerEntryJS(name, LeaderboardGetPlayerEntryCallback, Wortal.WortalErrorCallback);
+#else
+            Debug.Log($"[Wortal] Mock Leaderboard.GetPlayerEntry({name})");
+            var entry = new LeaderboardEntry
+            {
+                Player = new WortalPlayer.Player
+                {
+                    ID = "player1",
+                    Name = "Player",
+                    Photo = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==",
+                    IsFirstPlay = false,
+                    DaysSinceFirstPlay = 0,
+                },
+                Details = "",
+                FormattedScore = "100 points",
+                Rank = 1,
+                Score = 100,
+                Timestamp = 1672098823,
+            };
+            LeaderboardGetPlayerEntryCallback(JsonConvert.SerializeObject(entry));
+#endif
         }
 
         /// <summary>
@@ -125,6 +200,12 @@ namespace DigitalWill.WortalSDK
             _getEntryCountCallback = callback;
             Wortal.WortalError = errorCallback;
             LeaderboardGetEntryCountJS(name, LeaderboardGetEntryCountCallback, Wortal.WortalErrorCallback);
+#if UNITY_WEBGL && !UNITY_EDITOR
+            LeaderboardGetPlayerEntryJS(name, LeaderboardGetPlayerEntryCallback, Wortal.WortalErrorCallback);
+#else
+            Debug.Log($"[Wortal] Mock Leaderboard.GetEntryCount({name})");
+            LeaderboardGetEntryCountCallback(1);
+#endif
         }
 
         /// <inheritdoc cref="GetConnectedPlayersEntries(string,int,int,System.Action{DigitalWill.WortalSDK.WortalLeaderboard.LeaderboardEntry[]},System.Action{DigitalWill.WortalSDK.WortalError})"/>
@@ -150,8 +231,30 @@ namespace DigitalWill.WortalSDK
         {
             _getConnectedPlayersEntriesCallback = callback;
             Wortal.WortalError = errorCallback;
+#if UNITY_WEBGL && !UNITY_EDITOR
             LeaderboardGetConnectedPlayersEntriesJS(name, count, offset,
                 LeaderboardGetConnectedPlayersEntriesCallback, Wortal.WortalErrorCallback);
+#else
+            Debug.Log($"[Wortal] Mock Leaderboard.GetConnectedPlayersEntries({name}, {count}, {offset})");
+            var entry = new LeaderboardEntry
+            {
+                Player = new WortalPlayer.Player
+                {
+                    ID = "player1",
+                    Name = "Player",
+                    Photo = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==",
+                    IsFirstPlay = false,
+                    DaysSinceFirstPlay = 0,
+                },
+                Details = "",
+                FormattedScore = "100 points",
+                Rank = 1,
+                Score = 100,
+                Timestamp = 1672098823,
+            };
+            LeaderboardEntry[] entries = { entry };
+            LeaderboardGetEntriesCallback(JsonConvert.SerializeObject(entries));
+#endif
         }
 #endregion Public API
 
