@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using AOT;
 using Newtonsoft.Json;
+using UnityEngine;
 
 namespace DigitalWill.WortalSDK
 {
@@ -25,7 +26,12 @@ namespace DigitalWill.WortalSDK
         /// game is being played on a platform that does not currently support context.</returns>
         public string GetID()
         {
+#if UNITY_WEBGL && !UNITY_EDITOR
             return ContextGetIdJS();
+#else
+            Debug.Log("[Wortal] Mock Context.GetID");
+            return "mock-id";
+#endif
         }
 
         /// <summary>
@@ -44,7 +50,12 @@ namespace DigitalWill.WortalSDK
             _chooseCallback = callback;
             Wortal.WortalError = errorCallback;
             string payloadObj = JsonConvert.SerializeObject(payload);
+#if UNITY_WEBGL && !UNITY_EDITOR
             ContextChooseJS(payloadObj, ContextChooseCallback, Wortal.WortalErrorCallback);
+#else
+            Debug.Log($"[Wortal] Mock Context.Choose({payload})");
+            ContextChooseCallback();
+#endif
         }
 
         /// <summary>
@@ -63,7 +74,12 @@ namespace DigitalWill.WortalSDK
             _shareCallback = callback;
             Wortal.WortalError = errorCallback;
             string payloadObj = JsonConvert.SerializeObject(payload);
+#if UNITY_WEBGL && !UNITY_EDITOR
             ContextShareJS(payloadObj, ContextShareCallback, Wortal.WortalErrorCallback);
+#else
+            Debug.Log($"[Wortal] Mock Context.Share({payload})");
+            ContextShareCallback(1);
+#endif
         }
 
         /// <summary>
@@ -82,7 +98,12 @@ namespace DigitalWill.WortalSDK
             _updateCallback = callback;
             Wortal.WortalError = errorCallback;
             string payloadObj = JsonConvert.SerializeObject(payload);
+#if UNITY_WEBGL && !UNITY_EDITOR
             ContextUpdateJS(payloadObj, ContextUpdateCallback, Wortal.WortalErrorCallback);
+#else
+            Debug.Log($"[Wortal] Mock Context.Update({payload})");
+            ContextUpdateCallback();
+#endif
         }
 
         /// <summary>
@@ -100,7 +121,12 @@ namespace DigitalWill.WortalSDK
         {
             _createCallback = callback;
             Wortal.WortalError = errorCallback;
+#if UNITY_WEBGL && !UNITY_EDITOR
             ContextCreateJS(playerId, ContextCreateCallback, Wortal.WortalErrorCallback);
+#else
+            Debug.Log($"[Wortal] Mock Context.Create({playerId})");
+            ContextCreateCallback();
+#endif
         }
 
         /// <summary>
@@ -118,7 +144,12 @@ namespace DigitalWill.WortalSDK
         {
             _switchCallback = callback;
             Wortal.WortalError = errorCallback;
+#if UNITY_WEBGL && !UNITY_EDITOR
             ContextSwitchJS(contextId, ContextSwitchCallback, Wortal.WortalErrorCallback);
+#else
+            Debug.Log($"[Wortal] Mock Context.Switch({contextId})");
+            ContextSwitchCallback();
+#endif
         }
 #endregion Public API
 

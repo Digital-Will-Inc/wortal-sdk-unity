@@ -2,6 +2,7 @@ using System;
 using System.Runtime.InteropServices;
 using AOT;
 using Newtonsoft.Json;
+using UnityEngine;
 
 namespace DigitalWill.WortalSDK
 {
@@ -23,7 +24,12 @@ namespace DigitalWill.WortalSDK
         /// the player's device, or the IAP service failed to load properly.</returns>
         public bool IsEnabled()
         {
+#if UNITY_WEBGL && !UNITY_EDITOR
             return IAPIsEnabledJS();
+#else
+            Debug.Log("[Wortal] Mock IAP.IsEnabled()");
+            return true;
+#endif
         }
 
         /// <summary>
@@ -40,7 +46,22 @@ namespace DigitalWill.WortalSDK
         {
             _getCatalogCallback = callback;
             Wortal.WortalError = errorCallback;
+#if UNITY_WEBGL && !UNITY_EDITOR
             IAPGetCatalogJS(IAPGetCatalogCallback, Wortal.WortalErrorCallback);
+#else
+            Debug.Log("[Wortal] Mock IAP.GetCatalog()");
+            var product = new Product
+            {
+                Title = "MyProduct",
+                ProductID = "mock.product.id",
+                Description = "A really cool product",
+                ImageURI = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==",
+                Price = "10",
+                PriceCurrencyCode = "USD",
+            };
+            Product[] products = { product };
+            IAPGetCatalogCallback(JsonConvert.SerializeObject(products));
+#endif
         }
 
         /// <summary>
@@ -58,7 +79,22 @@ namespace DigitalWill.WortalSDK
         {
             _getPurchasesCallback = callback;
             Wortal.WortalError = errorCallback;
+#if UNITY_WEBGL && !UNITY_EDITOR
             IAPGetPurchasesJS(IAPGetPurchasesCallback, Wortal.WortalErrorCallback);
+#else
+            Debug.Log("[Wortal] Mock IAP.GetPurchases()");
+            var purchase = new Purchase
+            {
+                DeveloperPayload = "MyPayload",
+                PaymentID = "XYZ123",
+                ProductID = "mock.product.id",
+                PurchaseTime = "1672098823",
+                PurchaseToken = "abcd-1234-xyz",
+                SignedRequest = "aBcDeF12g",
+            };
+            Purchase[] purchases = { purchase };
+            IAPGetPurchasesCallback(JsonConvert.SerializeObject(purchases));
+#endif
         }
 
         /// <summary>
@@ -80,7 +116,21 @@ namespace DigitalWill.WortalSDK
             _makePurchaseCallback = callback;
             Wortal.WortalError = errorCallback;
             string purchaseObj = JsonConvert.SerializeObject(purchase);
+#if UNITY_WEBGL && !UNITY_EDITOR
             IAPMakePurchaseJS(purchaseObj, IAPMakePurchaseCallback, Wortal.WortalErrorCallback);
+#else
+            Debug.Log($"[Wortal] Mock IAP.MakePurchase({purchase})");
+            var purchaseReceipt = new Purchase
+            {
+                DeveloperPayload = "MyPayload",
+                PaymentID = "XYZ123",
+                ProductID = "mock.product.id",
+                PurchaseTime = "1672098823",
+                PurchaseToken = "abcd-1234-xyz",
+                SignedRequest = "aBcDeF12g",
+            };
+            IAPMakePurchaseCallback(JsonConvert.SerializeObject(purchaseReceipt));
+#endif
         }
 
         /// <summary>
@@ -99,7 +149,12 @@ namespace DigitalWill.WortalSDK
         {
             _consumePurchaseCallback = callback;
             Wortal.WortalError = errorCallback;
+#if UNITY_WEBGL && !UNITY_EDITOR
             IAPConsumePurchaseJS(token, IAPConsumePurchaseCallback, Wortal.WortalErrorCallback);
+#else
+            Debug.Log($"[Wortal] Mock IAP.ConsumePurchase({token})");
+            IAPConsumePurchaseCallback();
+#endif
         }
 #endregion Public API
 

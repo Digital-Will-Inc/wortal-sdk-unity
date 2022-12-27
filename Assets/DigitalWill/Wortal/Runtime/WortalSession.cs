@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using AOT;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using UnityEngine;
 
 namespace DigitalWill.WortalSDK
 {
@@ -28,7 +29,17 @@ namespace DigitalWill.WortalSDK
         /// </code></example>
         public IDictionary<string, object> GetEntryPointData()
         {
+#if UNITY_WEBGL && !UNITY_EDITOR
             string data = SessionGetEntryPointDataJS();
+#else
+            Debug.Log("[Wortal] Mock Session.GetEntryPointData()");
+            Dictionary<string, string> dataObj = new()
+            {
+                { "link", "share" },
+                { "friendID", "player2" },
+            };
+            string data = JsonConvert.SerializeObject(dataObj);
+#endif
             return JsonConvert.DeserializeObject<JObject>(data).ToDictionary();
         }
 
@@ -44,7 +55,12 @@ namespace DigitalWill.WortalSDK
         {
             _getEntryPointCallback = callback;
             Wortal.WortalError = errorCallback;
+#if UNITY_WEBGL && !UNITY_EDITOR
             SessionGetEntryPointJS(SessionGetEntryPointCallback, Wortal.WortalErrorCallback);
+#else
+            Debug.Log("[Wortal] Mock Session.GetEntryPoint()");
+            SessionGetEntryPointCallback("social-share");
+#endif
         }
 
         /// <summary>
@@ -61,7 +77,11 @@ namespace DigitalWill.WortalSDK
         public void SetSessionData(IDictionary<string, object> data)
         {
             string dataJson = JsonConvert.SerializeObject(data);
+#if UNITY_WEBGL && !UNITY_EDITOR
             SessionSetSessionDataJS(dataJson);
+#else
+            Debug.Log($"[Wortal] Mock Session.SetSessionData({data})");
+#endif
         }
 
         /// <summary>
@@ -70,7 +90,12 @@ namespace DigitalWill.WortalSDK
         /// <returns>Locale in BCP47 format. http://www.ietf.org/rfc/bcp/bcp47.txt</returns>
         public string GetLocale()
         {
+#if UNITY_WEBGL && !UNITY_EDITOR
             return SessionGetLocaleJS();
+#else
+            Debug.Log("[Wortal] Mock Session.GetLocale()");
+            return "en-US";
+#endif
         }
 
         /// <summary>
@@ -79,7 +104,16 @@ namespace DigitalWill.WortalSDK
         /// <returns>Traffic source info with the parameters that are attached to the game's URL.</returns>
         public TrafficSource GetTrafficSource()
         {
+#if UNITY_WEBGL && !UNITY_EDITOR
             string source = SessionGetTrafficSourceJS();
+#else
+            Debug.Log("[Wortal] Mock Session.GetTrafficSource()");
+            Dictionary<string, string> sourceObj = new()
+            {
+                { "['utm_source']", "some-source" },
+            };
+            string source = JsonConvert.SerializeObject(sourceObj);
+#endif
             return JsonConvert.DeserializeObject<TrafficSource>(source);
         }
 #endregion Public API
