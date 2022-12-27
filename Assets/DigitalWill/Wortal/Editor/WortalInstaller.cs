@@ -27,7 +27,7 @@ namespace DigitalWill.WortalEditor
 
             // Some platforms do not support the decompression fallback extension type.
             PlayerSettings.WebGL.decompressionFallback = false;
-            Debug.Log(LOG_PREFIX + "Disabling compression and fallback..");
+            Debug.Log(LOG_PREFIX + "Disabling compression fallback..");
 
             // This is necessary to prevent code stripping that will break some methods that return
             // a serialized array of objects, such as Leaderboard.GetConnectedPlayersEntries and IAP.GetCatalog.
@@ -47,10 +47,6 @@ namespace DigitalWill.WortalEditor
             if (PlayerSettings.WebGL.template != TEMPLATE_PATH)
             {
                 Debug.LogWarning(LOG_PREFIX + "Wortal WebGL template should be used.");
-            }
-            if (PlayerSettings.WebGL.compressionFormat != WebGLCompressionFormat.Disabled)
-            {
-                Debug.LogWarning(LOG_PREFIX + "Wortal SDK does not currently support compressed WebGL builds.");
             }
             if (PlayerSettings.WebGL.decompressionFallback)
             {
