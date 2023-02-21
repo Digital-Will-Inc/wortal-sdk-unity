@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.InteropServices;
 using AOT;
 using Newtonsoft.Json;
 using UnityEngine;
@@ -11,6 +12,7 @@ namespace DigitalWill.WortalSDK
     public static class Wortal
     {
         public static Action<WortalError> WortalError;
+        public static Action OnPause;
 
         /// <summary>
         /// Ads API
@@ -52,6 +54,9 @@ namespace DigitalWill.WortalSDK
             Leaderboard = new WortalLeaderboard();
             Player = new WortalPlayer();
             Session = new WortalSession();
+#if UNITY_WEBGL && !UNITY_EDITOR
+            OnPauseJS(OnPauseCallback);
+#endif
             Debug.Log("[Wortal] Unity SDK initialization complete.");
         }
 
@@ -61,6 +66,15 @@ namespace DigitalWill.WortalSDK
             var wortalError = JsonConvert.DeserializeObject<WortalError>(error);
             WortalError?.Invoke(wortalError);
         }
+
+        [MonoPInvokeCallback(typeof(Action))]
+        private static void OnPauseCallback()
+        {
+            OnPause?.Invoke();
+        }
+
+        [DllImport("__Internal")]
+        private static extern void OnPauseJS(Action callback);
     }
 
     [Serializable]

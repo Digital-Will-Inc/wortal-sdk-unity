@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [5.2.0] - 2023-02-21
+### Added
+- Support for FB Instant Games
+- onPause callback
+
+### Fixed
+- Possible type mismatch for ad unit IDs
+
+
 ## [5.1.1] - 2022-12-27
 ### Added
 - Mock calls for testing in editor
