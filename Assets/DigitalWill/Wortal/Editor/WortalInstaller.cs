@@ -31,7 +31,11 @@ namespace DigitalWill.WortalEditor
 
             // This is necessary to prevent code stripping that will break some methods that return
             // a serialized array of objects, such as Leaderboard.GetConnectedPlayersEntries and IAP.GetCatalog.
+#if UNITY_2022_1_OR_NEWER
             PlayerSettings.SetIl2CppCodeGeneration(NamedBuildTarget.WebGL, Il2CppCodeGeneration.OptimizeSize);
+#else
+            EditorUserBuildSettings.il2CppCodeGeneration = Il2CppCodeGeneration.OptimizeSize;
+#endif
             Debug.Log(LOG_PREFIX + "Setting IL2CPP code generation strategy..");
 
             Debug.Log(LOG_PREFIX + "Installation finished.");
@@ -52,10 +56,17 @@ namespace DigitalWill.WortalEditor
             {
                 Debug.LogWarning(LOG_PREFIX + "Wortal SDK does not currently support decompression fallback");
             }
+#if UNITY_2022_1_OR_NEWER
             if (PlayerSettings.GetIl2CppCodeGeneration(NamedBuildTarget.WebGL) != Il2CppCodeGeneration.OptimizeSize)
             {
                 Debug.LogWarning(LOG_PREFIX + "IL2CPP code generation should be set to OptimizeSize. Faster (smaller) builds.");
             }
+#else
+            if (EditorUserBuildSettings.il2CppCodeGeneration != Il2CppCodeGeneration.OptimizeSize)
+            {
+                Debug.LogWarning(LOG_PREFIX + "IL2CPP code generation should be set to OptimizeSize. Faster (smaller) builds.");
+            }
+#endif
         }
     }
 }
