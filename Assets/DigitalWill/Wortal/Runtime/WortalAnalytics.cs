@@ -9,6 +9,7 @@ namespace DigitalWill.WortalSDK
     public class WortalAnalytics
     {
 #region Public API
+
         /// <summary>
         /// Logs the start of a level.
         /// </summary>
@@ -16,6 +17,9 @@ namespace DigitalWill.WortalSDK
         /// <example><code>
         /// Wortal.Analytics.LogLevelStart("Level 3");
         /// </code></example>
+        /// <throws><ul>
+        /// <li>INVALID_PARAM</li>
+        /// </ul></throws>
         public void LogLevelStart(string level)
         {
 #if UNITY_WEBGL && !UNITY_EDITOR
@@ -36,6 +40,9 @@ namespace DigitalWill.WortalSDK
         /// <example><code>
         /// Wortal.Analytics.LogLevelEnd("Level 3", "100", true);
         /// </code></example>
+        /// <throws><ul>
+        /// <li>INVALID_PARAM</li>
+        /// </ul></throws>
         public void LogLevelEnd(string level, string score, bool wasCompleted)
         {
 #if UNITY_WEBGL && !UNITY_EDITOR
@@ -52,6 +59,9 @@ namespace DigitalWill.WortalSDK
         /// <example><code>
         /// Wortal.Analytics.LogLevelUp("Level 7");
         /// </code></example>
+        /// <throws><ul>
+        /// <li>INVALID_PARAM</li>
+        /// </ul></throws>
         public void LogLevelUp(string level)
         {
 #if UNITY_WEBGL && !UNITY_EDITOR
@@ -68,6 +78,9 @@ namespace DigitalWill.WortalSDK
         /// <example><code>
         /// Wortal.Analytics.LogScore("100");
         /// </code></example>
+        /// <throws><ul>
+        /// <li>INVALID_PARAM</li>
+        /// </ul></throws>
         public void LogScore(string score)
         {
 #if UNITY_WEBGL && !UNITY_EDITOR
@@ -121,6 +134,9 @@ namespace DigitalWill.WortalSDK
         /// <example><code>
         /// Wortal.Analytics.LogGameChoice("Character", "Blue");
         /// </code></example>
+        /// <throws><ul>
+        /// <li>INVALID_PARAM</li>
+        /// </ul></throws>
         public void LogGameChoice(string decision, string choice)
         {
 #if UNITY_WEBGL && !UNITY_EDITOR
@@ -129,9 +145,10 @@ namespace DigitalWill.WortalSDK
             Debug.Log($"[Wortal] Mock Analytics.LogGameChoice({decision}, {choice})");
 #endif
         }
-#endregion Public API
 
+#endregion Public API
 #region JSlib Interface
+
         [DllImport("__Internal")]
         private static extern void LogLevelStartJS(string level);
 
@@ -152,6 +169,7 @@ namespace DigitalWill.WortalSDK
 
         [DllImport("__Internal")]
         private static extern void LogGameChoiceJS(string decision, string choice);
+
 #endregion JSlib Interface
     }
 }

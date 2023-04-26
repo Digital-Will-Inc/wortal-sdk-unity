@@ -74,6 +74,20 @@
             });
     },
 
+    PlayerFlushDataJS: function (callback, errorCallback) {
+        window.Wortal.player.flushDataAsync()
+            .then(() => {
+                return Module.dynCall_v(callback);
+            })
+            .catch(error => {
+                var errorStr = JSON.stringify(error);
+                var bufferSize = lengthBytesUTF8(errorStr) + 1;
+                var buffer = _malloc(bufferSize);
+                stringToUTF8(errorStr, buffer, bufferSize);
+                return Module.dynCall_vi(errorCallback, buffer);
+            });
+    },
+
     PlayerGetConnectedPlayersJS: function (payload, callback, errorCallback) {
         payloadStr = UTF8ToString(payload);
         payloadJson = JSON.parse(payloadStr);
@@ -108,6 +122,69 @@
                 stringToUTF8(sigStr, sigPtr, sigLen);
 
                 Module.dynCall_vii(callback, idPtr, sigPtr);
+            })
+            .catch(error => {
+                var errorStr = JSON.stringify(error);
+                var bufferSize = lengthBytesUTF8(errorStr) + 1;
+                var buffer = _malloc(bufferSize);
+                stringToUTF8(errorStr, buffer, bufferSize);
+                return Module.dynCall_vi(errorCallback, buffer);
+            });
+    },
+
+    PlayerGetASIDJS: function () {
+        var resultStr = window.Wortal.player.getASID();
+        if (resultStr === null) {
+            resultStr = "";
+        }
+        var bufferSize = lengthBytesUTF8(resultStr) + 1;
+        var buffer = _malloc(bufferSize);
+        stringToUTF8(resultStr, buffer, bufferSize);
+        return buffer;
+    },
+
+    PlayerGetSignedASIDJS: function (callback, errorCallback) {
+        window.Wortal.player.getSignedASIDAsync()
+            .then(info => {
+                var idStr = info.id;
+                var idLen = lengthBytesUTF8(idStr) + 1;
+                var idPtr = _malloc(idLen);
+                stringToUTF8(idStr, idPtr, idLen);
+
+                var sigStr = info.signature;
+                var sigLen = lengthBytesUTF8(sigStr) + 1;
+                var sigPtr = _malloc(sigLen);
+                stringToUTF8(sigStr, sigPtr, sigLen);
+
+                Module.dynCall_vii(callback, idPtr, sigPtr);
+            })
+            .catch(error => {
+                var errorStr = JSON.stringify(error);
+                var bufferSize = lengthBytesUTF8(errorStr) + 1;
+                var buffer = _malloc(bufferSize);
+                stringToUTF8(errorStr, buffer, bufferSize);
+                return Module.dynCall_vi(errorCallback, buffer);
+            });
+    },
+
+    PlayerCanSubscribeBotJS: function (callback, errorCallback) {
+        window.Wortal.player.canSubscribeBotAsync()
+            .then(result => {
+                return Module.dynCall_vi(callback, result);
+            })
+            .catch(error => {
+                var errorStr = JSON.stringify(error);
+                var bufferSize = lengthBytesUTF8(errorStr) + 1;
+                var buffer = _malloc(bufferSize);
+                stringToUTF8(errorStr, buffer, bufferSize);
+                return Module.dynCall_vi(errorCallback, buffer);
+            });
+    },
+
+    PlayerSubscribeBotJS: function (callback, errorCallback) {
+        window.Wortal.player.subscribeBotAsync()
+            .then(() => {
+                return Module.dynCall_v(callback);
             })
             .catch(error => {
                 var errorStr = JSON.stringify(error);

@@ -31,7 +31,7 @@ namespace DigitalWill.WortalEditor
 
             // This is necessary to prevent code stripping that will break some methods that return
             // a serialized array of objects, such as Leaderboard.GetConnectedPlayersEntries and IAP.GetCatalog.
-            EditorUserBuildSettings.il2CppCodeGeneration = Il2CppCodeGeneration.OptimizeSize;
+            PlayerSettings.SetIl2CppCodeGeneration(NamedBuildTarget.WebGL, Il2CppCodeGeneration.OptimizeSize);
             Debug.Log(LOG_PREFIX + "Setting IL2CPP code generation strategy..");
 
             Debug.Log(LOG_PREFIX + "Installation finished.");
@@ -40,7 +40,7 @@ namespace DigitalWill.WortalEditor
         [InitializeOnLoadMethod]
         private static void CheckSettings()
         {
-            if (PlayerSettings.runInBackground == false)
+            if (!PlayerSettings.runInBackground)
             {
                 Debug.LogWarning(LOG_PREFIX + "PlayerSettings.runInBackground should be true.");
             }
@@ -52,7 +52,7 @@ namespace DigitalWill.WortalEditor
             {
                 Debug.LogWarning(LOG_PREFIX + "Wortal SDK does not currently support decompression fallback");
             }
-            if (EditorUserBuildSettings.il2CppCodeGeneration != Il2CppCodeGeneration.OptimizeSize)
+            if (PlayerSettings.GetIl2CppCodeGeneration(NamedBuildTarget.WebGL) != Il2CppCodeGeneration.OptimizeSize)
             {
                 Debug.LogWarning(LOG_PREFIX + "IL2CPP code generation should be set to OptimizeSize. Faster (smaller) builds.");
             }
