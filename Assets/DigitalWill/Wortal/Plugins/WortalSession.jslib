@@ -48,6 +48,14 @@
         var buffer = _malloc(bufferSize);
         stringToUTF8(resultStr, buffer, bufferSize);
         return buffer;
+    },
+
+    SessionGetPlatformJS: function () {
+        var result = window.Wortal.session.getPlatform();
+        var bufferSize = lengthBytesUTF8(result) + 1;
+        var buffer = _malloc(bufferSize);
+        stringToUTF8(result, buffer, bufferSize);
+        return buffer;
     }
 
 });

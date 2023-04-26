@@ -6,10 +6,10 @@ using UnityEngine;
 
 namespace DigitalWill.WortalSDK
 {
-	/// <summary>
-	/// Leaderboard API
-	/// </summary>
-	public class WortalLeaderboard
+    /// <summary>
+    /// Leaderboard API
+    /// </summary>
+    public class WortalLeaderboard
     {
         private static Action<Leaderboard> _getLeaderboardCallback;
         private static Action<LeaderboardEntry> _sendEntryCallback;
@@ -19,6 +19,7 @@ namespace DigitalWill.WortalSDK
         private static Action<LeaderboardEntry[]> _getConnectedPlayersEntriesCallback;
 
 #region Public API
+
         /// <summary>
         /// Gets the leaderboard with the given name. Access the leaderboard API via the Leaderboard returned here.
         /// </summary>
@@ -30,6 +31,14 @@ namespace DigitalWill.WortalSDK
         ///     board => Debug.Log("Leaderboard: " + board.Name),
         ///     error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
         /// </code></example>
+        /// <throws><ul>
+        /// <li>NOT_SUPPORTED</li>
+        /// <li>LEADERBOARD_NOT_FOUND</li>
+        /// <li>NETWORK_FAILURE</li>
+        /// <li>CLIENT_UNSUPPORTED_OPERATION</li>
+        /// <li>INVALID_OPERATION</li>
+        /// <li>INVALID_PARAM</li>
+        /// </ul></throws>
         public void GetLeaderboard(string name, Action<Leaderboard> callback, Action<WortalError> errorCallback)
         {
             _getLeaderboardCallback = callback;
@@ -68,6 +77,15 @@ namespace DigitalWill.WortalSDK
         ///     entry => Debug.Log("Score: " + entry.Score),
         ///     error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
         /// </code></example>
+        /// <throws><ul>
+        /// <li>NOT_SUPPORTED</li>
+        /// <li>LEADERBOARD_WRONG_CONTEXT</li>
+        /// <li>NETWORK_FAILURE</li>
+        /// <li>CLIENT_UNSUPPORTED_OPERATION</li>
+        /// <li>INVALID_OPERATION</li>
+        /// <li>INVALID_PARAM</li>
+        /// <li>RATE_LIMITED</li>
+        /// </ul></throws>
         public void SendEntry(string name, int score, string details, Action<LeaderboardEntry> callback, Action<WortalError> errorCallback)
         {
             _sendEntryCallback = callback;
@@ -115,6 +133,12 @@ namespace DigitalWill.WortalSDK
         ///     entries => Debug.Log("Score: " + entries[0].Score),
         ///     error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
         /// </code></example>
+        /// <throws><ul>
+        /// <li>NOT_SUPPORTED</li>
+        /// <li>INVALID_PARAM</li>
+        /// <li>NETWORK_FAILURE</li>
+        /// <li>RATE_LIMITED</li>
+        /// </ul></throws>
         public void GetEntries(string name, int count, int offset, Action<LeaderboardEntry[]> callback, Action<WortalError> errorCallback)
         {
             _getEntriesCallback = callback;
@@ -156,6 +180,13 @@ namespace DigitalWill.WortalSDK
         ///     entry => Debug.Log("Score: " + entry.Score),
         ///     error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
         /// </code></example>
+        /// <throws><ul>
+        /// <li>NOT_SUPPORTED</li>
+        /// <li>INVALID_PARAM</li>
+        /// <li>INVALID_OPERATION</li>
+        /// <li>NETWORK_FAILURE</li>
+        /// <li>RATE_LIMITED</li>
+        /// </ul></throws>
         public void GetPlayerEntry(string name, Action<LeaderboardEntry> callback, Action<WortalError> errorCallback)
         {
             _getPlayerEntryCallback = callback;
@@ -195,6 +226,12 @@ namespace DigitalWill.WortalSDK
         ///     count => Debug.Log("Count: " + count),
         ///     error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
         /// </code></example>
+        /// <throws><ul>
+        /// <li>NOT_SUPPORTED</li>
+        /// <li>INVALID_PARAM</li>
+        /// <li>NETWORK_FAILURE</li>
+        /// <li>RATE_LIMITED</li>
+        /// </ul></throws>
         public void GetEntryCount(string name, Action<int> callback, Action<WortalError> errorCallback)
         {
             _getEntryCountCallback = callback;
@@ -226,6 +263,12 @@ namespace DigitalWill.WortalSDK
         ///     entries => Debug.Log("Entries: " + entries.Length),
         ///     error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
         /// </code></example>
+        /// <throws><ul>
+        /// <li>NOT_SUPPORTED</li>
+        /// <li>INVALID_PARAM</li>
+        /// <li>NETWORK_FAILURE</li>
+        /// <li>RATE_LIMITED</li>
+        /// </ul></throws>
         public void GetConnectedPlayersEntries(string name, int count, int offset, Action<LeaderboardEntry[]> callback, Action<WortalError> errorCallback)
         {
             _getConnectedPlayersEntriesCallback = callback;
@@ -255,9 +298,10 @@ namespace DigitalWill.WortalSDK
             LeaderboardGetEntriesCallback(JsonConvert.SerializeObject(entries));
 #endif
         }
-#endregion Public API
 
+#endregion Public API
 #region JSlib Interface
+
         [DllImport("__Internal")]
         private static extern void LeaderboardGetJS(string name, Action<string> callback, Action<string> errorCallback);
 
@@ -316,9 +360,10 @@ namespace DigitalWill.WortalSDK
             LeaderboardEntry[] entriesObj = JsonConvert.DeserializeObject<LeaderboardEntry[]>(entries);
             _getConnectedPlayersEntriesCallback?.Invoke(entriesObj);
         }
-#endregion JSlib Interface
 
+#endregion JSlib Interface
 #region Types
+
         /// <summary>
         /// Represents a leaderboard for the game.
         /// </summary>
@@ -330,13 +375,11 @@ namespace DigitalWill.WortalSDK
             /// </summary>
             [JsonProperty("id")]
             public string Id;
-
             /// <summary>
             /// Name of the leaderboard.
             /// </summary>
             [JsonProperty("name")]
             public string Name;
-
             /// <summary>
             /// Context ID of the leaderboard, if one exits.
             /// </summary>
@@ -355,37 +398,33 @@ namespace DigitalWill.WortalSDK
             /// </summary>
             [JsonProperty("player")]
             public WortalPlayer.Player Player;
-
             /// <summary>
             /// Rank of this entry in the leaderboard.
             /// </summary>
             [JsonProperty("rank")]
             public int Rank;
-
             /// <summary>
             /// Score achieved in this entry.
             /// </summary>
             [JsonProperty("score")]
             public int Score;
-
             /// <summary>
             /// Score of this entry with optional formatting. Ex: '100 points'
             /// </summary>
             [JsonProperty("formattedScore")]
             public string FormattedScore;
-
             /// <summary>
             /// Timestamp of when this entry was made.
             /// </summary>
             [JsonProperty("timestamp")]
             public int Timestamp;
-
             /// <summary>
             /// Optional details about this entry.
             /// </summary>
             [JsonProperty("details", NullValueHandling = NullValueHandling.Ignore)]
             public string Details;
         }
+
 #endregion Types
-	}
+    }
 }

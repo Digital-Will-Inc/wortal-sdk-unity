@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [5.3.0] - 2023-04-26
+### Added
+- Ads on Viber
+- Group chat context for FB Instant Games
+- Game ID parsing for FB Instant Games
+- Converter util for FB leaderboards
+- Ads API: noFill callback for ad calls
+- Context APIs: getType, getPlayersAsync, shareLinkAsync, isSizeBetween
+- Player API: flushDataAsync, getASIDAsync, getSignedASIDAsync, canSubscribeBotAsync, subscribeBotAsync
+- Session API: getPlatform
+
+### Changed
+- Context and Player APIs now have optional null return values to match platform SDKs
+- Improved docs
+- Improved error handling
+
 ## [5.2.0] - 2023-02-21
 ### Added
 - Support for FB Instant Games
@@ -11,7 +27,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 - Possible type mismatch for ad unit IDs
-
 
 ## [5.1.1] - 2022-12-27
 ### Added

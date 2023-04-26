@@ -8,14 +8,15 @@ using UnityEngine;
 
 namespace DigitalWill.WortalSDK
 {
-	/// <summary>
-	/// Session API
-	/// </summary>
-	public class WortalSession
+    /// <summary>
+    /// Session API
+    /// </summary>
+    public class WortalSession
     {
         private static Action<string> _getEntryPointCallback;
 
 #region Public API
+
         /// <summary>
         /// Gets the data bound to the entry point.
         /// </summary>
@@ -116,9 +117,25 @@ namespace DigitalWill.WortalSDK
 #endif
             return JsonConvert.DeserializeObject<TrafficSource>(source);
         }
-#endregion Public API
 
+        /// <summary>
+        /// Gets the platform the game is running on. This is useful for platform specific code.
+        /// For example, if you want to show a different social share asset on Facebook than on Link.
+        /// </summary>
+        /// <returns><see cref="WortalSession.Platform"/> the game is running on.</returns>
+        public string GetPlatform()
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            return SessionGetPlatformJS();
+#else
+            Debug.Log("[Wortal] Mock Session.SessionGetPlatform()");
+            return Platform.DEBUG;
+#endif
+        }
+
+#endregion Public API
 #region JSlib Interface
+
         [DllImport("__Internal")]
         private static extern string SessionGetEntryPointDataJS();
 
@@ -134,14 +151,18 @@ namespace DigitalWill.WortalSDK
         [DllImport("__Internal")]
         private static extern string SessionGetTrafficSourceJS();
 
+        [DllImport("__Internal")]
+        private static extern string SessionGetPlatformJS();
+
         [MonoPInvokeCallback(typeof(Action<string>))]
         private static void SessionGetEntryPointCallback(string entryPoint)
         {
             _getEntryPointCallback?.Invoke(entryPoint);
         }
-#endregion JSlib Interface
 
+#endregion JSlib Interface
 #region Types
+
         /// <summary>
         /// Traffic source info.
         /// </summary>
@@ -153,13 +174,27 @@ namespace DigitalWill.WortalSDK
             /// </summary>
             [JsonProperty("['r_entrypoint']", NullValueHandling = NullValueHandling.Ignore)]
             public string EntryPoint;
-
             /// <summary>
             /// UTM source tag.
             /// </summary>
             [JsonProperty("['utm_source']", NullValueHandling = NullValueHandling.Ignore)]
             public string UTMSource;
         }
+
+        /// <summary>
+        /// Different platforms the game can be launched from.
+        /// </summary>
+        [Serializable]
+        public static class Platform
+        {
+            public const string WORTAL = "wortal";
+            public const string LINK = "link";
+            public const string VIBER = "viber";
+            public const string GAME_DISTRIBUTION = "gd";
+            public const string FACEBOOK = "facebook";
+            public const string DEBUG = "debug";
+        }
+
 #endregion Types
-	}
+    }
 }

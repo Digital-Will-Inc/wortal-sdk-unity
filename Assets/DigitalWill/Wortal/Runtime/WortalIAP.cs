@@ -6,10 +6,10 @@ using UnityEngine;
 
 namespace DigitalWill.WortalSDK
 {
-	/// <summary>
-	/// In-App Purchasing API
-	/// </summary>
-	public class WortalIAP
+    /// <summary>
+    /// In-App Purchasing API
+    /// </summary>
+    public class WortalIAP
     {
         private static Action<Product[]> _getCatalogCallback;
         private static Action<Purchase[]> _getPurchasesCallback;
@@ -17,6 +17,7 @@ namespace DigitalWill.WortalSDK
         private static Action _consumePurchaseCallback;
 
 #region Public API
+
         /// <summary>
         /// Checks whether IAP is enabled in this session.
         /// </summary>
@@ -42,6 +43,12 @@ namespace DigitalWill.WortalSDK
         ///     catalog => Debug.Log(catalog[0].Title),
         ///     error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
         /// </code></example>
+        /// <throws><ul>
+        /// <li>NOT_SUPPORTED</li>
+        /// <li>CLIENT_UNSUPPORTED_OPERATION</li>
+        /// <li>PAYMENTS_NOT_INITIALIZED</li>
+        /// <li>NETWORK_FAILURE</li>
+        /// </ul></throws>
         public void GetCatalog(Action<Product[]> callback, Action<WortalError> errorCallback)
         {
             _getCatalogCallback = callback;
@@ -75,6 +82,12 @@ namespace DigitalWill.WortalSDK
         ///     purchases => Debug.Log(purchases[0].PurchaseToken), // Use this token to consume purchase
         ///     error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
         /// </code></example>
+        /// <throws><ul>
+        /// <li>NOT_SUPPORTED</li>
+        /// <li>CLIENT_UNSUPPORTED_OPERATION</li>
+        /// <li>PAYMENTS_NOT_INITIALIZED</li>
+        /// <li>NETWORK_FAILURE</li>
+        /// </ul></throws>
         public void GetPurchases(Action<Purchase[]> callback, Action<WortalError> errorCallback)
         {
             _getPurchasesCallback = callback;
@@ -111,6 +124,15 @@ namespace DigitalWill.WortalSDK
         ///     purchase => Debug.Log(purchase.PurchaseToken), // Use this token to consume purchase
         ///     error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
         /// </code></example>
+        /// <throws><ul>
+        /// <li>NOT_SUPPORTED</li>
+        /// <li>CLIENT_UNSUPPORTED_OPERATION</li>
+        /// <li>PAYMENTS_NOT_INITIALIZED</li>
+        /// <li>INVALID_PARAM</li>
+        /// <li>NETWORK_FAILURE</li>
+        /// <li>INVALID_OPERATION</li>
+        /// <li>USER_INPUT</li>
+        /// </ul></throws>
         public void MakePurchase(PurchaseConfig purchase, Action<Purchase> callback, Action<WortalError> errorCallback)
         {
             _makePurchaseCallback = callback;
@@ -145,6 +167,13 @@ namespace DigitalWill.WortalSDK
         ///     () => DoSomethingWithConsumedPurchase(),
         ///     error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
         /// </code></example>
+        /// <throws><ul>
+        /// <li>NOT_SUPPORTED</li>
+        /// <li>CLIENT_UNSUPPORTED_OPERATION</li>
+        /// <li>PAYMENTS_NOT_INITIALIZED</li>
+        /// <li>INVALID_PARAM</li>
+        /// <li>NETWORK_FAILURE</li>
+        /// </ul></throws>
         public void ConsumePurchase(string token, Action callback, Action<WortalError> errorCallback)
         {
             _consumePurchaseCallback = callback;
@@ -156,9 +185,10 @@ namespace DigitalWill.WortalSDK
             IAPConsumePurchaseCallback();
 #endif
         }
-#endregion Public API
 
+#endregion Public API
 #region JSlib Interface
+
         [DllImport("__Internal")]
         private static extern bool IAPIsEnabledJS();
 
@@ -200,9 +230,10 @@ namespace DigitalWill.WortalSDK
         {
             _consumePurchaseCallback?.Invoke();
         }
-#endregion JSlib Interface
 
+#endregion JSlib Interface
 #region Types
+
         [Serializable]
         public struct Product
         {
@@ -211,31 +242,26 @@ namespace DigitalWill.WortalSDK
             /// </summary>
             [JsonProperty("title")]
             public string Title;
-
             /// <summary>
             /// ID of the product.
             /// </summary>
             [JsonProperty("productID")]
             public string ProductID;
-
             /// <summary>
             /// Text description of the product.
             /// </summary>
             [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore)]
             public string Description;
-
             /// <summary>
             /// A URL to the product's image.
             /// </summary>
             [JsonProperty("imageURI", NullValueHandling = NullValueHandling.Ignore)]
             public string ImageURI;
-
             /// <summary>
             /// A localized string representing the product's price in the local currency, e.g. "$1".
             /// </summary>
             [JsonProperty("price")]
             public string Price;
-
             /// <summary>
             /// A string representing which currency is the price calculated in, following [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217).
             /// </summary>
@@ -251,31 +277,26 @@ namespace DigitalWill.WortalSDK
             /// </summary>
             [JsonProperty("developerPayload", NullValueHandling = NullValueHandling.Ignore)]
             public string DeveloperPayload;
-
             /// <summary>
             /// ID of the payment (e.g. Google Play Order).
             /// </summary>
             [JsonProperty("paymentID")]
             public string PaymentID;
-
             /// <summary>
             /// ID of the product.
             /// </summary>
             [JsonProperty("productID")]
             public string ProductID;
-
             /// <summary>
             /// Timestamp of the payment.
             /// </summary>
             [JsonProperty("purchaseTime")]
             public string PurchaseTime;
-
             /// <summary>
             /// Token for purchase consumption.
             /// </summary>
             [JsonProperty("purchaseToken")]
             public string PurchaseToken;
-
             /// <summary>
             /// A signature that can be verified on game's backend server.
             /// Server side validation can be done by following these steps:
@@ -298,13 +319,13 @@ namespace DigitalWill.WortalSDK
             /// </summary>
             [JsonProperty("productID")]
             public string ProductID;
-
             /// <summary>
             /// Optional payload assigned by game developer, which will be also attached in the signed purchase request.
             /// </summary>
             [JsonProperty("developerPayload", NullValueHandling = NullValueHandling.Ignore)]
             public string DeveloperPayload;
         }
+
 #endregion Types
-	}
+    }
 }

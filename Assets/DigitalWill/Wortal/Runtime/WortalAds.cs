@@ -14,8 +14,10 @@ namespace DigitalWill.WortalSDK
         private static Action _afterAdCallback;
         private static Action _adDismissedCallback;
         private static Action _adViewedCallback;
+        private static Action _noFillCallback;
 
 #region Public API
+
         /// <summary>
         /// Shows an interstitial ad. These can be shown at various points in the game such as a level end, restart or a timed
         /// interval in games with longer levels.
@@ -24,22 +26,31 @@ namespace DigitalWill.WortalSDK
         /// <param name="description">Description of the placement.</param>
         /// <param name="beforeAdCallback">Callback for before the ad is shown. Pause the game here.</param>
         /// <param name="afterAdCallback">Callback for after the ad is shown. Resume the game here.</param>
+        /// <param name="noFillCallback">Callback for when no ad is filled. Resume the game here.</param>
         /// <example><code>
         /// Wortal.Ads.ShowInterstitial(Placement.Next, "NextLevel",
         ///     () => PauseGame(),
         ///     () => ResumeGame());
         /// </code></example>
-        public void ShowInterstitial(Placement placement, string description,
-                                     Action beforeAdCallback, Action afterAdCallback)
+        /// <throws><ul>
+        /// <li>INVALID_PARAM</li>
+        /// </ul></throws>
+        public void ShowInterstitial(Placement placement,
+                                     string description,
+                                     Action beforeAdCallback,
+                                     Action afterAdCallback,
+                                     Action noFillCallback = null)
         {
             _beforeAdCallback = beforeAdCallback;
             _afterAdCallback = afterAdCallback;
+            _noFillCallback = noFillCallback ?? afterAdCallback;
 #if UNITY_WEBGL && !UNITY_EDITOR
             ShowInterstitialJS(
                 placement.ToString().ToLower(),
                 description,
                 BeforeAdCallback,
-                AfterAdCallback);
+                AfterAdCallback,
+                NoFillCallback);
 #else
             Debug.Log($"[Wortal] Mock Ads.ShowInterstitial({placement}, {description})");
             BeforeAdCallback();
@@ -56,6 +67,7 @@ namespace DigitalWill.WortalSDK
         /// <param name="afterAdCallback">Callback for after the ad is shown. Resume the game here.</param>
         /// <param name="adDismissedCallback">Callback for when the player dismissed the ad. Do not reward the player.</param>
         /// <param name="adViewedCallback">Callback for when the player has successfully watched the ad. Reward the player here.</param>
+        /// <param name="noFillCallback">Callback for when no ad is filled. Resume the game here.</param>
         /// <remarks>When calling in editor for testing, passing "dismiss" for description will trigger the adDismissedCallback. Any other description will trigger adViewedCallback.</remarks>
         /// <example><code>
         /// Wortal.Ads.ShowRewarded("ReviveAndContinue",
@@ -64,20 +76,29 @@ namespace DigitalWill.WortalSDK
         ///     () => DontReward(),
         ///     () => RewardPlayer());
         ///</code></example>
-        public void ShowRewarded(string description, Action beforeAdCallback, Action afterAdCallback,
-                                 Action adDismissedCallback, Action adViewedCallback)
+        /// <throws><ul>
+        /// <li>INVALID_PARAM</li>
+        /// </ul></throws>
+        public void ShowRewarded(string description,
+                                 Action beforeAdCallback,
+                                 Action afterAdCallback,
+                                 Action adDismissedCallback,
+                                 Action adViewedCallback,
+                                 Action noFillCallback = null)
         {
             _beforeAdCallback = beforeAdCallback;
             _afterAdCallback = afterAdCallback;
             _adDismissedCallback = adDismissedCallback;
             _adViewedCallback = adViewedCallback;
+            _noFillCallback = noFillCallback ?? afterAdCallback;
 #if UNITY_WEBGL && !UNITY_EDITOR
             ShowRewardedJS(
                 description,
                 BeforeAdCallback,
                 AfterAdCallback,
                 AdDismissedCallback,
-                AdViewedCallback);
+                AdViewedCallback,
+                NoFillCallback);
 #else
             Debug.Log($"[Wortal] Mock Ads.ShowRewarded({description})");
             BeforeAdCallback();
@@ -92,20 +113,24 @@ namespace DigitalWill.WortalSDK
             }
 #endif
         }
-#endregion Public API
 
+#endregion Public API
 #region JSlib Interface
+
         [DllImport("__Internal")]
-        private static extern void ShowInterstitialJS(string type, string description,
+        private static extern void ShowInterstitialJS(string type,
+                                                      string description,
                                                       Action beforeAdCallback,
-                                                      Action afterAdCallback);
+                                                      Action afterAdCallback,
+                                                      Action noFillCallback);
 
         [DllImport("__Internal")]
         private static extern void ShowRewardedJS(string description,
                                                   Action beforeAdCallback,
                                                   Action afterAdCallback,
                                                   Action adDismissedCallback,
-                                                  Action adViewedCallback);
+                                                  Action adViewedCallback,
+                                                  Action noFillCallback);
 
         [MonoPInvokeCallback(typeof(Action))]
         private static void BeforeAdCallback()
@@ -130,6 +155,13 @@ namespace DigitalWill.WortalSDK
         {
             _adViewedCallback?.Invoke();
         }
+
+        [MonoPInvokeCallback(typeof(Action))]
+        private static void NoFillCallback()
+        {
+            _noFillCallback?.Invoke();
+        }
+
 #endregion JSlib Interface
     }
 
