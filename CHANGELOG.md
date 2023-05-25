@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [5.4.0] - 2023-05-25
+### Added
+- Context Payload templates
+- Linker to prevent code stripping of Wortal classes
+
+### Changed
+- Context types are now enums
+- Error codes are now enums
+- Wortal modules now constructed on Wortal creation instead of on Initialization
+
 ## [5.3.1] - 2023-04-26
 ### Fixed
 - Installer uses new API that is only supported by Unity 2022.1+
