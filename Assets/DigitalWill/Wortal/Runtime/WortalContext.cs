@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using AOT;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using UnityEngine;
 
 namespace DigitalWill.WortalSDK
@@ -47,7 +48,7 @@ namespace DigitalWill.WortalSDK
             return ContextGetTypeJS();
 #else
             Debug.Log("[Wortal] Mock Context.GetType");
-            return ContextType.SOLO;
+            return ContextType.SOLO.ToString();
 #endif
         }
 
@@ -425,37 +426,44 @@ namespace DigitalWill.WortalSDK
         /// <summary>
         /// Available options for the ContextFilter type in the SDK Core.
         /// </summary>
-        [Serializable]
-        public static class ContextFilter
+        [JsonConverter(typeof(StringEnumConverter))]
+        public enum ContextFilter
         {
+            /// <summary>
+            /// Ignores this parameter and does not send to the SDK.
+            /// </summary>
+            NONE,
             /// <summary>
             /// Only enlists contexts that the current player is in, but never participated in (e.g. a new context created by a friend).
             /// </summary>
-            public const string NEW_CONTEXT_ONLY = "NEW_CONTEXT_ONLY";
+            NEW_CONTEXT_ONLY,
             /// <summary>
             /// Enlists contexts that the current player has participated before.
             /// </summary>
-            public const string INCLUDE_EXISTING_CHALLENGES = "INCLUDE_EXISTING_CHALLENGES";
+            INCLUDE_EXISTING_CHALLENGES,
             /// <summary>
             /// Only enlists friends who haven't played this game before.
             /// </summary>
-            public const string NEW_PLAYERS_ONLY = "NEW_PLAYERS_ONLY";
+            NEW_PLAYERS_ONLY,
             /// <summary>
             /// Only enlists friends who haven't been sent an in-game message before. This filter can be fine-tuned with `hoursSinceInvitation` parameter.
             /// </summary>
-            public const string NEW_INVITATIONS_ONLY = "NEW_INVITATIONS_ONLY";
+            NEW_INVITATIONS_ONLY,
         }
 
         /// <summary>
         /// Available options for the ContextType type in the SDK Core.
         /// </summary>
-        [Serializable]
-        public static class ContextType
+        public enum ContextType
         {
-            public const string SOLO = "SOLO";
-            public const string THREAD = "THREAD";
-            public const string GROUP = "GROUP";
-            public const string POST = "POST";
+            /// <summary>
+            /// Ignores this parameter and does not send to the SDK.
+            /// </summary>
+            NONE,
+            SOLO,
+            THREAD,
+            GROUP,
+            POST,
         }
 
         /// <summary>
@@ -475,71 +483,86 @@ namespace DigitalWill.WortalSDK
         /// <summary>
         /// Available options for the Strategy type in the SDK Core.
         /// </summary>
-        [Serializable]
-        public static class StrategyType
+        public enum StrategyType
         {
+            /// <summary>
+            /// Ignores this parameter and does not send to the SDK.
+            /// </summary>
+            NONE,
             /// <summary>
             /// Will be sent immediately.
             /// </summary>
-            public const string IMMEDIATE = "IMMEDIATE";
+            IMMEDIATE,
             /// <summary>
             /// When the game session ends, the latest payload will be sent.
             /// </summary>
-            public const string LAST = "LAST";
+            LAST,
             /// <summary>
             /// Will be sent immediately, and also discard any pending `LAST` payloads in the same session.
             /// </summary>
-            public const string IMMEDIATE_CLEAR = "IMMEDIATE_CLEAR";
+            IMMEDIATE_CLEAR,
         }
 
         /// <summary>
         /// Available options for the UI type in the SDK Core.
         /// </summary>
-        [Serializable]
-        public static class UIType
+        public enum UIType
         {
+            /// <summary>
+            /// Ignores this parameter and does not send to the SDK.
+            /// </summary>
+            NONE,
             /// <summary>
             /// Serial contact card with share and skip button.
             /// </summary>
-            public const string DEFAULT = "DEFAULT";
+            DEFAULT,
             /// <summary>
             /// Selectable contact list.
             /// </summary>
-            public const string MULTIPLE = "MULTIPLE";
+            MULTIPLE,
         }
 
         /// <summary>
         /// Available options for the Intent type in the SDK Core.
         /// </summary>
-        [Serializable]
-        public static class IntentType
+        public enum IntentType
         {
-            public const string INVITE = "INVITE";
-            public const string REQUEST = "REQUEST";
-            public const string CHALLENGE = "CHALLENGE";
-            public const string SHARE = "SHARE";
+            /// <summary>
+            /// Ignores this parameter and does not send to the SDK.
+            /// </summary>
+            NONE,
+            INVITE,
+            REQUEST,
+            CHALLENGE,
+            SHARE,
         }
 
         /// <summary>
         /// Available options for the Notifications type in the SDK Core.
         /// </summary>
-        [Serializable]
-        public static class NotificationsType
+        public enum NotificationsType
         {
-            public const string NO_PUSH = "NO_PUSH";
-            public const string PUSH = "PUSH";
+            /// <summary>
+            /// Ignores this parameter and does not send to the SDK.
+            /// </summary>
+            NONE,
+            NO_PUSH,
+            PUSH,
         }
 
         /// <summary>
         /// Available options for the ShareDestination type in the SDK Core.
         /// </summary>
-        [Serializable]
-        public static class ShareDestination
+        public enum ShareDestination
         {
-            public const string NEWSFEED = "NEWSFEED";
-            public const string GROUP = "GROUP";
-            public const string COPY_LINK = "COPY_LINK";
-            public const string MESSENGER = "MESSENGER";
+            /// <summary>
+            /// Ignores this parameter and does not send to the SDK.
+            /// </summary>
+            NONE,
+            NEWSFEED,
+            GROUP,
+            COPY_LINK,
+            MESSENGER,
         }
 
 #endregion Type Constants
@@ -602,9 +625,8 @@ namespace DigitalWill.WortalSDK
         /// <summary>
         /// An array of filters to be applied to the friend list. Only the first filter is currently used.
         /// </summary>
-        /// <remarks>Use <see cref="WortalContext.ContextFilter"/> here.</remarks>
-        [JsonProperty("filters", NullValueHandling = NullValueHandling.Ignore)]
-        public string[] Filters;
+        [JsonProperty("filters", NullValueHandling = NullValueHandling.Ignore, DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public WortalContext.ContextFilter[] Filters;
         /// <summary>
         /// Context maximum size.
         /// </summary>
@@ -631,15 +653,13 @@ namespace DigitalWill.WortalSDK
         /// <summary>
         /// Message format to be used. There's no visible difference among the available options.
         /// </summary>
-        /// <remarks>Use <see cref="WortalContext.IntentType"/> here.</remarks>
-        [JsonProperty("intent", NullValueHandling = NullValueHandling.Ignore)]
-        public string Intent;
+        [JsonProperty("intent", NullValueHandling = NullValueHandling.Ignore, DefaultValueHandling = DefaultValueHandling.Ignore), JsonConverter(typeof(StringEnumConverter))]
+        public WortalContext.IntentType Intent;
         /// <summary>
         /// Optional property to switch share UI mode.
         /// </summary>
-        /// <remarks>Use <see cref="WortalContext.UIType"/> here.</remarks>
-        [JsonProperty("ui", NullValueHandling = NullValueHandling.Ignore)]
-        public string UI;
+        [JsonProperty("ui", NullValueHandling = NullValueHandling.Ignore, DefaultValueHandling = DefaultValueHandling.Ignore), JsonConverter(typeof(StringEnumConverter))]
+        public WortalContext.UIType UI;
         /// <summary>
         /// Defines the minimum number of players to be selected to start sharing.
         /// </summary>
@@ -648,21 +668,18 @@ namespace DigitalWill.WortalSDK
         /// <summary>
         /// Defines how the update message should be delivered.
         /// </summary>
-        /// <remarks>Use <see cref="WortalContext.StrategyType"/> here.</remarks>
-        [JsonProperty("strategy", NullValueHandling = NullValueHandling.Ignore)]
-        public string Strategy;
+        [JsonProperty("strategy", NullValueHandling = NullValueHandling.Ignore, DefaultValueHandling = DefaultValueHandling.Ignore), JsonConverter(typeof(StringEnumConverter))]
+        public WortalContext.StrategyType Strategy;
         /// <summary>
         /// Specifies if the message should trigger push notification.
         /// </summary>
-        /// <remarks>Use <see cref="WortalContext.NotificationsType"/> here.</remarks>
-        [JsonProperty("notifications", NullValueHandling = NullValueHandling.Ignore)]
-        public string Notifications;
+        [JsonProperty("notifications", NullValueHandling = NullValueHandling.Ignore, DefaultValueHandling = DefaultValueHandling.Ignore), JsonConverter(typeof(StringEnumConverter))]
+        public WortalContext.NotificationsType Notifications;
         /// <summary>
         /// Specifies where the share should appear.
         /// </summary>
-        /// <remarks>Use <see cref="WortalContext.ShareDestination"/> here.</remarks>
-        [JsonProperty("shareDestination", NullValueHandling = NullValueHandling.Ignore)]
-        public string ShareDestination;
+        [JsonProperty("shareDestination", NullValueHandling = NullValueHandling.Ignore, DefaultValueHandling = DefaultValueHandling.Ignore), JsonConverter(typeof(StringEnumConverter))]
+        public WortalContext.ShareDestination ShareDestination;
         /// <summary>
         /// Should the player switch context or not.
         /// </summary>
