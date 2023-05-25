@@ -1,0 +1,3 @@
+﻿<linker>
+  <assembly fullname="DigitalWill.WortalSDK" preserve="all" ignoreIfMissing="1" ignoreIfUnreferenced="1"/>
+</linker>
