@@ -110,6 +110,22 @@ var payload = new ContextPayload
 };
 ```
 
+#### Context Payload Templates
+
+To make it easier to create and manage payloads for use with the Context API, you can create `ContextPayloadTemplates`
+from the `Wortal/Context Payload Template` menu. These templates are ScriptableObjects that can be easily designed and
+modified in the Unity Editor without writing any code. Some things to consider when using the template:
+
+- The templates utilize Unity's Localization system for passing `LocalizableContent`, simply selecting a key in the
+template will automatically populate the payload with all available locales. If your project does not
+include the Localization package, the template script will not be compiled and will not show up in your project.
+- Images selected in the template will be converted to a base64 encoded string and added to the payload, this requires
+the image to be uncompressed and have `Read/Write` enabled.
+- Values left default or `NONE` will be ignored and not passed into the payload object.
+- You can convert the template to a `ContextPayload` object to use with the Context API via `ContextPayloadTemplate.GetPayload()`.
+
+![payload-template.jpg](Docs/Images/payload-template.jpg)
+
 ### In-App Purchases
 
 [API Reference](https://sdk.html5gameportal.com/api/iap/)
