@@ -42,13 +42,13 @@ namespace DigitalWill.WortalSDK
         /// Gets the type of the current context.
         /// </summary>
         /// <returns>The <see cref="ContextType"/> of the current context.</returns>
-        public new ContextType GetType()
+        public string GetType()
         {
 #if UNITY_WEBGL && !UNITY_EDITOR
             return ContextGetTypeJS();
 #else
             Debug.Log("[Wortal] Mock Context.GetType");
-            return ContextType.SOLO;
+            return ContextType.SOLO.ToString();
 #endif
         }
 
