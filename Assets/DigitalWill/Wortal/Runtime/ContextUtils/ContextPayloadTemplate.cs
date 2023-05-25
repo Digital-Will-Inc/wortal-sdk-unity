@@ -10,7 +10,7 @@ namespace DigitalWill.WortalSDK
     /// <summary>
     /// Template for a ContextPayload to be used in social features.
     /// </summary>
-    [CreateAssetMenu(fileName = "ContextPayloadTemplate", menuName = "Digital Will/Social/Context Payload Template")]
+    [CreateAssetMenu(fileName = "ContextPayloadTemplate", menuName = "Wortal/Context Payload Template")]
     public class ContextPayloadTemplate : ScriptableObject
     {
 #region Private Members
