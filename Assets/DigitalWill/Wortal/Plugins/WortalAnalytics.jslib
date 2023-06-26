@@ -26,6 +26,22 @@
 
     LogGameChoiceJS: function (decision, choice) {
         window.Wortal.analytics.logGameChoice(UTF8ToString(decision), UTF8ToString(choice));
+    },
+
+    LogPurchaseJS: function (productID, data) {
+        window.Wortal.analytics.logPurchase(UTF8ToString(productID), UTF8ToString(data));
+    },
+
+    LogPurchaseSubscriptionJS: function (productID, data) {
+        window.Wortal.analytics.logPurchaseSubscription(UTF8ToString(productID), UTF8ToString(data));
+    },
+
+    LogSocialInviteJS: function (placement) {
+        window.Wortal.analytics.logSocialInvite(UTF8ToString(placement));
+    },
+
+    LogSocialShareJS: function (placement) {
+        window.Wortal.analytics.logSocialShare(UTF8ToString(placement));
     }
 
 });
