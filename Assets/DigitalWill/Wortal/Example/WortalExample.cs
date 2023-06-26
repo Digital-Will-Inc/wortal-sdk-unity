@@ -121,13 +121,13 @@ namespace DigitalWill.WortalExample
 #region Ads
         ////////////////////////////////////////////////////////////////////////
         // NOTE ABOUT GAME FLOW IN REWARDED ADS:
-        // Some scenarios might require resuming the game in OnRewardPlayer/OnRewardSkipped.
+        // Some scenarios might require resuming the game in adDismissedCallback/adViewedCallback.
         // For example: A revive & continue rewarded ad placement after the player has lost.
         // The game flow will depend on the outcome of the ad - does the player watch it or not?
-        // If they watched, continue the current level in OnRewardPlayer.
-        // If they skipped, end the level in OnRewardSkipped.
+        // If they watched, continue the current level in adViewedCallback.
+        // If they skipped, end the level in adDismissedCallback.
         // If the game flow is not dependent on whether or not the player watches, such as bonus points or coins,
-        // then you should resume the game in OnAfterAd.
+        // then you should resume the game in afterAdCallback & noFillCallback.
         ////////////////////////////////////////////////////////////////////////
 
         private void OnInterstitial()
@@ -469,6 +469,7 @@ namespace DigitalWill.WortalExample
         private void Log(string message)
         {
             _log.text = message;
+            Debug.Log(message);
         }
     }
 }
