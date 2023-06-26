@@ -146,6 +146,78 @@ namespace DigitalWill.WortalSDK
 #endif
         }
 
+        /// <summary>
+        /// Logs the player's purchase of an in-app product.
+        /// </summary>
+        /// <param name="productID">ID of the product the player purchased.</param>
+        /// <param name="data">Additional details about the purchase.</param>
+        /// <example><code>
+        /// Wortal.Analytics.LogPurchase("game.gems.100", "100 gems from shop sale");
+        /// </code></example>
+        /// <throws><ul>
+        /// <li>INVALID_PARAM</li>
+        /// </ul></throws>
+        public void LogPurchase(string productID, string data = null)
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            LogPurchaseJS(productID, data);
+#else
+            Debug.Log($"[Wortal] Mock Analytics.LogPurchase({productID} / {data})");
+#endif
+        }
+
+        /// <summary>
+        /// Logs the player's purchase of an in-app subscription.
+        /// </summary>
+        /// <param name="productID">ID of the subscription product the player purchased.</param>
+        /// <param name="data">Additional details about the purchase.</param>
+        /// <example><code>
+        /// Wortal.Analytics.LogPurchaseSubscription("game.seasonpass", "Season pass from level up reward UI");
+        /// </code></example>
+        /// <throws><ul>
+        /// <li>INVALID_PARAM</li>
+        /// </ul></throws>
+        public void LogPurchaseSubscription(string productID, string data = null)
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            LogPurchaseSubscriptionJS(productID, data);
+#else
+            Debug.Log($"[Wortal] Mock Analytics.LogPurchaseSubscription({productID} / {data})");
+#endif
+        }
+
+        /// <summary>
+        /// Logs the player's social invite.
+        /// </summary>
+        /// <param name="placement">Placement of the invite.</param>
+        /// <example><code>
+        /// Wortal.Analytics.LogSocialInvite("Leaderboard View");
+        /// </code></example>
+        public void LogSocialInvite(string placement)
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            LogSocialInviteJS(placement);
+#else
+            Debug.Log($"[Wortal] Mock Analytics.LogSocialInvite({placement})");
+#endif
+        }
+
+        /// <summary>
+        /// Logs the player's social share.
+        /// </summary>
+        /// <param name="placement">Placement of the share.</param>
+        /// <example><code>
+        /// Wortal.Analytics.LogSocialShare("Game Over UI");
+        /// </code></example>
+        public void LogSocialShare(string placement)
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            LogSocialShareJS(placement);
+#else
+            Debug.Log($"[Wortal] Mock Analytics.LogSocialShare({placement})");
+#endif
+        }
+
 #endregion Public API
 #region JSlib Interface
 
@@ -169,6 +241,18 @@ namespace DigitalWill.WortalSDK
 
         [DllImport("__Internal")]
         private static extern void LogGameChoiceJS(string decision, string choice);
+
+        [DllImport("__Internal")]
+        private static extern void LogPurchaseJS(string productID, string data);
+
+        [DllImport("__Internal")]
+        private static extern void LogPurchaseSubscriptionJS(string productID, string data);
+
+        [DllImport("__Internal")]
+        private static extern void LogSocialInviteJS(string placement);
+
+        [DllImport("__Internal")]
+        private static extern void LogSocialShareJS(string placement);
 
 #endregion JSlib Interface
     }
