@@ -17,43 +17,36 @@ namespace DigitalWill.WortalSDK
         /// <summary>
         /// Ads API
         /// </summary>
-        public static WortalAds Ads { get; private set; }
+        public static WortalAds Ads { get; private set; } = new();
         /// <summary>
         /// Analytics API
         /// </summary>
-        public static WortalAnalytics Analytics { get; private set; }
+        public static WortalAnalytics Analytics { get; private set; } = new();
         /// <summary>
         /// Context API
         /// </summary>
-        public static WortalContext Context { get; private set; }
+        public static WortalContext Context { get; private set; } = new();
         /// <summary>
         /// In-App Purchasing API
         /// </summary>
-        public static WortalIAP IAP { get; private set; }
+        public static WortalIAP IAP { get; private set; } = new();
         /// <summary>
         /// Leaderboard API
         /// </summary>
-        public static WortalLeaderboard Leaderboard { get; private set; }
+        public static WortalLeaderboard Leaderboard { get; private set; } = new();
         /// <summary>
         /// Player API
         /// </summary>
-        public static WortalPlayer Player { get; private set; }
+        public static WortalPlayer Player { get; private set; } = new();
         /// <summary>
         /// Session API
         /// </summary>
-        public static WortalSession Session { get; private set; }
+        public static WortalSession Session { get; private set; } = new();
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void Init()
         {
             Debug.Log("[Wortal] Initializing Unity SDK..");
-            Ads = new WortalAds();
-            Analytics = new WortalAnalytics();
-            Context = new WortalContext();
-            IAP = new WortalIAP();
-            Leaderboard = new WortalLeaderboard();
-            Player = new WortalPlayer();
-            Session = new WortalSession();
 #if UNITY_WEBGL && !UNITY_EDITOR
             OnPauseJS(OnPauseCallback);
 #endif
