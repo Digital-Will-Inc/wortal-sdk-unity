@@ -122,14 +122,14 @@ namespace DigitalWill.WortalSDK
         /// Gets the platform the game is running on. This is useful for platform specific code.
         /// For example, if you want to show a different social share asset on Facebook than on Link.
         /// </summary>
-        /// <returns><see cref="WortalSession.Platform"/> the game is running on.</returns>
-        public string GetPlatform()
+        /// <returns><see cref="Platform"/> the game is running on.</returns>
+        public Platform GetPlatform()
         {
 #if UNITY_WEBGL && !UNITY_EDITOR
-            return SessionGetPlatformJS();
+            return (Platform)Enum.Parse(typeof(Platform), SessionGetPlatformJS());
 #else
             Debug.Log("[Wortal] Mock Session.SessionGetPlatform()");
-            return Platform.DEBUG;
+            return Platform.debug;
 #endif
         }
 
@@ -161,40 +161,5 @@ namespace DigitalWill.WortalSDK
         }
 
 #endregion JSlib Interface
-#region Types
-
-        /// <summary>
-        /// Traffic source info.
-        /// </summary>
-        [Serializable]
-        public struct TrafficSource
-        {
-            /// <summary>
-            /// Entry point of the session.
-            /// </summary>
-            [JsonProperty("['r_entrypoint']", NullValueHandling = NullValueHandling.Ignore)]
-            public string EntryPoint;
-            /// <summary>
-            /// UTM source tag.
-            /// </summary>
-            [JsonProperty("['utm_source']", NullValueHandling = NullValueHandling.Ignore)]
-            public string UTMSource;
-        }
-
-        /// <summary>
-        /// Different platforms the game can be launched from.
-        /// </summary>
-        [Serializable]
-        public static class Platform
-        {
-            public const string WORTAL = "wortal";
-            public const string LINK = "link";
-            public const string VIBER = "viber";
-            public const string GAME_DISTRIBUTION = "gd";
-            public const string FACEBOOK = "facebook";
-            public const string DEBUG = "debug";
-        }
-
-#endregion Types
     }
 }

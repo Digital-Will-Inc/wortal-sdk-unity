@@ -231,7 +231,7 @@ namespace DigitalWill.WortalSDK
         /// <li>NETWORK_FAILURE</li>
         /// <li>CLIENT_UNSUPPORTED_OPERATION</li>
         /// </ul></throws>
-        public void GetConnectedPlayers(PlayerPayload payload, Action<WortalPlayer[]> callback, Action<WortalError> errorCallback)
+        public void GetConnectedPlayers(GetConnectedPlayersPayload payload, Action<WortalPlayer[]> callback, Action<WortalError> errorCallback)
         {
             _getConnectedPlayersCallback = callback;
             Wortal.WortalError = errorCallback;
@@ -519,101 +519,5 @@ namespace DigitalWill.WortalSDK
         }
 
 #endregion JSlib Interface
-#region Types
-
-        /// <summary>
-        /// Represents a player in the game. To access info about the current player, use the Wortal.Player API.
-        /// This is used to access info about other players such as friends or leaderboard entries.
-        /// </summary>
-        [Serializable]
-        public struct Player
-        {
-            /// <summary>
-            /// ID of the player. This is platform-dependent.
-            /// </summary>
-            [JsonProperty("id")]
-            public string ID;
-            /// <summary>
-            /// Name of the player.
-            /// </summary>
-            [JsonProperty("name")]
-            public string Name;
-            /// <summary>
-            /// Data URL for the player's photo.
-            /// </summary>
-            [JsonProperty("photo")]
-            public string Photo;
-            /// <summary>
-            /// Is this the first time the player has played this game or not.
-            /// </summary>
-            [JsonProperty("isFirstPlay", NullValueHandling = NullValueHandling.Ignore)]
-            public bool IsFirstPlay;
-            /// <summary>
-            /// Days since the first time the player has played this game.
-            /// </summary>
-            [JsonProperty("daysSinceFirstPlay", DefaultValueHandling = DefaultValueHandling.Ignore)]
-            public int DaysSinceFirstPlay;
-        }
-
-        /// <summary>
-        /// Payload for the GetConnectedPlayers API.
-        /// </summary>
-        [Serializable]
-        public struct PlayerPayload
-        {
-            /// <summary>
-            /// Specify where to start fetch the friend list.
-            /// This parameter only applies when NEW_INVITATIONS_ONLY filter is used.
-            /// When not specified with NEW_INVITATIONS_ONLY filter, default cursor is 0.
-            /// </summary>
-            [JsonProperty("cursor", DefaultValueHandling = DefaultValueHandling.Ignore)]
-            public int Cursor;
-            /// <summary>
-            /// Filter to be applied to the friend list.
-            /// </summary>
-            /// <remarks>Use <see cref="WortalPlayer.PlayerFilter"/> here.</remarks>
-            [JsonProperty("filter", NullValueHandling = NullValueHandling.Ignore)]
-            public string Filter;
-            /// <summary>
-            /// Specify how long a friend should be filtered out after the current player sends them a message.
-            /// This parameter only applies when NEW_INVITATIONS_ONLY filter is used.
-            /// When not specified, it will filter out any friend who has been sent a message.
-            /// </summary>
-            [JsonProperty("hoursSinceInvitation", DefaultValueHandling = DefaultValueHandling.Ignore)]
-            public int HoursSinceInvitation;
-            /// <summary>
-            /// Specify how many friends to be returned in the friend list.
-            /// This parameter only applies when NEW_INVITATIONS_ONLY filter is used.
-            /// When not specified with NEW_INVITATIONS_ONLY filter, default cursor is 25.
-            /// </summary>
-            [JsonProperty("size", DefaultValueHandling = DefaultValueHandling.Ignore)]
-            public int Size;
-        }
-
-        /// <summary>
-        /// Filter used when searching for connected players.
-        /// </summary>
-        [Serializable]
-        public static class PlayerFilter
-        {
-            /// <summary>
-            /// All friends.
-            /// </summary>
-            public const string ALL = "ALL";
-            /// <summary>
-            /// Only friends who have played this game before.
-            /// </summary>
-            public const string INCLUDE_PLAYERS = "INCLUDE_PLAYERS";
-            /// <summary>
-            /// Only friends who haven't played this game before.
-            /// </summary>
-            public const string INCLUDE_NON_PLAYERS = "INCLUDE_NON_PLAYERS";
-            /// <summary>
-            /// Only friends who haven't been sent an in-game message before.
-            /// </summary>
-            public const string NEW_INVITATIONS_ONLY = "NEW_INVITATIONS_ONLY";
-        }
-
-#endregion Types
     }
 }
