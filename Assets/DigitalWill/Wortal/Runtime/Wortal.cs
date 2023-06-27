@@ -11,6 +11,8 @@ namespace DigitalWill.WortalSDK
     /// </summary>
     public static class Wortal
     {
+        private static Action _performHapticFeedbackCallback;
+
 #region Public API
 
         public static Action<WortalError> WortalError;
@@ -68,6 +70,24 @@ namespace DigitalWill.WortalSDK
 #endif
         }
 
+        /// <summary>
+        /// Perform a haptic feedback effect.
+        /// </summary>
+        /// <param name="callback">Callback for after the request was made. If the device is not supported then its
+        /// possible the underlying Promise is left pending and this callback is never reached. Do not depend on this callback.</param>
+        /// <param name="errorCallback">Error callback event with <see cref="WortalError"/> describing the error.</param>
+        public static void PerformHapticFeedback(Action callback, Action<WortalError> errorCallback)
+        {
+            _performHapticFeedbackCallback = callback;
+            WortalError = errorCallback;
+            Debug.Log("[Wortal] PerformHapticFeedback()");
+#if UNITY_WEBGL && !UNITY_EDITOR
+            PerformHapticFeedbackJS(PerformHapticFeedbackCallback, WortalErrorCallback);
+#else
+            Debug.Log("[Wortal] Mock PerformHapticFeedback()");
+#endif
+        }
+
 #endregion Public API
 #region Internal
 
@@ -94,11 +114,20 @@ namespace DigitalWill.WortalSDK
             OnPause?.Invoke();
         }
 
+        [MonoPInvokeCallback(typeof(Action))]
+        private static void PerformHapticFeedbackCallback()
+        {
+            _performHapticFeedbackCallback?.Invoke();
+        }
+
         [DllImport("__Internal")]
         private static extern void OnPauseJS(Action callback);
 
         [DllImport("__Internal")]
         private static extern string GetSupportedAPIsJS();
+
+        [DllImport("__Internal")]
+        private static extern void PerformHapticFeedbackJS(Action callback, Action<string> errorCallback);
 
 #endregion Internal
     }

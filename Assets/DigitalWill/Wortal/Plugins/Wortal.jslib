@@ -11,6 +11,20 @@
         var buffer = _malloc(bufferSize);
         stringToUTF8(resultStr, buffer, bufferSize);
         return buffer;
+    },
+
+    PerformHapticFeedbackJS: function (callback, errorCallback) {
+        window.Wortal.performHapticFeedbackAsync()
+            .then(() => {
+                return Module.dynCall_v(callback);
+            })
+            .catch(error => {
+                var errorStr = JSON.stringify(error);
+                var bufferSize = lengthBytesUTF8(errorStr) + 1;
+                var buffer = _malloc(bufferSize);
+                stringToUTF8(errorStr, buffer, bufferSize);
+                return Module.dynCall_vi(errorCallback, buffer);
+            });
     }
 
 });
