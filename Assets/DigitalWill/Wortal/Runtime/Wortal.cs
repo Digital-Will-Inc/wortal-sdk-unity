@@ -11,6 +11,8 @@ namespace DigitalWill.WortalSDK
     /// </summary>
     public static class Wortal
     {
+#region Public API
+
         public static Action<WortalError> WortalError;
         public static Action OnPause;
 
@@ -43,6 +45,32 @@ namespace DigitalWill.WortalSDK
         /// </summary>
         public static WortalSession Session { get; private set; } = new();
 
+        /// <summary>
+        /// Get the list of APIs supported by the current platform.
+        /// </summary>
+        /// <returns>String array containing all APIs supported.</returns>
+        /// <example><code>
+        /// string[] supportedAPIs = Wortal.GetSupportedAPIs();
+        /// int index = Array.IndexOf(supportedAPIs, "iap.makePurchaseAsync");
+        /// IAPShopButton.SetActive(index > -1);
+        /// </code></example>
+        public static string[] GetSupportedAPIs()
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            return JsonConvert.DeserializeObject<string[]>(GetSupportedAPIsJS());
+#else
+            Debug.Log("[Wortal] Mock GetSupportedAPIs()");
+            return new[]
+            {
+                "mock.API",
+                "mock.API2",
+            };
+#endif
+        }
+
+#endregion Public API
+#region Internal
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void Init()
         {
@@ -68,6 +96,11 @@ namespace DigitalWill.WortalSDK
 
         [DllImport("__Internal")]
         private static extern void OnPauseJS(Action callback);
+
+        [DllImport("__Internal")]
+        private static extern string GetSupportedAPIsJS();
+
+#endregion Internal
     }
 
 #region Error Handling
