@@ -42,7 +42,7 @@ namespace DigitalWill.WortalSDK
         /// Gets the type of the current context.
         /// </summary>
         /// <returns>The <see cref="ContextType"/> of the current context.</returns>
-        public string GetType()
+        public new string GetType()
         {
 #if UNITY_WEBGL && !UNITY_EDITOR
             return ContextGetTypeJS();
@@ -76,8 +76,8 @@ namespace DigitalWill.WortalSDK
 #if UNITY_WEBGL && !UNITY_EDITOR
             ContextGetPlayersJS(ContextGetPlayersCallback, Wortal.WortalErrorCallback);
 #else
-            Debug.Log($"[Wortal] Mock Context.GetPlayers()");
-            var player = new WortalPlayer.Player
+            Debug.Log("[Wortal] Mock Context.GetPlayers()");
+            var player = new Player
             {
                 ID = "player1",
                 Name = "Player",
@@ -85,7 +85,7 @@ namespace DigitalWill.WortalSDK
                 IsFirstPlay = false,
                 DaysSinceFirstPlay = 0,
             };
-            WortalPlayer.Player[] players = { player };
+            Player[] players = { player };
             ContextGetPlayersCallback(JsonConvert.SerializeObject(players));
 #endif
         }

@@ -56,7 +56,7 @@ namespace DigitalWill.WortalSDK
 #endif
         }
 
-        /// <inheritdoc cref="SendEntry(string,int,string,System.Action{DigitalWill.WortalSDK.WortalLeaderboard.LeaderboardEntry},System.Action{DigitalWill.WortalSDK.WortalError})"/>
+        /// <inheritdoc cref="SendEntry(string,int,string,System.Action{DigitalWill.WortalSDK.LeaderboardEntry},System.Action{DigitalWill.WortalSDK.WortalError})"/>
         public void SendEntry(string name, int score, Action<LeaderboardEntry> callback, Action<WortalError> errorCallback)
         {
             SendEntry(name, score, "", callback, errorCallback);
@@ -96,7 +96,7 @@ namespace DigitalWill.WortalSDK
             Debug.Log($"[Wortal] Mock Leaderboard.SendEntry({name}, {score}, {details})");
             var entry = new LeaderboardEntry
             {
-                Player = new WortalPlayer.Player
+                Player = new Player
                 {
                     ID = "player1",
                     Name = "Player",
@@ -114,7 +114,7 @@ namespace DigitalWill.WortalSDK
 #endif
         }
 
-        /// <inheritdoc cref="GetEntries(string,int,int,System.Action{DigitalWill.WortalSDK.WortalLeaderboard.LeaderboardEntry[]},System.Action{DigitalWill.WortalSDK.WortalError})"/>
+        /// <inheritdoc cref="GetEntries(string,int,int,System.Action{DigitalWill.WortalSDK.LeaderboardEntry[]},System.Action{DigitalWill.WortalSDK.WortalError})"/>
         public void GetEntries(string name, int count, Action<LeaderboardEntry[]> callback, Action<WortalError> errorCallback)
         {
             GetEntries(name, count, 0, callback, errorCallback);
@@ -150,7 +150,7 @@ namespace DigitalWill.WortalSDK
             Debug.Log($"[Wortal] Mock Leaderboard.GetEntries({name}, {count}, {offset})");
             var entry = new LeaderboardEntry
             {
-                Player = new WortalPlayer.Player
+                Player = new Player
                 {
                     ID = "player1",
                     Name = "Player",
@@ -197,7 +197,7 @@ namespace DigitalWill.WortalSDK
             Debug.Log($"[Wortal] Mock Leaderboard.GetPlayerEntry({name})");
             var entry = new LeaderboardEntry
             {
-                Player = new WortalPlayer.Player
+                Player = new Player
                 {
                     ID = "player1",
                     Name = "Player",
@@ -244,7 +244,7 @@ namespace DigitalWill.WortalSDK
 #endif
         }
 
-        /// <inheritdoc cref="GetConnectedPlayersEntries(string,int,int,System.Action{DigitalWill.WortalSDK.WortalLeaderboard.LeaderboardEntry[]},System.Action{DigitalWill.WortalSDK.WortalError})"/>
+        /// <inheritdoc cref="GetConnectedPlayersEntries(string,int,int,System.Action{DigitalWill.WortalSDK.LeaderboardEntry[]},System.Action{DigitalWill.WortalSDK.WortalError})"/>
         public void GetConnectedPlayersEntries(string name, int count, Action<LeaderboardEntry[]> callback, Action<WortalError> errorCallback)
         {
             GetConnectedPlayersEntries(name, count, 0, callback, errorCallback);
@@ -280,7 +280,7 @@ namespace DigitalWill.WortalSDK
             Debug.Log($"[Wortal] Mock Leaderboard.GetConnectedPlayersEntries({name}, {count}, {offset})");
             var entry = new LeaderboardEntry
             {
-                Player = new WortalPlayer.Player
+                Player = new Player
                 {
                     ID = "player1",
                     Name = "Player",
@@ -362,69 +362,5 @@ namespace DigitalWill.WortalSDK
         }
 
 #endregion JSlib Interface
-#region Types
-
-        /// <summary>
-        /// Represents a leaderboard for the game.
-        /// </summary>
-        [Serializable]
-        public struct Leaderboard
-        {
-            /// <summary>
-            /// ID of the leaderboard.
-            /// </summary>
-            [JsonProperty("id")]
-            public string Id;
-            /// <summary>
-            /// Name of the leaderboard.
-            /// </summary>
-            [JsonProperty("name")]
-            public string Name;
-            /// <summary>
-            /// Context ID of the leaderboard, if one exits.
-            /// </summary>
-            [JsonProperty("contextId", NullValueHandling = NullValueHandling.Ignore)]
-            public string ContextId;
-        }
-
-        /// <summary>
-        /// A single entry on a leaderboard.
-        /// </summary>
-        [Serializable]
-        public struct LeaderboardEntry
-        {
-            /// <summary>
-            /// Player that made this entry.
-            /// </summary>
-            [JsonProperty("player")]
-            public WortalPlayer.Player Player;
-            /// <summary>
-            /// Rank of this entry in the leaderboard.
-            /// </summary>
-            [JsonProperty("rank")]
-            public int Rank;
-            /// <summary>
-            /// Score achieved in this entry.
-            /// </summary>
-            [JsonProperty("score")]
-            public int Score;
-            /// <summary>
-            /// Score of this entry with optional formatting. Ex: '100 points'
-            /// </summary>
-            [JsonProperty("formattedScore")]
-            public string FormattedScore;
-            /// <summary>
-            /// Timestamp of when this entry was made.
-            /// </summary>
-            [JsonProperty("timestamp")]
-            public int Timestamp;
-            /// <summary>
-            /// Optional details about this entry.
-            /// </summary>
-            [JsonProperty("details", NullValueHandling = NullValueHandling.Ignore)]
-            public string Details;
-        }
-
-#endregion Types
     }
 }

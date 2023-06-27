@@ -11,6 +11,7 @@ namespace DigitalWill.WortalExample
     public class WortalExample : MonoBehaviour
     {
 #region UI References
+
         [Header("Log")]
         [SerializeField]
         private Text _log;
@@ -84,8 +85,10 @@ namespace DigitalWill.WortalExample
         private Button _sessionEntryPoint;
 
         private string _purchaseToken;
+
 #endregion UI References
 #region Initialization
+
         private void Start()
         {
             _interstitial.onClick.AddListener(OnInterstitial);
@@ -116,9 +119,11 @@ namespace DigitalWill.WortalExample
             _sessionEntryPoint.onClick.AddListener(OnSessionEntryPoint);
             _sessionSetData.onClick.AddListener(OnSessionSetData);
         }
+
 #endregion Initialization
 
 #region Ads
+
         ////////////////////////////////////////////////////////////////////////
         // NOTE ABOUT GAME FLOW IN REWARDED ADS:
         // Some scenarios might require resuming the game in adDismissedCallback/adViewedCallback.
@@ -132,7 +137,8 @@ namespace DigitalWill.WortalExample
 
         private void OnInterstitial()
         {
-            Wortal.Ads.ShowInterstitial(Placement.Next, "NextLevel",
+            Wortal.Ads.ShowInterstitial(Placement.Next,
+                "NextLevel",
                 () => Log("BeforeAd"),
                 () => Log("AfterAd"));
         }
@@ -145,9 +151,11 @@ namespace DigitalWill.WortalExample
                 () => Log("AdDismissed"),
                 () => Log("AdViewed"));
         }
+
 #endregion Ads
 
 #region Analytics
+
         ////////////////////////////////////////////////////////////////////////
         // NOTE ABOUT LEVEL ANALYTICS:
         // When you call LogLevelStart() a timer is started. This is to track how
@@ -168,9 +176,11 @@ namespace DigitalWill.WortalExample
             Wortal.Analytics.LogLevelEnd("Demo", "100", true);
             Log("OnLevelEnd");
         }
+
 #endregion Analytics
 
 #region Context
+
         ////////////////////////////////////////////////////////////////////////
         // NOTE ABOUT CONTEXT:
         // ContextPayload has lots of options for customizing the payload and filtering.
@@ -260,9 +270,11 @@ namespace DigitalWill.WortalExample
                 () => Log("New context: " + Wortal.Context.GetID()),
                 error => Log("Error Code: " + error.Code + "\nError: " + error.Message));
         }
+
 #endregion Context
 
 #region Leaderboard
+
         ////////////////////////////////////////////////////////////////////////
         // NOTE ABOUT LEADERBOARD:
         // Leaderboards need to be created on a per-platform basis before they can be used.
@@ -278,7 +290,8 @@ namespace DigitalWill.WortalExample
 
         private void OnLeaderboardAdd()
         {
-            Wortal.Leaderboard.SendEntry("global", 100,
+            Wortal.Leaderboard.SendEntry("global",
+                100,
                 entry => Log("Score: " + entry.Score),
                 error => Log("Error Code: " + error.Code + "\nError: " + error.Message));
         }
@@ -292,7 +305,8 @@ namespace DigitalWill.WortalExample
 
         private void OnLeaderboardEntries()
         {
-            Wortal.Leaderboard.GetEntries("global", 10,
+            Wortal.Leaderboard.GetEntries("global",
+                10,
                 entries => Log("Score: " + entries[0].Score),
                 error => Log("Error Code: " + error.Code + "\nError: " + error.Message));
         }
@@ -303,9 +317,11 @@ namespace DigitalWill.WortalExample
                 count => Log("Count: " + count),
                 error => Log("Error Code: " + error.Code + "\nError: " + error.Message));
         }
+
 #endregion Leaderboard
 
 #region IAP
+
         ////////////////////////////////////////////////////////////////////////
         // NOTE ABOUT IN-APP PURCHASING:
         // IAP needs to be setup on a per-platform basis before they can be used.
@@ -314,8 +330,7 @@ namespace DigitalWill.WortalExample
 
         private void OnIAPGet()
         {
-            Wortal.IAP.GetPurchases(
-                purchases =>
+            Wortal.IAP.GetPurchases(purchases =>
                 {
                     _purchaseToken = purchases[0].PurchaseToken;
                     Log(purchases[0].ProductID);
@@ -325,14 +340,13 @@ namespace DigitalWill.WortalExample
 
         private void OnIAPCatalog()
         {
-            Wortal.IAP.GetCatalog(
-                catalog => Log(catalog[0].Title),
+            Wortal.IAP.GetCatalog(catalog => Log(catalog[0].Title),
                 error => Log("Error Code: " + error.Code + "\nError: " + error.Message));
         }
 
         private void OnIAPPurchase()
         {
-            Wortal.IAP.MakePurchase(new WortalIAP.PurchaseConfig
+            Wortal.IAP.MakePurchase(new PurchaseConfig
                 {
                     ProductID = "jp.rgames.wortalsdktest.purchase.llama_pack_1.test",
                 },
@@ -350,9 +364,11 @@ namespace DigitalWill.WortalExample
                 () => Log("Purchase Consumed"),
                 error => Log("Error Code: " + error.Code + "\nError: " + error.Message));
         }
+
 #endregion IAP
 
 #region Player
+
         ////////////////////////////////////////////////////////////////////////
         // NOTE ABOUT PLAYER DATA:
         // Player data saved to the platform can be of any type with any values.
@@ -408,9 +424,9 @@ namespace DigitalWill.WortalExample
 
         private void OnPlayerFriends()
         {
-            var payload = new WortalPlayer.PlayerPayload
+            var payload = new GetConnectedPlayersPayload
             {
-                Filter = WortalPlayer.PlayerFilter.ALL,
+                Filter = ConnectedPlayerFilter.ALL,
             };
             Wortal.Player.GetConnectedPlayers(payload,
                 players => Log(players[0].GetName()),
@@ -419,13 +435,14 @@ namespace DigitalWill.WortalExample
 
         private void OnPlayerSigned()
         {
-            Wortal.Player.GetSignedPlayerInfo(
-                (id, signature) => Log("ID: " + id + "\nSignature: " + signature),
+            Wortal.Player.GetSignedPlayerInfo((id, signature) => Log("ID: " + id + "\nSignature: " + signature),
                 error => Log("Error Code: " + error.Code + "\nError: " + error.Message));
         }
+
 #endregion Player
 
 #region Session
+
         ////////////////////////////////////////////////////////////////////////
         // NOTE ABOUT SESSION DATA:
         // Data saved using SetSessionData does not persist outside the game session.
@@ -435,7 +452,7 @@ namespace DigitalWill.WortalExample
 
         private void OnSessionTraffic()
         {
-            WortalSession.TrafficSource trafficSource = Wortal.Session.GetTrafficSource();
+            TrafficSource trafficSource = Wortal.Session.GetTrafficSource();
             Log(trafficSource.EntryPoint + "\n" + trafficSource.UTMSource);
         }
 
@@ -460,10 +477,10 @@ namespace DigitalWill.WortalExample
 
         private void OnSessionEntryPoint()
         {
-            Wortal.Session.GetEntryPoint(
-                entryPoint => Log(entryPoint),
+            Wortal.Session.GetEntryPoint(entryPoint => Log(entryPoint),
                 error => Log("Error Code: " + error.Code + "\nError: " + error.Message));
         }
+
 #endregion Session
 
         private void Log(string message)
