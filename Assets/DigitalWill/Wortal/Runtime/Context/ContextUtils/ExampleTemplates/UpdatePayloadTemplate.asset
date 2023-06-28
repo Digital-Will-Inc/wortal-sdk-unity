@@ -9,15 +9,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f2493ac13ccaa924392e03eb32b190a0, type: 3}
-  m_Name: ContextPayloadTemplate
+  m_Script: {fileID: 11500000, guid: ec57f33c14e34100a412845b33b269ac, type: 3}
+  m_Name: UpdatePayloadTemplate
   m_EditorClassIdentifier: 
-  _image: {fileID: 0}
+  _image: {fileID: 2800000, guid: 3bceba979ece62b43b688ed4a6ad6c70, type: 3}
   _text:
     m_TableReference:
-      m_TableCollectionName: 
+      m_TableCollectionName: GUID:ea2bf69f3b331f54bad962134e6637fd
     m_TableEntryReference:
-      m_KeyId: 0
+      m_KeyId: 362961428480
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0
@@ -31,26 +31,11 @@ MonoBehaviour:
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
-  _filters: 
-  _minSize: 0
-  _maxSize: 0
-  _hoursSinceInvitation: 0
-  _description:
-    m_TableReference:
-      m_TableCollectionName: 
-    m_TableEntryReference:
-      m_KeyId: 0
-      m_Key: 
-    m_FallbackState: 0
-    m_WaitForCompletion: 0
-    m_LocalVariables: []
-  _intent: 0
-  _ui: 0
-  _minShare: 0
-  _strategy: 0
-  _notifications: 0
-  _shareDestination: 0
-  _switchContext: 0
+  _media:
+    GIF: 
+    Video: 
+  _notifications: 2
+  _strategy: 1
   references:
     version: 2
     RefIds: []
