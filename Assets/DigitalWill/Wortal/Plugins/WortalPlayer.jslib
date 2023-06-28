@@ -1,36 +1,15 @@
 ﻿mergeInto(LibraryManager.library, {
 
     PlayerGetIDJS: function () {
-        var resultStr = window.Wortal.player.getID();
-        if (resultStr === null) {
-            resultStr = "";
-        }
-        var bufferSize = lengthBytesUTF8(resultStr) + 1;
-        var buffer = _malloc(bufferSize);
-        stringToUTF8(resultStr, buffer, bufferSize);
-        return buffer;
+        return gameInstance.Module.allocString(window.Wortal.player.getID());
     },
 
     PlayerGetNameJS: function () {
-        var resultStr = window.Wortal.player.getName();
-        if (resultStr === null) {
-            resultStr = "";
-        }
-        var bufferSize = lengthBytesUTF8(resultStr) + 1;
-        var buffer = _malloc(bufferSize);
-        stringToUTF8(resultStr, buffer, bufferSize);
-        return buffer;
+        return gameInstance.Module.allocString(window.Wortal.player.getName());
     },
 
     PlayerGetPhotoJS: function () {
-        var resultStr = window.Wortal.player.getPhoto();
-        if (resultStr === null) {
-            resultStr = "";
-        }
-        var bufferSize = lengthBytesUTF8(resultStr) + 1;
-        var buffer = _malloc(bufferSize);
-        stringToUTF8(resultStr, buffer, bufferSize);
-        return buffer;
+        return gameInstance.Module.allocString(window.Wortal.player.getPhoto());
     },
 
     PlayerIsFirstPlayJS: function () {
@@ -38,39 +17,22 @@
     },
 
     PlayerGetDataJS: function (keys, callback, errorCallback) {
-        keysStr = UTF8ToString(keys);
-        keysArr = keysStr.split("|");
-        window.Wortal.player.getDataAsync(keysArr)
+        window.Wortal.player.getDataAsync(UTF8ToString(keys).split("|"))
             .then(result => {
-                console.log(result);
-                var resultStr = JSON.stringify(result);
-                var bufferSize = lengthBytesUTF8(resultStr) + 1;
-                var buffer = _malloc(bufferSize);
-                stringToUTF8(resultStr, buffer, bufferSize);
-                return Module.dynCall_vi(callback, buffer);
+                return Module.dynCall_vi(callback, gameInstance.Module.allocString(JSON.stringify(result)));
             })
             .catch(error => {
-                var errorStr = JSON.stringify(error);
-                var bufferSize = lengthBytesUTF8(errorStr) + 1;
-                var buffer = _malloc(bufferSize);
-                stringToUTF8(errorStr, buffer, bufferSize);
-                return Module.dynCall_vi(errorCallback, buffer);
+                return Module.dynCall_vi(errorCallback, gameInstance.Module.allocString(JSON.stringify(error)));
             });
     },
 
     PlayerSetDataJS: function (data, callback, errorCallback) {
-        dataStr = UTF8ToString(data);
-        dataJson = JSON.parse(dataStr);
-        window.Wortal.player.setDataAsync(dataJson)
+        window.Wortal.player.setDataAsync(JSON.parse(UTF8ToString(data)))
             .then(() => {
                 return Module.dynCall_v(callback);
             })
             .catch(error => {
-                var errorStr = JSON.stringify(error);
-                var bufferSize = lengthBytesUTF8(errorStr) + 1;
-                var buffer = _malloc(bufferSize);
-                stringToUTF8(errorStr, buffer, bufferSize);
-                return Module.dynCall_vi(errorCallback, buffer);
+                return Module.dynCall_vi(errorCallback, gameInstance.Module.allocString(JSON.stringify(error)));
             });
     },
 
@@ -80,90 +42,45 @@
                 return Module.dynCall_v(callback);
             })
             .catch(error => {
-                var errorStr = JSON.stringify(error);
-                var bufferSize = lengthBytesUTF8(errorStr) + 1;
-                var buffer = _malloc(bufferSize);
-                stringToUTF8(errorStr, buffer, bufferSize);
-                return Module.dynCall_vi(errorCallback, buffer);
+                return Module.dynCall_vi(errorCallback, gameInstance.Module.allocString(JSON.stringify(error)));
             });
     },
 
     PlayerGetConnectedPlayersJS: function (payload, callback, errorCallback) {
-        payloadStr = UTF8ToString(payload);
-        payloadJson = JSON.parse(payloadStr);
-        window.Wortal.player.getConnectedPlayersAsync(payloadJson)
+        window.Wortal.player.getConnectedPlayersAsync(JSON.parse(UTF8ToString(payload)))
             .then(result => {
-                var resultStr = JSON.stringify(result);
-                var bufferSize = lengthBytesUTF8(resultStr) + 1;
-                var buffer = _malloc(bufferSize);
-                stringToUTF8(resultStr, buffer, bufferSize);
-                return Module.dynCall_vi(callback, buffer);
+                return Module.dynCall_vi(callback, gameInstance.Module.allocString(JSON.stringify(result)));
             })
             .catch(error => {
-                var errorStr = JSON.stringify(error);
-                var bufferSize = lengthBytesUTF8(errorStr) + 1;
-                var buffer = _malloc(bufferSize);
-                stringToUTF8(errorStr, buffer, bufferSize);
-                return Module.dynCall_vi(errorCallback, buffer);
+                return Module.dynCall_vi(errorCallback, gameInstance.Module.allocString(JSON.stringify(error)));
             });
     },
 
     PlayerGetSignedPlayerInfoJS: function (callback, errorCallback) {
         window.Wortal.player.getSignedPlayerInfoAsync()
             .then(info => {
-                var idStr = info.id;
-                var idLen = lengthBytesUTF8(idStr) + 1;
-                var idPtr = _malloc(idLen);
-                stringToUTF8(idStr, idPtr, idLen);
-
-                var sigStr = info.signature;
-                var sigLen = lengthBytesUTF8(sigStr) + 1;
-                var sigPtr = _malloc(sigLen);
-                stringToUTF8(sigStr, sigPtr, sigLen);
-
-                Module.dynCall_vii(callback, idPtr, sigPtr);
+                var id = gameInstance.Module.allocString(info.id);
+                var sig = gameInstance.Module.allocString(info.signature);
+                return Module.dynCall_vii(callback, id, sig);
             })
             .catch(error => {
-                var errorStr = JSON.stringify(error);
-                var bufferSize = lengthBytesUTF8(errorStr) + 1;
-                var buffer = _malloc(bufferSize);
-                stringToUTF8(errorStr, buffer, bufferSize);
-                return Module.dynCall_vi(errorCallback, buffer);
+                return Module.dynCall_vi(errorCallback, gameInstance.Module.allocString(JSON.stringify(error)));
             });
     },
 
     PlayerGetASIDJS: function () {
-        var resultStr = window.Wortal.player.getASID();
-        if (resultStr === null) {
-            resultStr = "";
-        }
-        var bufferSize = lengthBytesUTF8(resultStr) + 1;
-        var buffer = _malloc(bufferSize);
-        stringToUTF8(resultStr, buffer, bufferSize);
-        return buffer;
+        return gameInstance.Module.allocString(window.Wortal.player.getASID());
     },
 
     PlayerGetSignedASIDJS: function (callback, errorCallback) {
         window.Wortal.player.getSignedASIDAsync()
             .then(info => {
-                var idStr = info.id;
-                var idLen = lengthBytesUTF8(idStr) + 1;
-                var idPtr = _malloc(idLen);
-                stringToUTF8(idStr, idPtr, idLen);
-
-                var sigStr = info.signature;
-                var sigLen = lengthBytesUTF8(sigStr) + 1;
-                var sigPtr = _malloc(sigLen);
-                stringToUTF8(sigStr, sigPtr, sigLen);
-
-                Module.dynCall_vii(callback, idPtr, sigPtr);
+                var id = gameInstance.Module.allocString(info.id);
+                var sig = gameInstance.Module.allocString(info.signature);
+                return Module.dynCall_vii(callback, id, sig);
             })
             .catch(error => {
-                var errorStr = JSON.stringify(error);
-                var bufferSize = lengthBytesUTF8(errorStr) + 1;
-                var buffer = _malloc(bufferSize);
-                stringToUTF8(errorStr, buffer, bufferSize);
-                return Module.dynCall_vi(errorCallback, buffer);
+                return Module.dynCall_vi(errorCallback, gameInstance.Module.allocString(JSON.stringify(error)));
             });
     },
 
@@ -173,11 +90,7 @@
                 return Module.dynCall_vi(callback, result);
             })
             .catch(error => {
-                var errorStr = JSON.stringify(error);
-                var bufferSize = lengthBytesUTF8(errorStr) + 1;
-                var buffer = _malloc(bufferSize);
-                stringToUTF8(errorStr, buffer, bufferSize);
-                return Module.dynCall_vi(errorCallback, buffer);
+                return Module.dynCall_vi(errorCallback, gameInstance.Module.allocString(JSON.stringify(error)));
             });
     },
 
@@ -187,11 +100,7 @@
                 return Module.dynCall_v(callback);
             })
             .catch(error => {
-                var errorStr = JSON.stringify(error);
-                var bufferSize = lengthBytesUTF8(errorStr) + 1;
-                var buffer = _malloc(bufferSize);
-                stringToUTF8(errorStr, buffer, bufferSize);
-                return Module.dynCall_vi(errorCallback, buffer);
+                return Module.dynCall_vi(errorCallback, gameInstance.Module.allocString(JSON.stringify(error)));
             });
     }
 
