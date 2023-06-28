@@ -237,7 +237,7 @@ namespace DigitalWill.WortalSDK
             _getEntryCountCallback = callback;
             Wortal.WortalError = errorCallback;
 #if UNITY_WEBGL && !UNITY_EDITOR
-            LeaderboardGetPlayerEntryJS(name, LeaderboardGetPlayerEntryCallback, Wortal.WortalErrorCallback);
+            LeaderboardGetEntryCountJS(name, LeaderboardGetEntryCountCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log($"[Wortal] Mock Leaderboard.GetEntryCount({name})");
             LeaderboardGetEntryCountCallback(1);
