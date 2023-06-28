@@ -4,6 +4,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+### [5.5.0] - 2023-06-28
+### Added
+- Core
+  - Notifications API
+  - Haptic feedback
+  - GetSupportedAPIs for checking which APIs are available on the current platform
+- Analytics
+  - New events: LogPurchase, LogPurchaseSubscription, LogSocialInvite, LogSocialShare
+- Context
+  - InviteAsync API
+  - New payload types and templates
+
+### Fixed
+- Context
+  - GetPlayers missing callback
+- Leaderboard
+  - GetEntryCount using wrong callback
+
+### Changed
+- Core
+  - Upgraded to SDK Core v1.5.0
+  - WortalErrorCodes are now an enum
+  - Organized project structure via modules
+
 ## [5.4.0] - 2023-05-25
 ### Added
 - Context Payload templates
