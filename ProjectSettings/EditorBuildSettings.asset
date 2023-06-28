@@ -8,4 +8,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/DigitalWill/Wortal/Example/WortalExampleScene.unity
     guid: b97cc36cd5a750448ac646fb6dc2a276
-  m_configObjects: {}
+  m_configObjects:
+    com.unity.addressableassets: {fileID: 11400000, guid: 26aa481711b3adc4496d484644d48e86, type: 2}
+    com.unity.localization.settings: {fileID: 11400000, guid: d5aee7aac19dcad4780d783a3925da83, type: 2}

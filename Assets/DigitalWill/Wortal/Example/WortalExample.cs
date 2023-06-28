@@ -11,6 +11,7 @@ namespace DigitalWill.WortalExample
     public class WortalExample : MonoBehaviour
     {
 #region UI References
+
         [Header("Log")]
         [SerializeField]
         private Text _log;
@@ -37,7 +38,16 @@ namespace DigitalWill.WortalExample
         [SerializeField]
         private Button _contextCreate;
         [SerializeField]
-        private Button _contextSwitch;
+        private Button _contextInvite;
+#if UNITY_LOCALIZATION
+        [Space(10)]
+        [SerializeField]
+        private InvitePayloadTemplate _invitePayloadTemplate;
+        [SerializeField]
+        private SharePayloadTemplate _sharePayloadTemplate;
+        [SerializeField]
+        private UpdatePayloadTemplate _updatePayloadTemplate;
+#endif
 
         [Header("Leaderboard")]
         [SerializeField]
@@ -61,6 +71,17 @@ namespace DigitalWill.WortalExample
         [SerializeField]
         private Button _iapConsume;
 
+        [Header("Notifications")]
+        [SerializeField]
+        private Button _notificationsSchedule;
+        [SerializeField]
+        private Button _notificationsGet;
+        [SerializeField]
+        private Button _notificationsCancel;
+#if UNITY_LOCALIZATION
+        [SerializeField]
+        private NotificationPayloadTemplate _notificationPayloadTemplate;
+#endif
         [Header("Player")]
         [SerializeField]
         private Button _playerId;
@@ -84,8 +105,11 @@ namespace DigitalWill.WortalExample
         private Button _sessionEntryPoint;
 
         private string _purchaseToken;
+        private string _notificationID;
+
 #endregion UI References
 #region Initialization
+
         private void Start()
         {
             _interstitial.onClick.AddListener(OnInterstitial);
@@ -96,7 +120,7 @@ namespace DigitalWill.WortalExample
             _contextShare.onClick.AddListener(OnContextShare);
             _contextUpdate.onClick.AddListener(OnContextUpdate);
             _contextCreate.onClick.AddListener(OnContextCreate);
-            _contextSwitch.onClick.AddListener(OnContextSwitch);
+            _contextInvite.onClick.AddListener(OnContextInvite);
             _leaderboardGet.onClick.AddListener(OnLeaderboardGet);
             _leaderboardAdd.onClick.AddListener(OnLeaderboardAdd);
             _leaderboardPlayer.onClick.AddListener(OnLeaderboardPlayer);
@@ -106,6 +130,9 @@ namespace DigitalWill.WortalExample
             _iapCatalog.onClick.AddListener(OnIAPCatalog);
             _iapBuy.onClick.AddListener(OnIAPPurchase);
             _iapConsume.onClick.AddListener(OnIAPConsume);
+            _notificationsSchedule.onClick.AddListener(OnNotificationsSchedule);
+            _notificationsGet.onClick.AddListener(OnNotificationsGet);
+            _notificationsCancel.onClick.AddListener(OnNotificationsCancel);
             _playerId.onClick.AddListener(OnPlayerId);
             _playerSetData.onClick.AddListener(OnPlayerSetData);
             _playerGetData.onClick.AddListener(OnPlayerGetData);
@@ -116,23 +143,25 @@ namespace DigitalWill.WortalExample
             _sessionEntryPoint.onClick.AddListener(OnSessionEntryPoint);
             _sessionSetData.onClick.AddListener(OnSessionSetData);
         }
-#endregion Initialization
 
+#endregion Initialization
 #region Ads
+
         ////////////////////////////////////////////////////////////////////////
         // NOTE ABOUT GAME FLOW IN REWARDED ADS:
-        // Some scenarios might require resuming the game in OnRewardPlayer/OnRewardSkipped.
+        // Some scenarios might require resuming the game in adDismissedCallback/adViewedCallback.
         // For example: A revive & continue rewarded ad placement after the player has lost.
         // The game flow will depend on the outcome of the ad - does the player watch it or not?
-        // If they watched, continue the current level in OnRewardPlayer.
-        // If they skipped, end the level in OnRewardSkipped.
+        // If they watched, continue the current level in adViewedCallback.
+        // If they skipped, end the level in adDismissedCallback.
         // If the game flow is not dependent on whether or not the player watches, such as bonus points or coins,
-        // then you should resume the game in OnAfterAd.
+        // then you should resume the game in afterAdCallback & noFillCallback.
         ////////////////////////////////////////////////////////////////////////
 
         private void OnInterstitial()
         {
-            Wortal.Ads.ShowInterstitial(Placement.Next, "NextLevel",
+            Wortal.Ads.ShowInterstitial(Placement.Next,
+                "NextLevel",
                 () => Log("BeforeAd"),
                 () => Log("AfterAd"));
         }
@@ -145,9 +174,10 @@ namespace DigitalWill.WortalExample
                 () => Log("AdDismissed"),
                 () => Log("AdViewed"));
         }
-#endregion Ads
 
+#endregion Ads
 #region Analytics
+
         ////////////////////////////////////////////////////////////////////////
         // NOTE ABOUT LEVEL ANALYTICS:
         // When you call LogLevelStart() a timer is started. This is to track how
@@ -168,9 +198,10 @@ namespace DigitalWill.WortalExample
             Wortal.Analytics.LogLevelEnd("Demo", "100", true);
             Log("OnLevelEnd");
         }
-#endregion Analytics
 
+#endregion Analytics
 #region Context
+
         ////////////////////////////////////////////////////////////////////////
         // NOTE ABOUT CONTEXT:
         // ContextPayload has lots of options for customizing the payload and filtering.
@@ -183,27 +214,7 @@ namespace DigitalWill.WortalExample
 
         private void OnContextChoose()
         {
-            var payload = new ContextPayload
-            {
-                Image = WortalExampleUtils.GetImage(),
-                Text = new LocalizableContent
-                {
-                    Default = "Invite",
-                },
-                Caption = new LocalizableContent
-                {
-                    Default = "Play!",
-                    Localizations = new Dictionary<string, string>
-                    {
-                        { "en_US", "English" },
-                        { "ja_JP", "Japanese" },
-                    },
-                },
-                Data = new Dictionary<string, object>
-                {
-                    { "current_level", 1 },
-                },
-            };
+            var payload = new ChoosePayload();
             Wortal.Context.Choose(payload,
                 () => Log("New context: " + Wortal.Context.GetID()),
                 error => Log("Error Code: " + error.Code + "\nError: " + error.Message));
@@ -211,18 +222,22 @@ namespace DigitalWill.WortalExample
 
         private void OnContextShare()
         {
-            var payload = new ContextPayload
+#if UNITY_LOCALIZATION
+            SharePayload payload = _sharePayloadTemplate.GetPayload();
+#else
+            var payload = new SharePayload
             {
                 Image = WortalExampleUtils.GetImage(),
                 Text = new LocalizableContent
                 {
                     Default = "Share",
                 },
-                Caption = new LocalizableContent
+                CTA = new LocalizableContent
                 {
                     Default = "Let's Play!",
                 },
             };
+#endif
             Wortal.Context.Share(payload,
                 result => Log("Shares: " + result),
                 error => Log("Error Code: " + error.Code + "\nError: " + error.Message));
@@ -230,18 +245,22 @@ namespace DigitalWill.WortalExample
 
         private void OnContextUpdate()
         {
-            var payload = new ContextPayload
+#if UNITY_LOCALIZATION
+            UpdatePayload payload = _updatePayloadTemplate.GetPayload();
+#else
+            var payload = new UpdatePayload
             {
                 Image = WortalExampleUtils.GetImage(),
                 Text = new LocalizableContent
                 {
                     Default = "Update",
                 },
-                Caption = new LocalizableContent
+                CTA = new LocalizableContent
                 {
                     Default = "We Played!",
                 },
             };
+#endif
             Wortal.Context.Update(payload,
                 () => Log("New context: " + Wortal.Context.GetID()),
                 error => Log("Error Code: " + error.Code + "\nError: " + error.Message));
@@ -254,15 +273,32 @@ namespace DigitalWill.WortalExample
                 error => Log("Error Code: " + error.Code + "\nError: " + error.Message));
         }
 
-        private void OnContextSwitch()
+        private void OnContextInvite()
         {
-            Wortal.Context.Switch("someContextId",
-                () => Log("New context: " + Wortal.Context.GetID()),
+#if UNITY_LOCALIZATION
+            InvitePayload payload = _invitePayloadTemplate.GetPayload();
+#else
+            var payload = new InvitePayload
+            {
+                Image = WortalExampleUtils.GetImage(),
+                Text = new LocalizableContent
+                {
+                    Default = "Invite",
+                },
+                CTA = new LocalizableContent
+                {
+                    Default = "Let's Play!",
+                },
+            };
+#endif
+            Wortal.Context.Invite(payload,
+                () => Log("Invite sent!"),
                 error => Log("Error Code: " + error.Code + "\nError: " + error.Message));
         }
-#endregion Context
 
+#endregion Context
 #region Leaderboard
+
         ////////////////////////////////////////////////////////////////////////
         // NOTE ABOUT LEADERBOARD:
         // Leaderboards need to be created on a per-platform basis before they can be used.
@@ -278,22 +314,28 @@ namespace DigitalWill.WortalExample
 
         private void OnLeaderboardAdd()
         {
-            Wortal.Leaderboard.SendEntry("global", 100,
-                entry => Log("Score: " + entry.Score),
+            Wortal.Leaderboard.SendEntry("global",
+                100,
+                entry => Log("Score sent: " + entry.Score),
                 error => Log("Error Code: " + error.Code + "\nError: " + error.Message));
         }
 
         private void OnLeaderboardPlayer()
         {
-            Wortal.Leaderboard.GetPlayerEntry("global",
-                entry => Log("Score: " + entry.Score),
+            Wortal.Leaderboard.GetConnectedPlayersEntries("global", 10,
+                entries => Log("Player entries: " + entries.Length),
                 error => Log("Error Code: " + error.Code + "\nError: " + error.Message));
         }
 
         private void OnLeaderboardEntries()
         {
-            Wortal.Leaderboard.GetEntries("global", 10,
-                entries => Log("Score: " + entries[0].Score),
+            Wortal.Leaderboard.GetEntries("global",
+                10,
+                entries =>
+                {
+                    Log("Entries Count: " + entries.Length);
+                    Log("Score: " + entries[0].Score);
+                },
                 error => Log("Error Code: " + error.Code + "\nError: " + error.Message));
         }
 
@@ -303,9 +345,10 @@ namespace DigitalWill.WortalExample
                 count => Log("Count: " + count),
                 error => Log("Error Code: " + error.Code + "\nError: " + error.Message));
         }
-#endregion Leaderboard
 
+#endregion Leaderboard
 #region IAP
+
         ////////////////////////////////////////////////////////////////////////
         // NOTE ABOUT IN-APP PURCHASING:
         // IAP needs to be setup on a per-platform basis before they can be used.
@@ -314,8 +357,7 @@ namespace DigitalWill.WortalExample
 
         private void OnIAPGet()
         {
-            Wortal.IAP.GetPurchases(
-                purchases =>
+            Wortal.IAP.GetPurchases(purchases =>
                 {
                     _purchaseToken = purchases[0].PurchaseToken;
                     Log(purchases[0].ProductID);
@@ -325,14 +367,13 @@ namespace DigitalWill.WortalExample
 
         private void OnIAPCatalog()
         {
-            Wortal.IAP.GetCatalog(
-                catalog => Log(catalog[0].Title),
+            Wortal.IAP.GetCatalog(catalog => Log(catalog[0].Title),
                 error => Log("Error Code: " + error.Code + "\nError: " + error.Message));
         }
 
         private void OnIAPPurchase()
         {
-            Wortal.IAP.MakePurchase(new WortalIAP.PurchaseConfig
+            Wortal.IAP.MakePurchase(new PurchaseConfig
                 {
                     ProductID = "jp.rgames.wortalsdktest.purchase.llama_pack_1.test",
                 },
@@ -350,9 +391,60 @@ namespace DigitalWill.WortalExample
                 () => Log("Purchase Consumed"),
                 error => Log("Error Code: " + error.Code + "\nError: " + error.Message));
         }
-#endregion IAP
 
+#endregion IAP
+#region Notifications
+
+        ////////////////////////////////////////////////////////////////////////
+        // NOTE ABOUT NOTIFICATIONS:
+        //
+        ////////////////////////////////////////////////////////////////////////
+
+        private void OnNotificationsGet()
+        {
+            Wortal.Notifications.GetHistory(notifications =>
+                {
+                    Log("Notifications: " + notifications.Length);
+                    for (int i = 0; i < notifications.Length; i++)
+                    {
+                        if (notifications[i].Status == NotificationStatus.SCHEDULED)
+                        {
+                            Log("Scheduled Notification: " + notifications[i].ID);
+                            _notificationID = notifications[i].ID;
+                            break;
+                        }
+                    }
+                },
+                error => Log("Error Code: " + error.Code + "\nError: " + error.Message));
+        }
+
+        private void OnNotificationsSchedule()
+        {
+#if UNITY_LOCALIZATION
+            NotificationPayload payload = _notificationPayloadTemplate.GetPayload();
+#else
+            var payload = new NotificationPayload
+            {
+                Title = "Notification Title",
+                Body = "Notification Body",
+                ScheduleInterval = 300,
+            };
+#endif
+            Wortal.Notifications.Schedule(payload,
+                result => Log("Notification Sent: " + result.ID),
+                error => Log("Error Code: " + error.Code + "\nError: " + error.Message));
+        }
+
+        private void OnNotificationsCancel()
+        {
+            Wortal.Notifications.Cancel(_notificationID,
+                result => Log("Notification Cancelled: " + result),
+                error => Log("Error Code: " + error.Code + "\nError: " + error.Message));
+        }
+
+#endregion Notifications
 #region Player
+
         ////////////////////////////////////////////////////////////////////////
         // NOTE ABOUT PLAYER DATA:
         // Player data saved to the platform can be of any type with any values.
@@ -408,9 +500,9 @@ namespace DigitalWill.WortalExample
 
         private void OnPlayerFriends()
         {
-            var payload = new WortalPlayer.PlayerPayload
+            var payload = new GetConnectedPlayersPayload
             {
-                Filter = WortalPlayer.PlayerFilter.ALL,
+                Filter = ConnectedPlayerFilter.ALL,
             };
             Wortal.Player.GetConnectedPlayers(payload,
                 players => Log(players[0].GetName()),
@@ -419,13 +511,13 @@ namespace DigitalWill.WortalExample
 
         private void OnPlayerSigned()
         {
-            Wortal.Player.GetSignedPlayerInfo(
-                (id, signature) => Log("ID: " + id + "\nSignature: " + signature),
+            Wortal.Player.GetSignedPlayerInfo((id, signature) => Log("ID: " + id + "\nSignature: " + signature),
                 error => Log("Error Code: " + error.Code + "\nError: " + error.Message));
         }
-#endregion Player
 
+#endregion Player
 #region Session
+
         ////////////////////////////////////////////////////////////////////////
         // NOTE ABOUT SESSION DATA:
         // Data saved using SetSessionData does not persist outside the game session.
@@ -435,7 +527,7 @@ namespace DigitalWill.WortalExample
 
         private void OnSessionTraffic()
         {
-            WortalSession.TrafficSource trafficSource = Wortal.Session.GetTrafficSource();
+            TrafficSource trafficSource = Wortal.Session.GetTrafficSource();
             Log(trafficSource.EntryPoint + "\n" + trafficSource.UTMSource);
         }
 
@@ -460,15 +552,16 @@ namespace DigitalWill.WortalExample
 
         private void OnSessionEntryPoint()
         {
-            Wortal.Session.GetEntryPoint(
-                entryPoint => Log(entryPoint),
+            Wortal.Session.GetEntryPoint(entryPoint => Log(entryPoint),
                 error => Log("Error Code: " + error.Code + "\nError: " + error.Message));
         }
+
 #endregion Session
 
         private void Log(string message)
         {
             _log.text = message;
+            Debug.Log(message);
         }
     }
 }

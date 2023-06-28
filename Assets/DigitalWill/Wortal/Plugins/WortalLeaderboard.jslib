@@ -1,118 +1,62 @@
 ﻿mergeInto(LibraryManager.library, {
 
     LeaderboardGetJS: function (name, callback, errorCallback) {
-        var nameStr = UTF8ToString(name);
-        window.Wortal.leaderboard.getLeaderboardAsync(nameStr)
+        window.Wortal.leaderboard.getLeaderboardAsync(UTF8ToString(name))
             .then(res => {
-                var result = res._current;
-                var resultStr = JSON.stringify(result);
-                var bufferSize = lengthBytesUTF8(resultStr) + 1;
-                var buffer = _malloc(bufferSize);
-                stringToUTF8(resultStr, buffer, bufferSize);
-                return Module.dynCall_vi(callback, buffer);
+                return Module.dynCall_vi(callback, gameInstance.Module.allocString(JSON.stringify(res._current)));
             })
             .catch(error => {
-                var errorStr = JSON.stringify(error);
-                var bufferSize = lengthBytesUTF8(errorStr) + 1;
-                var buffer = _malloc(bufferSize);
-                stringToUTF8(errorStr, buffer, bufferSize);
-                return Module.dynCall_vi(errorCallback, buffer);
+                return Module.dynCall_vi(errorCallback, gameInstance.Module.allocString(JSON.stringify(error)));
             });
     },
 
     LeaderboardSendEntryJS: function (name, score, details, callback, errorCallback) {
-        var nameStr = UTF8ToString(name);
-        var detailsStr = UTF8ToString(details);
-        window.Wortal.leaderboard.sendEntryAsync(nameStr, score, detailsStr)
+        window.Wortal.leaderboard.sendEntryAsync(UTF8ToString(name), score, UTF8ToString(details))
             .then(res => {
-                var result = res._current;
-                var resultStr = JSON.stringify(result);
-                var bufferSize = lengthBytesUTF8(resultStr) + 1;
-                var buffer = _malloc(bufferSize);
-                stringToUTF8(resultStr, buffer, bufferSize);
-                return Module.dynCall_vi(callback, buffer);
+                return Module.dynCall_vi(callback, gameInstance.Module.allocString(JSON.stringify(res._current)));
             })
             .catch(error => {
-                var errorStr = JSON.stringify(error);
-                var bufferSize = lengthBytesUTF8(errorStr) + 1;
-                var buffer = _malloc(bufferSize);
-                stringToUTF8(errorStr, buffer, bufferSize);
-                return Module.dynCall_vi(errorCallback, buffer);
+                return Module.dynCall_vi(errorCallback, gameInstance.Module.allocString(JSON.stringify(error)));
             });
     },
 
     LeaderboardGetEntriesJS: function (name, count, offset, callback, errorCallback) {
-        var nameStr = UTF8ToString(name);
-        window.Wortal.leaderboard.getEntriesAsync(nameStr, count, offset)
+        window.Wortal.leaderboard.getEntriesAsync(UTF8ToString(name), count, offset)
             .then(res => {
-                var result = res.map(entry => entry._current);
-                var resultStr = JSON.stringify(result);
-                var bufferSize = lengthBytesUTF8(resultStr) + 1;
-                var buffer = _malloc(bufferSize);
-                stringToUTF8(resultStr, buffer, bufferSize);
-                return Module.dynCall_vi(callback, buffer);
+                return Module.dynCall_vi(callback, gameInstance.Module.allocString(JSON.stringify(res.map(entry => entry._current))));
             })
             .catch(error => {
-                var errorStr = JSON.stringify(error);
-                var bufferSize = lengthBytesUTF8(errorStr) + 1;
-                var buffer = _malloc(bufferSize);
-                stringToUTF8(errorStr, buffer, bufferSize);
-                return Module.dynCall_vi(errorCallback, buffer);
+                return Module.dynCall_vi(errorCallback, gameInstance.Module.allocString(JSON.stringify(error)));
             });
     },
 
     LeaderboardGetPlayerEntryJS: function (name, callback, errorCallback) {
-        var nameStr = UTF8ToString(name);
-        window.Wortal.leaderboard.getPlayerEntryAsync(nameStr)
+        window.Wortal.leaderboard.getPlayerEntryAsync(UTF8ToString(name))
             .then(res => {
-                var result = res._current;
-                var resultStr = JSON.stringify(result);
-                var bufferSize = lengthBytesUTF8(resultStr) + 1;
-                var buffer = _malloc(bufferSize);
-                stringToUTF8(resultStr, buffer, bufferSize);
-                return Module.dynCall_vi(callback, buffer);
+                return Module.dynCall_vi(callback, gameInstance.Module.allocString(JSON.stringify(res._current)));
             })
             .catch(error => {
-                var errorStr = JSON.stringify(error);
-                var bufferSize = lengthBytesUTF8(errorStr) + 1;
-                var buffer = _malloc(bufferSize);
-                stringToUTF8(errorStr, buffer, bufferSize);
-                return Module.dynCall_vi(errorCallback, buffer);
+                return Module.dynCall_vi(errorCallback, gameInstance.Module.allocString(JSON.stringify(error)));
             });
     },
 
     LeaderboardGetEntryCountJS: function (name, callback, errorCallback) {
-        var nameStr = UTF8ToString(name);
-        window.Wortal.leaderboard.getEntryCountAsync(nameStr)
+        window.Wortal.leaderboard.getEntryCountAsync(UTF8ToString(name))
             .then(result => {
                 return Module.dynCall_vi(callback, result);
             })
             .catch(error => {
-                var errorStr = JSON.stringify(error);
-                var bufferSize = lengthBytesUTF8(errorStr) + 1;
-                var buffer = _malloc(bufferSize);
-                stringToUTF8(errorStr, buffer, bufferSize);
-                return Module.dynCall_vi(errorCallback, buffer);
+                return Module.dynCall_vi(errorCallback, gameInstance.Module.allocString(JSON.stringify(error)));
             });
     },
 
     LeaderboardGetConnectedPlayersEntriesJS: function (name, count, offset, callback, errorCallback) {
-        var nameStr = UTF8ToString(name);
-        window.Wortal.leaderboard.getConnectedPlayersEntriesAsync(nameStr, count, offset)
+        window.Wortal.leaderboard.getConnectedPlayersEntriesAsync(UTF8ToString(name), count, offset)
             .then(res => {
-                var result = res.map(entry => entry._current);
-                var resultStr = JSON.stringify(result);
-                var bufferSize = lengthBytesUTF8(resultStr) + 1;
-                var buffer = _malloc(bufferSize);
-                stringToUTF8(resultStr, buffer, bufferSize);
-                return Module.dynCall_vi(callback, buffer);
+                return Module.dynCall_vi(callback, gameInstance.Module.allocString(JSON.stringify(res.map(entry => entry._current))));
             })
             .catch(error => {
-                var errorStr = JSON.stringify(error);
-                var bufferSize = lengthBytesUTF8(errorStr) + 1;
-                var buffer = _malloc(bufferSize);
-                stringToUTF8(errorStr, buffer, bufferSize);
-                return Module.dynCall_vi(errorCallback, buffer);
+                return Module.dynCall_vi(errorCallback, gameInstance.Module.allocString(JSON.stringify(error)));
             });
     }
 

@@ -2,7 +2,9 @@
     "name": "DigitalWill.WortalExample",
     "rootNamespace": "DigitalWill.WortalExample",
     "references": [
-        "GUID:2188c9534506e0a44a7fa0b54fd4c703"
+        "DigitalWill.WortalSDK",
+        "Unity.Localization",
+        "DigitalWill.WortalSDK.Templates"
     ],
     "includePlatforms": [
         "Editor",
@@ -14,6 +16,12 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.localization",
+            "expression": "1.0.0",
+            "define": "UNITY_LOCALIZATION"
+        }
+    ],
     "noEngineReferences": false
 }

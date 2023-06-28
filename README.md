@@ -81,50 +81,22 @@ and send messages to each other.
 
 ```csharp
 // Invite a friend to play the game.
-Wortal.Context.ChooseAsync(payload,
+Wortal.Context.InviteAsync(invitePayload,
     () => Debug.Log("New context: " + Wortal.Context.GetID()),
     error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
 
 // Share your game activity with friends.
-Wortal.Context.ShareAsync(payload,
+Wortal.Context.ShareAsync(sharePayload,
     shareResult => Debug.Log("Number of shares: " + shareResult),
     error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
-
-// Example ContextPayload
-var payload = new ContextPayload
-{
-    Image = "dataURLToBase64Image",
-    Text = new LocalizableContent
-    {
-        Default = "Play",
-        Localizations = new Dictionary<string, string>
-        {
-            {"en_US", "Play"},
-            {"ja_JP", "プレイ"},
-        },
-    },
-    Data = new Dictionary<string, object>
-    {
-        {"current_level", 1},
-    },
-};
 ```
 
 #### Context Payload Templates
 
-To make it easier to create and manage payloads for use with the Context API, you can create `ContextPayloadTemplates`
-from the `Wortal/Context Payload Template` menu. These templates are ScriptableObjects that can be easily designed and
-modified in the Unity Editor without writing any code. Some things to consider when using the template:
-
-- The templates utilize Unity's Localization system for passing `LocalizableContent`, simply selecting a key in the
-template will automatically populate the payload with all available locales. If your project does not
-include the Localization package, the template script will not be compiled and will not show up in your project.
-- Images selected in the template will be converted to a base64 encoded string and added to the payload, this requires
-the image to be uncompressed and have `Read/Write` enabled.
-- Values left default or `NONE` will be ignored and not passed into the payload object.
-- You can convert the template to a `ContextPayload` object to use with the Context API via `ContextPayloadTemplate.GetPayload()`.
-
-![payload-template.jpg](Docs/Images/payload-template.jpg)
+To make it easier to create and manage payloads for use with the Context API, you can create templates
+from the `Wortal` menu. These templates are ScriptableObjects that can be easily designed and
+modified in the Unity Editor without writing any code. See [this discussion](https://github.com/Digital-Will-Inc/wortal-sdk-unity/discussions/137)
+for more details and limitations of the templates.
 
 ### In-App Purchases
 
@@ -166,6 +138,32 @@ Wortal.Leaderboard.SendEntry("global", 100,
     entry => Debug.Log("Score: " + entry.Score),
     error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
 ```
+
+### Notifications
+
+[API Reference](https://sdk.html5gameportal.com/api/notifications/)
+
+The notifications API is used to send notifications to the player. This can be useful for letting the player
+know when they have received a gift or when they haven't played in a while.
+
+```csharp
+// Send a notification to the player.
+Wortal.Notifications.Schedule(payload,
+    result => Debug.Log("Notification sent: " + result.ID),
+    error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
+
+// Cancel a notification.
+Wortal.Notifications.Cancel(notificationID,
+    () => Debug.Log("Notification cancelled"),
+    error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
+```
+
+#### Notification Payload Templates
+
+To make it easier to create and manage payloads for use with the Notifications API, you can create templates
+from the `Wortal` menu. These templates are ScriptableObjects that can be easily designed and
+modified in the Unity Editor without writing any code. See [this discussion](https://github.com/Digital-Will-Inc/wortal-sdk-unity/discussions/137)
+for more details and limitations of the templates.
 
 ### Player
 

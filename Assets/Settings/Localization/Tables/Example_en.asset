@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: Example_en
+  m_EditorClassIdentifier: 
+  m_LocaleId:
+    m_Code: en
+  m_SharedData: {fileID: 11400000, guid: ea2bf69f3b331f54bad962134e6637fd, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 81578156032
+    m_Localized: You should try this game out!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8089755648
+    m_Localized: I just got a new high score!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 362961428480
+    m_Localized: I made a move, now it's your turn!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23498910064640
+    m_Localized: Ads
+    m_Metadata:
+      m_Items: []
+  - m_Id: 112058988224512
+    m_Localized: Come back and play!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 112079443845120
+    m_Localized: You've been gone for a while, come back and collect your earnings!
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []
