@@ -7,71 +7,40 @@
     IAPGetCatalogJS: function (callback, errorCallback) {
         window.Wortal.iap.getCatalogAsync()
             .then(result => {
-                var resultStr = JSON.stringify(result);
-                var bufferSize = lengthBytesUTF8(resultStr) + 1;
-                var buffer = _malloc(bufferSize);
-                stringToUTF8(resultStr, buffer, bufferSize);
-                return Module.dynCall_vi(callback, buffer);
+                return Module.dynCall_vi(callback, gameInstance.Module.allocString(JSON.stringify(result)));
             })
             .catch(error => {
-                var errorStr = JSON.stringify(error);
-                var bufferSize = lengthBytesUTF8(errorStr) + 1;
-                var buffer = _malloc(bufferSize);
-                stringToUTF8(errorStr, buffer, bufferSize);
-                return Module.dynCall_vi(errorCallback, buffer);
+                return Module.dynCall_vi(errorCallback, gameInstance.Module.allocString(JSON.stringify(error)));
             });
     },
 
     IAPGetPurchasesJS: function (callback, errorCallback) {
         window.Wortal.iap.getPurchasesAsync()
             .then(result => {
-                var resultStr = JSON.stringify(result);
-                var bufferSize = lengthBytesUTF8(resultStr) + 1;
-                var buffer = _malloc(bufferSize);
-                stringToUTF8(resultStr, buffer, bufferSize);
-                return Module.dynCall_vi(callback, buffer);
+                return Module.dynCall_vi(callback, gameInstance.Module.allocString(JSON.stringify(result)));
             })
             .catch(error => {
-                var errorStr = JSON.stringify(error);
-                var bufferSize = lengthBytesUTF8(errorStr) + 1;
-                var buffer = _malloc(bufferSize);
-                stringToUTF8(errorStr, buffer, bufferSize);
-                return Module.dynCall_vi(errorCallback, buffer);
+                return Module.dynCall_vi(errorCallback, gameInstance.Module.allocString(JSON.stringify(error)));
             });
     },
 
     IAPMakePurchaseJS: function (purchase, callback, errorCallback) {
-        purchaseStr = UTF8ToString(purchase);
-        purchaseJson = JSON.parse(purchaseStr);
-        window.Wortal.iap.makePurchaseAsync(purchaseJson)
+        window.Wortal.iap.makePurchaseAsync(JSON.parse(UTF8ToString(purchase)))
             .then(result => {
-                var resultStr = JSON.stringify(result);
-                var bufferSize = lengthBytesUTF8(resultStr) + 1;
-                var buffer = _malloc(bufferSize);
-                stringToUTF8(resultStr, buffer, bufferSize);
-                return Module.dynCall_vi(callback, buffer);
+                return Module.dynCall_vi(callback, gameInstance.Module.allocString(JSON.stringify(result)));
             })
             .catch(error => {
-                var errorStr = JSON.stringify(error);
-                var bufferSize = lengthBytesUTF8(errorStr) + 1;
-                var buffer = _malloc(bufferSize);
-                stringToUTF8(errorStr, buffer, bufferSize);
-                return Module.dynCall_vi(errorCallback, buffer);
+                return Module.dynCall_vi(errorCallback, gameInstance.Module.allocString(JSON.stringify(error)));
             });
     },
 
     IAPConsumePurchaseJS: function (token, callback, errorCallback) {
-        tokenStr = UTF8ToString(token);
-        window.Wortal.iap.consumePurchaseAsync(tokenStr)
+        window.Wortal.iap.consumePurchaseAsync(UTF8ToString(token))
             .then(result => {
                 return Module.dynCall_v(callback);
             })
             .catch(error => {
-                var errorStr = JSON.stringify(error);
-                var bufferSize = lengthBytesUTF8(errorStr) + 1;
-                var buffer = _malloc(bufferSize);
-                stringToUTF8(errorStr, buffer, bufferSize);
-                return Module.dynCall_vi(errorCallback, buffer);
+                return Module.dynCall_vi(errorCallback, gameInstance.Module.allocString(JSON.stringify(error)));
             });
     }
 
