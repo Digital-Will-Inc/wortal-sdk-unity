@@ -21,31 +21,35 @@ namespace DigitalWill.WortalSDK
         /// <summary>
         /// Ads API
         /// </summary>
-        public static WortalAds Ads { get; private set; } = new();
+        public static WortalAds Ads { get; } = new();
         /// <summary>
         /// Analytics API
         /// </summary>
-        public static WortalAnalytics Analytics { get; private set; } = new();
+        public static WortalAnalytics Analytics { get; } = new();
         /// <summary>
         /// Context API
         /// </summary>
-        public static WortalContext Context { get; private set; } = new();
+        public static WortalContext Context { get; } = new();
         /// <summary>
         /// In-App Purchasing API
         /// </summary>
-        public static WortalIAP IAP { get; private set; } = new();
+        public static WortalIAP IAP { get; } = new();
         /// <summary>
         /// Leaderboard API
         /// </summary>
-        public static WortalLeaderboard Leaderboard { get; private set; } = new();
+        public static WortalLeaderboard Leaderboard { get; } = new();
+        /// <summary>
+        /// Notifications API
+        /// </summary>
+        public static WortalNotifications Notifications { get; } = new();
         /// <summary>
         /// Player API
         /// </summary>
-        public static WortalPlayer Player { get; private set; } = new();
+        public static WortalPlayer Player { get; } = new();
         /// <summary>
         /// Session API
         /// </summary>
-        public static WortalSession Session { get; private set; } = new();
+        public static WortalSession Session { get; } = new();
 
         /// <summary>
         /// Get the list of APIs supported by the current platform.
