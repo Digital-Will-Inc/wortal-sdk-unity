@@ -13,6 +13,7 @@ namespace DigitalWill.WortalSDK
     {
         private static Action<WortalPlayer[]> _getPlayersCallback;
         private static Action _chooseCallback;
+        private static Action _inviteCallback;
         private static Action<int> _shareCallback;
         private static Action _shareLinkCallback;
         private static Action _updateCallback;
@@ -120,6 +121,46 @@ namespace DigitalWill.WortalSDK
 #else
             Debug.Log($"[Wortal] Mock Context.Choose({payload})");
             ContextChooseCallback();
+#endif
+        }
+
+        /// <summary>
+        /// This invokes a dialog to let the user invite one or more people to the game. A blob of data can be attached to the
+        /// invite which every game session launched from the invite will be able to access from Wortal.session.getEntryPointData().
+        /// This data must be less than or equal to 1000 characters when stringified. The user may choose to cancel the action
+        /// and close the dialog, and the returned promise will resolve when the dialog is closed regardless of whether the user
+        /// actually invited people or not. The sections included in the dialog can be customized by using the sections parameter.
+        /// This can specify which sections to include, how many results to include in each section, and what order the sections
+        /// should appear in. The last section will include as many results as possible. If no sections are specified, the
+        /// default section settings will be applied. The filters parameter allows for filtering the results. If no results are
+        /// returned when the filters are applied, the results will be generated without the filters.
+        /// </summary>
+        /// <param name="payload">Object defining the invite message.</param>
+        /// <param name="callback">Void callback event triggered when the async JS function resolves.</param>
+        /// <param name="errorCallback">Error callback event with <see cref="WortalError"/> describing the error.</param>
+        /// <example><code>
+        /// Wortal.Context.Invite(payload,
+        ///     () => Debug.Log("Invite sent!"),
+        ///     error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
+        /// </code></example>
+        /// <throws><ul>
+        /// <li>NOT_SUPPORTED</li>
+        /// <li>INVALID_PARAM</li>
+        /// <li>NETWORK_FAILURE</li>
+        /// <li>PENDING_REQUEST</li>
+        /// <li>CLIENT_UNSUPPORTED_OPERATION</li>
+        /// <li>INVALID_OPERATION</li>
+        /// </ul></throws>
+        public void Invite(InvitePayload payload, Action callback, Action<WortalError> errorCallback)
+        {
+            _inviteCallback = callback;
+            Wortal.WortalError = errorCallback;
+            string payloadObj = JsonConvert.SerializeObject(payload);
+#if UNITY_WEBGL && !UNITY_EDITOR
+            ContextInviteJS(payloadObj, ContextInviteCallback, Wortal.WortalErrorCallback);
+#else
+            Debug.Log($"[Wortal] Mock Context.Invite({payload})");
+            ContextInviteCallback();
 #endif
         }
 
@@ -361,6 +402,9 @@ namespace DigitalWill.WortalSDK
         private static extern void ContextChooseJS(string payload, Action callback, Action<string> errorCallback);
 
         [DllImport("__Internal")]
+        private static extern void ContextInviteJS(string payload, Action callback, Action<string> errorCallback);
+
+        [DllImport("__Internal")]
         private static extern void ContextShareJS(string payload, Action<int> callback, Action<string> errorCallback);
 
         [DllImport("__Internal")]
@@ -392,6 +436,12 @@ namespace DigitalWill.WortalSDK
         private static void ContextChooseCallback()
         {
             _chooseCallback?.Invoke();
+        }
+
+        [MonoPInvokeCallback(typeof(Action))]
+        private static void ContextInviteCallback()
+        {
+            _inviteCallback?.Invoke();
         }
 
         [MonoPInvokeCallback(typeof(Action<int>))]
