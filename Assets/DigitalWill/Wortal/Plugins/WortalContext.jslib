@@ -28,6 +28,16 @@
             });
     },
 
+    ContextInviteJS: function (payload, callback, errorCallback) {
+        window.Wortal.context.inviteAsync(JSON.parse(UTF8ToString(payload)))
+            .then(() => {
+                return Module.dynCall_v(callback);
+            })
+            .catch(error => {
+                return Module.dynCall_vi(errorCallback, gameInstance.Module.allocString(JSON.stringify(error)));
+            });
+    },
+
     ContextShareJS: function (payload, callback, errorCallback) {
         window.Wortal.context.shareAsync(JSON.parse(UTF8ToString(payload)))
             .then(result => {
