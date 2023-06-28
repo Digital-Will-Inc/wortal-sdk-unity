@@ -1,5 +1,5 @@
 {
-    "name": "DigitalWill.WortalSDK.ContextUtils",
+    "name": "DigitalWill.WortalSDK.Templates",
     "rootNamespace": "DigitalWill.WortalSDK",
     "references": [
         "DigitalWill.WortalSDK",
