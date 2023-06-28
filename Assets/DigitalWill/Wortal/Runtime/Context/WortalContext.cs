@@ -1,9 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using AOT;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using UnityEngine;
 
 namespace DigitalWill.WortalSDK
@@ -112,7 +110,7 @@ namespace DigitalWill.WortalSDK
         /// <li>PENDING_REQUEST</li>
         /// <li>CLIENT_UNSUPPORTED_OPERATION</li>
         /// </ul></throws>
-        public void Choose(ContextPayload payload, Action callback, Action<WortalError> errorCallback)
+        public void Choose(ChoosePayload payload, Action callback, Action<WortalError> errorCallback)
         {
             _chooseCallback = callback;
             Wortal.WortalError = errorCallback;
@@ -126,7 +124,11 @@ namespace DigitalWill.WortalSDK
         }
 
         /// <summary>
-        /// Shares a message to the player's friends. Will trigger a UI for the player to choose which friends to share with.
+        /// This invokes a dialog to let the user share specified content, as a post on the user's timeline, for example.
+        /// A blob of data can be attached to the share which every game session launched from the share will be able to access
+        /// from Wortal.session.getEntryPointData(). This data must be less than or equal to 1000 characters when stringified.
+        /// The user may choose to cancel the share action and close the dialog, and the returned promise will resolve when the
+        /// dialog is closed regardless if the user actually shared the content or not.
         /// </summary>
         /// <param name="payload">Object defining the share message.</param>
         /// <param name="callback">Callback event that contains int with number of friends this was shared with. Fired after JS async function resolves.</param>
@@ -144,7 +146,7 @@ namespace DigitalWill.WortalSDK
         /// <li>CLIENT_UNSUPPORTED_OPERATION</li>
         /// <li>INVALID_OPERATION</li>
         /// </ul></throws>
-        public void Share(ContextPayload payload, Action<int> callback, Action<WortalError> errorCallback)
+        public void Share(SharePayload payload, Action<int> callback, Action<WortalError> errorCallback)
         {
             _shareCallback = callback;
             Wortal.WortalError = errorCallback;
@@ -158,7 +160,7 @@ namespace DigitalWill.WortalSDK
         }
 
         /// <summary>
-        /// his invokes a dialog that contains a custom game link that users can copy to their clipboard, or share.
+        /// This invokes a dialog that contains a custom game link that users can copy to their clipboard, or share.
         /// A blob of data can be attached to the custom link - game sessions initiated from the link will be able to access the
         /// data through Wortal.session.getEntryPointData(). This data should be less than or equal to 1000 characters when
         /// stringified. The provided text and image will be used to generate the link preview, with the game name as the title
@@ -181,7 +183,7 @@ namespace DigitalWill.WortalSDK
         /// <li>PENDING_REQUEST</li>
         /// <li>INVALID_OPERATION</li>
         /// </ul></throws>
-        public void ShareLink(ContextPayload payload, Action callback, Action<WortalError> errorCallback)
+        public void ShareLink(LinkSharePayload payload, Action callback, Action<WortalError> errorCallback)
         {
             _shareLinkCallback = callback;
             Wortal.WortalError = errorCallback;
@@ -196,6 +198,8 @@ namespace DigitalWill.WortalSDK
 
         /// <summary>
         /// Posts an update to the current context. Will send a message to the chat thread of the current context.
+        /// When players launch the game from this message, those game sessions will be able to access the specified blob
+        /// of data through Wortal.session.getEntryPointData().
         /// </summary>
         /// <param name="payload">Object defining the update message.</param>
         /// <param name="callback">Void callback event triggered when the async JS function resolves.</param>
@@ -211,7 +215,7 @@ namespace DigitalWill.WortalSDK
         /// <li>PENDING_REQUEST</li>
         /// <li>INVALID_OPERATION</li>
         /// </ul></throws>
-        public void Update(ContextPayload payload, Action callback, Action<WortalError> errorCallback)
+        public void Update(UpdatePayload payload, Action callback, Action<WortalError> errorCallback)
         {
             _updateCallback = callback;
             Wortal.WortalError = errorCallback;
@@ -421,311 +425,5 @@ namespace DigitalWill.WortalSDK
         }
 
 #endregion JSlib Interface
-#region Type Constants
-
-        /// <summary>
-        /// Available options for the ContextFilter type in the SDK Core.
-        /// </summary>
-        [JsonConverter(typeof(StringEnumConverter))]
-        public enum ContextFilter
-        {
-            /// <summary>
-            /// Ignores this parameter and does not send to the SDK.
-            /// </summary>
-            NONE,
-            /// <summary>
-            /// Only enlists contexts that the current player is in, but never participated in (e.g. a new context created by a friend).
-            /// </summary>
-            NEW_CONTEXT_ONLY,
-            /// <summary>
-            /// Enlists contexts that the current player has participated before.
-            /// </summary>
-            INCLUDE_EXISTING_CHALLENGES,
-            /// <summary>
-            /// Only enlists friends who haven't played this game before.
-            /// </summary>
-            NEW_PLAYERS_ONLY,
-            /// <summary>
-            /// Only enlists friends who haven't been sent an in-game message before. This filter can be fine-tuned with `hoursSinceInvitation` parameter.
-            /// </summary>
-            NEW_INVITATIONS_ONLY,
-        }
-
-        /// <summary>
-        /// Available options for the ContextType type in the SDK Core.
-        /// </summary>
-        public enum ContextType
-        {
-            /// <summary>
-            /// Ignores this parameter and does not send to the SDK.
-            /// </summary>
-            NONE,
-            SOLO,
-            THREAD,
-            GROUP,
-            POST,
-        }
-
-        /// <summary>
-        /// Response object for the Context.IsSizeBetween API.
-        /// </summary>
-        [Serializable]
-        public struct ContextSizeResponse
-        {
-            [JsonProperty("answer")]
-            public bool Answer;
-            [JsonProperty("maxSize")]
-            public int MaxSize;
-            [JsonProperty("minSize")]
-            public int MinSize;
-        }
-
-        /// <summary>
-        /// Available options for the Strategy type in the SDK Core.
-        /// </summary>
-        public enum StrategyType
-        {
-            /// <summary>
-            /// Ignores this parameter and does not send to the SDK.
-            /// </summary>
-            NONE,
-            /// <summary>
-            /// Will be sent immediately.
-            /// </summary>
-            IMMEDIATE,
-            /// <summary>
-            /// When the game session ends, the latest payload will be sent.
-            /// </summary>
-            LAST,
-            /// <summary>
-            /// Will be sent immediately, and also discard any pending `LAST` payloads in the same session.
-            /// </summary>
-            IMMEDIATE_CLEAR,
-        }
-
-        /// <summary>
-        /// Available options for the UI type in the SDK Core.
-        /// </summary>
-        public enum UIType
-        {
-            /// <summary>
-            /// Ignores this parameter and does not send to the SDK.
-            /// </summary>
-            NONE,
-            /// <summary>
-            /// Serial contact card with share and skip button.
-            /// </summary>
-            DEFAULT,
-            /// <summary>
-            /// Selectable contact list.
-            /// </summary>
-            MULTIPLE,
-        }
-
-        /// <summary>
-        /// Available options for the Intent type in the SDK Core.
-        /// </summary>
-        public enum IntentType
-        {
-            /// <summary>
-            /// Ignores this parameter and does not send to the SDK.
-            /// </summary>
-            NONE,
-            INVITE,
-            REQUEST,
-            CHALLENGE,
-            SHARE,
-        }
-
-        /// <summary>
-        /// Available options for the Notifications type in the SDK Core.
-        /// </summary>
-        public enum NotificationsType
-        {
-            /// <summary>
-            /// Ignores this parameter and does not send to the SDK.
-            /// </summary>
-            NONE,
-            NO_PUSH,
-            PUSH,
-        }
-
-        /// <summary>
-        /// Available options for the ShareDestination type in the SDK Core.
-        /// </summary>
-        public enum ShareDestination
-        {
-            /// <summary>
-            /// Ignores this parameter and does not send to the SDK.
-            /// </summary>
-            NONE,
-            NEWSFEED,
-            GROUP,
-            COPY_LINK,
-            MESSENGER,
-        }
-
-#endregion Type Constants
     }
-
-#region Payload Objects
-
-    /// <summary>
-    /// Payload used for methods in the Context API.
-    /// <example><code>
-    /// var payload = new ContextPayload
-    /// {
-    ///     Image = "dataURLToBase64Image",
-    ///     Text = new LocalizableContent
-    ///     {
-    ///         Default = "Play",
-    ///         Localizations = new Dictionary&lt;string, string&gt;
-    ///         {
-    ///             {"en_US", "Play"},
-    ///             {"ja_JP", "プレイ"},
-    ///         },
-    ///     },
-    ///     Data = new Dictionary&lt;string, object&gt;
-    ///     {
-    ///         {"current_level", 1},
-    ///     },
-    /// };
-    /// </code></example>
-    /// </summary>
-    [Serializable]
-    public struct ContextPayload
-    {
-        /// <summary>
-        /// URL of base64 encoded image to be displayed. This is required for the payload to be sent.
-        /// </summary>
-        [JsonProperty("image")]
-        public string Image;
-        /// <summary>
-        /// Message body. This is required for the payload to be sent.
-        /// </summary>
-        [JsonProperty("text")]
-        public LocalizableContent Text;
-        /// <summary>
-        /// Text of the call-to-action button.
-        /// </summary>
-        [JsonProperty("caption", NullValueHandling = NullValueHandling.Ignore, DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public LocalizableContent Caption;
-        /// <summary>
-        /// Text of the call-to-action button.
-        /// </summary>
-        [JsonProperty("cta", NullValueHandling = NullValueHandling.Ignore, DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public LocalizableContent CTA;
-        /// <summary>
-        /// Object passed to any session launched from this context message.
-        /// Its size must be less than or equal to 1000 chars when stringified.
-        /// It can be accessed from <code>Wortal.Context.GetEntryPointData()</code>.
-        /// </summary>
-        [JsonProperty("data", NullValueHandling = NullValueHandling.Ignore)]
-        public Dictionary<string, object> Data;
-        /// <summary>
-        /// An array of filters to be applied to the friend list. Only the first filter is currently used.
-        /// </summary>
-        [JsonProperty("filters", NullValueHandling = NullValueHandling.Ignore, DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public WortalContext.ContextFilter[] Filters;
-        /// <summary>
-        /// Context maximum size.
-        /// </summary>
-        [JsonProperty("maxSize", DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public int MaxSize;
-        /// <summary>
-        /// Context minimum size.
-        /// </summary>
-        [JsonProperty("minSize", DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public int MinSize;
-        /// <summary>
-        /// Specify how long a friend should be filtered out after the current player sends them a message.
-        /// This parameter only applies when `NEW_INVITATIONS_ONLY` filter is used.
-        /// When not specified, it will filter out any friend who has been sent a message.
-        /// </summary>
-        [JsonProperty("hoursSinceInvitation", DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public int HoursSinceInvitation;
-        /// <summary>
-        /// Optional customizable text field in the share UI.
-        /// This can be used to describe the incentive a user can get from sharing.
-        /// </summary>
-        [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore, DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public LocalizableContent Description;
-        /// <summary>
-        /// Message format to be used. There's no visible difference among the available options.
-        /// </summary>
-        [JsonProperty("intent", NullValueHandling = NullValueHandling.Ignore, DefaultValueHandling = DefaultValueHandling.Ignore), JsonConverter(typeof(StringEnumConverter))]
-        public WortalContext.IntentType Intent;
-        /// <summary>
-        /// Optional property to switch share UI mode.
-        /// </summary>
-        [JsonProperty("ui", NullValueHandling = NullValueHandling.Ignore, DefaultValueHandling = DefaultValueHandling.Ignore), JsonConverter(typeof(StringEnumConverter))]
-        public WortalContext.UIType UI;
-        /// <summary>
-        /// Defines the minimum number of players to be selected to start sharing.
-        /// </summary>
-        [JsonProperty("minShare", DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public int MinShare;
-        /// <summary>
-        /// Defines how the update message should be delivered.
-        /// </summary>
-        [JsonProperty("strategy", NullValueHandling = NullValueHandling.Ignore, DefaultValueHandling = DefaultValueHandling.Ignore), JsonConverter(typeof(StringEnumConverter))]
-        public WortalContext.StrategyType Strategy;
-        /// <summary>
-        /// Specifies if the message should trigger push notification.
-        /// </summary>
-        [JsonProperty("notifications", NullValueHandling = NullValueHandling.Ignore, DefaultValueHandling = DefaultValueHandling.Ignore), JsonConverter(typeof(StringEnumConverter))]
-        public WortalContext.NotificationsType Notifications;
-        /// <summary>
-        /// Specifies where the share should appear.
-        /// </summary>
-        [JsonProperty("shareDestination", NullValueHandling = NullValueHandling.Ignore, DefaultValueHandling = DefaultValueHandling.Ignore), JsonConverter(typeof(StringEnumConverter))]
-        public WortalContext.ShareDestination ShareDestination;
-        /// <summary>
-        /// Should the player switch context or not.
-        /// </summary>
-        [JsonProperty("switchContext", NullValueHandling = NullValueHandling.Ignore)]
-        public bool SwitchContext;
-        /// <summary>
-        /// Not used.
-        /// </summary>
-        [JsonProperty("action", NullValueHandling = NullValueHandling.Ignore)]
-        public string Action;
-        /// <summary>
-        /// Not used.
-        /// </summary>
-        [JsonProperty("template", NullValueHandling = NullValueHandling.Ignore)]
-        public string Template;
-    }
-
-    /// <summary>
-    /// Used to pass localized key-value pairs for content being used in the context API.
-    /// </summary>
-    /// <remarks>If no localizable content is required then pass only the Default string.</remarks>
-    /// <example><code>
-    /// var content = new LocalizableContent
-    /// {
-    ///     Default = "Play",
-    ///     Localizations = new Dictionary&lt;string, string&gt;
-    ///     {
-    ///         {"en_US", "Play"},
-    ///         {"ja_JP", "プレイ"},
-    ///     }
-    /// }
-    /// </code></example>
-    [Serializable]
-    public struct LocalizableContent
-    {
-        /// <summary>
-        /// Text that will be used if no matching locale is found.
-        /// </summary>
-        [JsonProperty("default", NullValueHandling = NullValueHandling.Ignore)]
-        public string Default;
-        /// <summary>
-        /// Key value pairs of localized strings.
-        /// </summary>
-        [JsonProperty("localizations", NullValueHandling = NullValueHandling.Ignore)]
-        public Dictionary<string, string> Localizations;
-    }
-
-#endregion Payload Objects
 }
