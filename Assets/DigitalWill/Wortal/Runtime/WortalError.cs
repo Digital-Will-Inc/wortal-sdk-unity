@@ -21,5 +21,12 @@ namespace DigitalWill.WortalSDK
         /// </summary>
         [JsonProperty("context")]
         public string Context;
+
+        public WortalErrorCodes ErrorCode => (WortalErrorCodes)Enum.Parse(typeof(WortalErrorCodes), Code);
+
+        public override string ToString()
+        {
+            return $"Code: {Code}, Message: {Message}, Context: {Context}";
+        }
     }
 }

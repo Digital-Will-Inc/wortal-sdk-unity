@@ -84,7 +84,6 @@ namespace DigitalWill.WortalSDK
         {
             _performHapticFeedbackCallback = callback;
             WortalError = errorCallback;
-            Debug.Log("[Wortal] PerformHapticFeedback()");
 #if UNITY_WEBGL && !UNITY_EDITOR
             PerformHapticFeedbackJS(PerformHapticFeedbackCallback, WortalErrorCallback);
 #else
