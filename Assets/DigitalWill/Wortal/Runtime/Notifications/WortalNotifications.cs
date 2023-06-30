@@ -33,7 +33,6 @@ namespace DigitalWill.WortalSDK
         /// </ul></throws>
         public void Schedule(NotificationPayload payload, Action<NotificationScheduleResult> callback, Action<WortalError> errorCallback)
         {
-            Debug.Log("[Wortal] Notifications.Schedule()");
             _scheduleCallback = callback;
             Wortal.WortalError = errorCallback;
             string payloadObj = JsonConvert.SerializeObject(payload);
@@ -183,12 +182,6 @@ namespace DigitalWill.WortalSDK
         private static void NotificationsGetHistoryCallback(string result)
         {
             ScheduledNotification[] resultObj = JsonConvert.DeserializeObject<ScheduledNotification[]>(result);
-            Debug.Log(resultObj.Length);
-            if (resultObj.Length > 0)
-            {
-                Debug.Log(resultObj[0].ID);
-                Debug.Log(resultObj[0].Status);
-            }
             _getHistoryCallback?.Invoke(resultObj);
         }
 
