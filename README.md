@@ -36,6 +36,7 @@ must be notified of the ad and give permission to show before it can be shown.
 
 ```csharp
 // This example shows the game flow independent of the outcome of the ad.
+// Ex: Player gets bonus coins for watching the ad, but the game continues regardless of the outcome.
 Wortal.Ads.ShowRewarded("BonusCoins",
     () => PauseGame(),
     () => ResumeGame(),
@@ -43,6 +44,7 @@ Wortal.Ads.ShowRewarded("BonusCoins",
     () => RewardPlayer());
 
 // This example shows the game flow depending on the outcome of the ad.
+// Ex: Player dies and can revive by watching an ad, but if they skip the ad they lose the level.
 Wortal.Ads.ShowRewarded("ReviveAndContinue",
     () => PauseGame(),
     () => ResumeAudio(),
@@ -80,9 +82,9 @@ The Context API is used to connect players and allow them to interact in the gam
 and send messages to each other.
 
 ```csharp
-// Invite a friend to play the game.
+// Invite a friend to play the game. Does not switch the player's current context.
 Wortal.Context.InviteAsync(invitePayload,
-    () => Debug.Log("New context: " + Wortal.Context.GetID()),
+    () => Debug.Log("Invite sent"),
     error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
 
 // Share your game activity with friends.
@@ -221,4 +223,13 @@ Details about the current session can be accessed in the Session API.
 Wortal.Session.GetEntryPoint(
     entryPoint => Debug.Log(entryPoint),
     error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
+
+// Get the entry point data from a social invite or share.
+// This is useful for tracking where players are coming from or
+// providing a reward for players who were invited to play.
+var entryPointData = Wortal.Session.GetEntryPointData();
+foreach (KeyValuePair<string, object> kvp in data)
+{
+    // Do stuff with the data.
+}
 ```

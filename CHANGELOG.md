@@ -4,7 +4,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-### [5.5.0] - 2023-06-28
+## [5.5.1] - 2023-06-30
+### Added
+- Core
+  - GetErrorCode for getting the parsed enum from a WortalError
+
+### Fixed
+- Core
+  - Removed leftover debug logs
+
+### Changed
+- Core
+  - Removed duplicate SDK script loading prevention in index.html as can cause issues on Facebook
+
+## [5.5.0] - 2023-06-28
 ### Added
 - Core
   - Notifications API
