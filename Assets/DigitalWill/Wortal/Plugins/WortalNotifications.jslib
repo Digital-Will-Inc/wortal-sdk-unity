@@ -41,7 +41,7 @@
     },
 
     NotificationsCancelAllLabelJS: function (label, callback, errorCallback) {
-        window.Wortal.notifications.cancelAllLabelAsync(UTF8ToString(label))
+        window.Wortal.notifications.cancelAllAsync(UTF8ToString(label))
             .then(() => {
                 return Module.dynCall_v(callback);
             })
