@@ -32,8 +32,8 @@
 
     NotificationsCancelAllJS: function (callback, errorCallback) {
         window.Wortal.notifications.cancelAllAsync()
-            .then(() => {
-                return Module.dynCall_v(callback);
+            .then(result => {
+                return Module.dynCall_vi(callback, result);
             })
             .catch(error => {
                 return Module.dynCall_vi(errorCallback, gameInstance.Module.allocString(JSON.stringify(error)));
@@ -41,9 +41,9 @@
     },
 
     NotificationsCancelAllLabelJS: function (label, callback, errorCallback) {
-        window.Wortal.notifications.cancelAllLabelAsync(UTF8ToString(label))
-            .then(() => {
-                return Module.dynCall_v(callback);
+        window.Wortal.notifications.cancelAllAsync(UTF8ToString(label))
+            .then(result => {
+                return Module.dynCall_vi(callback, result);
             })
             .catch(error => {
                 return Module.dynCall_vi(errorCallback, gameInstance.Module.allocString(JSON.stringify(error)));

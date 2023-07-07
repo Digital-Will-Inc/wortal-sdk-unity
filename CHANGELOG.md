@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [5.5.2] - 2023-07-07
+### Fixed
+- Notifications
+  - CancelAll uses wrong API call in js lib
+  - Cancel and CancelAll don't return success status
+
 ## [5.5.1] - 2023-06-30
 ### Added
 - Core

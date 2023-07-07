@@ -83,12 +83,12 @@ and send messages to each other.
 
 ```csharp
 // Invite a friend to play the game. Does not switch the player's current context.
-Wortal.Context.InviteAsync(invitePayload,
+Wortal.Context.Invite(invitePayload,
     () => Debug.Log("Invite sent"),
     error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
 
 // Share your game activity with friends.
-Wortal.Context.ShareAsync(sharePayload,
+Wortal.Context.Share(sharePayload,
     shareResult => Debug.Log("Number of shares: " + shareResult),
     error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
 ```
