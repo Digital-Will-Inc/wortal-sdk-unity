@@ -1,0 +1,4 @@
+This is just a placeholder so that this directory will be committed to the repository.
+
+We use this directory with the Howler for Unity plugin to copy the audio assets into after the build so
+the plugin can access them at runtime.
