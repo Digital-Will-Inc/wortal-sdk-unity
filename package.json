@@ -1,0 +1,21 @@
+﻿{
+    "name": "jp.co.digitalwill.wortal",
+    "version": "5.6.0",
+    "displayName": "Wortal SDK",
+    "description": "SDK for the Wortal platform",
+    "unity": "2018.3",
+    "documentationUrl": "https://github.com/Digital-Will-Inc/wortal-sdk-unity",
+    "changelogUrl": "https://github.com/Digital-Will-Inc/wortal-sdk-unity/blob/master/CHANGELOG.md",
+    "license": "MIT",
+    "author": "Digital Will Inc",
+    "dependencies": {
+        "com.unity.nuget.newtonsoft-json": "3.2.1"
+    },
+    "samples": [
+        {
+            "displayName": "Wortal Example",
+            "description": "Contains an example scene with various API calls to show how to use the SDK.",
+            "path": "Samples~/WortalExample"
+        }
+    ]
+}
