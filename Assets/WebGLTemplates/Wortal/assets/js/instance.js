@@ -49,29 +49,31 @@ const progressTexts = {
     default: "Loading game",
 };
 
+let platform = "";
 var script = document.createElement("script");
 script.src = loaderUrl;
 script.onload = () => {
+    if (window.Window) {
+        platform = window.Wortal.session.getPlatform();
+        if (platform === 'link' || platform === 'viber' || platform === 'facebook') {
+            window.Wortal.initializeAsync().catch(error => { console.error(error); });
+        }
+    }
     createUnityInstance(canvas, config, (progress) => {
-        if (window.getWortalPlatform) {
-            const currPlatform = window.getWortalPlatform();
-            if (currPlatform === 'link' || currPlatform === 'viber') {
-                if (window.Wortal) {
-                    window.Wortal.setLoadingProgress(100 * progress);
-                }
-            } else {
-                let value = Math.round(progress * 100);
-                updateProgressText(value);
-                progressValue.innerText = value + '%';
-                progressBarFull.style.width = value + '%';
-            }
+        if (platform === 'link' || platform === 'viber' || platform === 'facebook') {
+            window.Wortal.setLoadingProgress(100 * progress);
+        } else {
+            let value = Math.round(progress * 100);
+            updateProgressText(value);
+            progressValue.innerText = value + '%';
+            progressBarFull.style.width = value + '%';
         }
     }).then((unityInstance) => {
         loadingBar.style.display = 'none';
         clearInterval(dotInterval);
-        const currPlatform = window.getWortalPlatform();
-        if (currPlatform === 'link' || currPlatform === 'viber') {
+        if (platform === 'link' || platform === 'viber' || platform === 'facebook') {
             window.Wortal.setLoadingProgress(100);
+            window.Wortal.startGameAsync().catch(error => { console.error(error); });
         }
         gameInstance = unityInstance;
     }).catch(error => {
