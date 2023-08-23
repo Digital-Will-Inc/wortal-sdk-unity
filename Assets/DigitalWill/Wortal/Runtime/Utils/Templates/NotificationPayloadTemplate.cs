@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if UNITY_LOCALIZATION
+using System;
 using UnityEngine;
 using UnityEngine.Localization;
 
@@ -66,3 +67,4 @@ namespace DigitalWill.WortalSDK
 #endregion Public API
     }
 }
+#endif
