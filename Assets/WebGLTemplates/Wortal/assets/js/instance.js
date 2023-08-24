@@ -56,11 +56,13 @@ script.onload = () => {
     if (window.Window) {
         platform = window.Wortal.session.getPlatform();
         if (platform === 'link' || platform === 'viber' || platform === 'facebook') {
+            // Comment this out if you want to manually initialize Wortal.
             window.Wortal.initializeAsync().catch(error => { console.error(error); });
         }
     }
     createUnityInstance(canvas, config, (progress) => {
         if (platform === 'link' || platform === 'viber' || platform === 'facebook') {
+            // Comment this out if you want to manually initialize Wortal.
             window.Wortal.setLoadingProgress(100 * progress);
         } else {
             let value = Math.round(progress * 100);
@@ -72,6 +74,7 @@ script.onload = () => {
         loadingBar.style.display = 'none';
         clearInterval(dotInterval);
         if (platform === 'link' || platform === 'viber' || platform === 'facebook') {
+            // Comment this out if you want to manually initialize Wortal.
             window.Wortal.setLoadingProgress(100);
             window.Wortal.startGameAsync().catch(error => { console.error(error); });
         }
