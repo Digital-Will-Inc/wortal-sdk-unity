@@ -50,6 +50,10 @@ namespace DigitalWill.WortalSDK
         /// Session API
         /// </summary>
         public static WortalSession Session { get; } = new();
+        /// <summary>
+        /// Tournament API
+        /// </summary>
+        public static WortalTournament Tournament { get; } = new();
 
         /// <summary>
         /// Get the list of APIs supported by the current platform.
