@@ -1,16 +1,39 @@
 ﻿mergeInto(LibraryManager.library, {
 
+    IsInitializedJS: function () {
+        return window.Wortal.isInitialized();
+    },
+
+    InitializeJS: function (callback, errorCallback) {
+        window.Wortal.initializeAsync()
+            .then(() => {
+                return Module.dynCall_v(callback);
+            })
+            .catch(error => {
+                return Module.dynCall_vi(errorCallback, gameInstance.Module.allocString(JSON.stringify(error)));
+            });
+    },
+
+    StartGameJS: function (callback, errorCallback) {
+        window.Wortal.startGameAsync()
+            .then(() => {
+                return Module.dynCall_v(callback);
+            })
+            .catch(error => {
+                return Module.dynCall_vi(errorCallback, gameInstance.Module.allocString(JSON.stringify(error)));
+            });
+    },
+
+    SetLoadingProgressJS: function (progress) {
+        window.Wortal.setLoadingProgress(progress);
+    },
+
     OnPauseJS: function (callback) {
         window.Wortal.onPause(() => Module.dynCall_v(callback));
     },
 
     GetSupportedAPIsJS: function () {
-        var result = window.Wortal.getSupportedAPIs();
-        var resultStr = JSON.stringify(result);
-        var bufferSize = lengthBytesUTF8(resultStr) + 1;
-        var buffer = _malloc(bufferSize);
-        stringToUTF8(resultStr, buffer, bufferSize);
-        return buffer;
+        return gameInstance.Module.allocString(JSON.stringify(window.Wortal.getSupportedAPIs()));
     },
 
     PerformHapticFeedbackJS: function (callback, errorCallback) {
@@ -19,11 +42,7 @@
                 return Module.dynCall_v(callback);
             })
             .catch(error => {
-                var errorStr = JSON.stringify(error);
-                var bufferSize = lengthBytesUTF8(errorStr) + 1;
-                var buffer = _malloc(bufferSize);
-                stringToUTF8(errorStr, buffer, bufferSize);
-                return Module.dynCall_vi(errorCallback, buffer);
+                return Module.dynCall_vi(errorCallback, gameInstance.Module.allocString(JSON.stringify(error)));
             });
     }
 

@@ -11,6 +11,8 @@ namespace DigitalWill.WortalSDK
     /// </summary>
     public static class Wortal
     {
+        private static Action _initializeCallback;
+        private static Action _startGameCallback;
         private static Action _performHapticFeedbackCallback;
 
 #region Public API
@@ -54,6 +56,103 @@ namespace DigitalWill.WortalSDK
         /// Tournament API
         /// </summary>
         public static WortalTournament Tournament { get; } = new();
+
+        /// <summary>
+        /// Returns true if the Wortal SDK has been initialized.
+        /// </summary>
+        public static bool IsInitialized
+        {
+            get
+            {
+#if UNITY_WEBGL && !UNITY_EDITOR
+                return IsInitializedJS();
+#else
+                Debug.Log("[Wortal] Mock IsInitialized()");
+                return true;
+#endif
+            }
+        }
+
+        /// <summary>
+        /// Initializes the SDK. This should be called before any other SDK functions. It is recommended to call this
+        /// as soon as the script has been loaded to shorten the initialization time.
+        ///
+        /// NOTE: This is only available if the manual initialization option is set to true. Otherwise, the SDK will initialize automatically.
+        ///
+        /// PLATFORM NOTE: Only supported on Viber, Link and Facebook.
+        /// </summary>
+        /// <param name="callback">Void callback that is fired when the SDK has initialized successfully.</param>
+        /// <param name="errorCallback">Error callback event with <see cref="WortalError"/> describing the error.</param>
+        /// <example><code>
+        /// Wortal.Initialize(
+        ///     () => Debug.Log("SDK Initialized"),
+        ///     error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
+        /// </code></example>
+        /// <throws><ul>
+        /// <li>INITIALIZATION_ERROR</li>
+        /// <li>NOT_SUPPORTED</li>
+        /// </ul></throws>
+        public static void Initialize(Action callback, Action<WortalError> errorCallback)
+        {
+            _initializeCallback = callback;
+            WortalError = errorCallback;
+#if UNITY_WEBGL && !UNITY_EDITOR
+            InitializeJS(InitializeCallback, WortalErrorCallback);
+#else
+            Debug.Log("[Wortal] Mock Initialize()");
+            _initializeCallback?.Invoke();
+#endif
+        }
+
+        /// <summary>
+        /// This indicates that the game has finished initial loading and is ready to start. Context information will be
+        /// up-to-date when the returned promise resolves. The loading screen will be removed after this is called along with
+        /// the following conditions:
+        /// <ul>
+        /// <li>initializeAsync has been called and resolved</li>
+        /// <li>setLoadingProgress has been called with a value of 100</li>
+        /// </ul>
+        ///
+        /// NOTE: This is only available if the manual initialization option is set to true. Otherwise, the game will start automatically.
+        ///
+        /// PLATFORM NOTE: Only supported on Viber, Link and Facebook.
+        /// </summary>
+        /// <param name="callback">Void callback that is fired when the game has started.</param>
+        /// <param name="errorCallback">Error callback event with <see cref="WortalError"/> describing the error.</param>
+        /// <example><code>
+        /// Wortal.StartGame(
+        ///     () => Debug.Log("Game Started"),
+        ///     error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
+        /// </code></example>
+        /// <throws><ul>
+        /// <li>INITIALIZATION_ERROR</li>
+        /// <li>NOT_SUPPORTED</li>
+        /// </ul></throws>
+        public static void StartGame(Action callback, Action<WortalError> errorCallback)
+        {
+            _startGameCallback = callback;
+            WortalError = errorCallback;
+#if UNITY_WEBGL && !UNITY_EDITOR
+            StartGameJS(StartGameCallback, WortalErrorCallback);
+#else
+            Debug.Log("[Wortal] Mock StartGame()");
+            _startGameCallback?.Invoke();
+#endif
+        }
+
+        /// <summary>
+        /// Sets the loading progress value for the game. This is required for the game to start. Failure to call this with 100
+        /// once the game is fully loaded will prevent the game from starting.
+        /// </summary>
+        /// <param name="value">Percentage of loading complete. Range is 0 to 100.</param>
+        public static void SetLoadingProgress(int value)
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            SetLoadingProgressJS(value);
+#else
+            Debug.Log($"[Wortal] Mock SetLoadingProgress({value})");
+#endif
+        }
 
         /// <summary>
         /// Get the list of APIs supported by the current platform.
@@ -108,11 +207,44 @@ namespace DigitalWill.WortalSDK
             Debug.Log("[Wortal] Unity SDK initialization complete.");
         }
 
+        [DllImport("__Internal")]
+        private static extern bool IsInitializedJS();
+
+        [DllImport("__Internal")]
+        private static extern void InitializeJS(Action callback, Action<string> errorCallback);
+
+        [DllImport("__Internal")]
+        private static extern void StartGameJS(Action callback, Action<string> errorCallback);
+
+        [DllImport("__Internal")]
+        private static extern void SetLoadingProgressJS(int value);
+
+        [DllImport("__Internal")]
+        private static extern void OnPauseJS(Action callback);
+
+        [DllImport("__Internal")]
+        private static extern string GetSupportedAPIsJS();
+
+        [DllImport("__Internal")]
+        private static extern void PerformHapticFeedbackJS(Action callback, Action<string> errorCallback);
+
         [MonoPInvokeCallback(typeof(Action<string>))]
         public static void WortalErrorCallback(string error)
         {
             var wortalError = JsonConvert.DeserializeObject<WortalError>(error);
             WortalError?.Invoke(wortalError);
+        }
+
+        [MonoPInvokeCallback(typeof(Action))]
+        private static void InitializeCallback()
+        {
+            _initializeCallback?.Invoke();
+        }
+
+        [MonoPInvokeCallback(typeof(Action))]
+        private static void StartGameCallback()
+        {
+            _startGameCallback?.Invoke();
         }
 
         [MonoPInvokeCallback(typeof(Action))]
@@ -126,15 +258,6 @@ namespace DigitalWill.WortalSDK
         {
             _performHapticFeedbackCallback?.Invoke();
         }
-
-        [DllImport("__Internal")]
-        private static extern void OnPauseJS(Action callback);
-
-        [DllImport("__Internal")]
-        private static extern string GetSupportedAPIsJS();
-
-        [DllImport("__Internal")]
-        private static extern void PerformHapticFeedbackJS(Action callback, Action<string> errorCallback);
 
 #endregion Internal
     }
