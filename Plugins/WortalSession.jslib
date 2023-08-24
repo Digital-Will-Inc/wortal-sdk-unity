@@ -28,6 +28,24 @@
 
     SessionGetPlatformJS: function () {
         return gameInstance.Module.allocString(window.Wortal.session.getPlatform());
+    },
+
+    SessionGetDeviceJS: function () {
+        return gameInstance.Module.allocString(window.Wortal.session.getDevice());
+    },
+
+    SessionGetOrientationJS: function () {
+        return gameInstance.Module.allocString(window.Wortal.session.getOrientation());
+    },
+
+    SessionOnOrientationChangeJS: function (callback) {
+        window.Wortal.session.onOrientationChanged(result => {
+            Module.dynCall_vi(callback, gameInstance.Module.allocString(result));
+        });
+    },
+
+    SessionSwitchGameJS: function (gameId) {
+        window.Wortal.session.switchGameAsync(UTF8ToString(gameId));
     }
 
 });
