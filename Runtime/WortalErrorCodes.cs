@@ -75,5 +75,9 @@
         /// status code for the failed request will be included in the error message, if one was provided.
         /// </summary>
         OPERATION_FAILED,
+        /// <summary>
+        /// The SDK failed to initialize, this can occur if the Wortal SDK encountered an error during initialization or if the platform SDK failed to initialize.
+        /// </summary>
+        INITIALIZATION_ERROR,
     }
 }
