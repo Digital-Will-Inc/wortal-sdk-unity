@@ -19,6 +19,28 @@ namespace DigitalWill.WortalSDK
 #region Public API
 
         /// <summary>
+        /// Returns whether ads are blocked for the current session. This can be used to determine if an alternative flow should
+        /// be used instead of showing ads, or prompt the player to disable the ad blocker.
+        /// </summary>
+        /// <returns>True if ads are blocked for the current session. False if ads are not blocked.</returns>
+        /// <example><code>
+        /// if (Wortal.Ads.IsAdBlocked())
+        /// {
+        ///     // Show a message to the player to disable their ad blocker.
+        ///     // Or use an alternative flow that doesn't require ads - social invites for rewards as an example.
+        /// }
+        /// </code></example>
+        public bool IsAdBlocked()
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            return IsAdBlockedJS();
+#else
+            Debug.Log("[Wortal] Mock Ads.IsAdBlocked()");
+            return true;
+#endif
+        }
+
+        /// <summary>
         /// Shows an interstitial ad. These can be shown at various points in the game such as a level end, restart or a timed
         /// interval in games with longer levels.
         /// </summary>
@@ -116,6 +138,9 @@ namespace DigitalWill.WortalSDK
 
 #endregion Public API
 #region JSlib Interface
+
+        [DllImport("__Internal")]
+        private static extern bool IsAdBlockedJS();
 
         [DllImport("__Internal")]
         private static extern void ShowInterstitialJS(string type,

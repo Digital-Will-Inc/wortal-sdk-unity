@@ -14,6 +14,8 @@ namespace DigitalWill.WortalSDK
     public class WortalSession
     {
         private static Action<string> _getEntryPointCallback;
+        private static Action<Orientation> _onOrientationChangeCallback;
+        private static Action _switchGameCallback;
 
 #region Public API
 
@@ -52,6 +54,10 @@ namespace DigitalWill.WortalSDK
         ///     entryPoint => Debug.Log(entryPoint),
         ///     error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
         /// </code></example>
+        /// <throws><ul>
+        /// <li>NOT_SUPPORTED</li>
+        /// <li>RETHROW_FROM_PLATFORM</li>
+        /// </ul></throws>
         public void GetEntryPoint(Action<string> callback, Action<WortalError> errorCallback)
         {
             _getEntryPointCallback = callback;
@@ -133,6 +139,81 @@ namespace DigitalWill.WortalSDK
 #endif
         }
 
+        /// <summary>
+        /// Gets the device the player is using. This is useful for device specific code.
+        /// </summary>
+        /// <returns>Device the player is using.</returns>
+        public Device GetDevice()
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            return (Device)Enum.Parse(typeof(Device), SessionGetDeviceJS());
+#else
+            Debug.Log("[Wortal] Mock Session.SessionGetDevice()");
+            int random = UnityEngine.Random.Range(0, 3);
+            return (Device)random;
+#endif
+        }
+
+        /// <summary>
+        /// Gets the orientation of the device the player is using. This is useful for determining how to display the game.
+        /// </summary>
+        /// <returns>Orientation of the device the player is using.</returns>
+        public Orientation GetOrientation()
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            return (Orientation)Enum.Parse(typeof(Orientation), SessionGetOrientationJS());
+#else
+            Debug.Log("[Wortal] Mock Session.SessionGetOrientation()");
+            int random = UnityEngine.Random.Range(0, 2);
+            return (Orientation)random;
+#endif
+        }
+
+        /// <summary>
+        /// Assigns a callback to be invoked when the orientation of the device changes.
+        /// </summary>
+        /// <param name="callback">Callback fired when the device orientation changes. Includes the current <see cref="Orientation"/>.</param>
+        public void OnOrientationChange(Action<Orientation> callback)
+        {
+            _onOrientationChangeCallback = callback;
+#if UNITY_WEBGL && !UNITY_EDITOR
+            SessionOnOrientationChangeJS(SessionOnOrientationChangeCallback);
+#else
+            Debug.Log("[Wortal] Mock Session.OnOrientationChange()");
+            int random = UnityEngine.Random.Range(0, 2);
+            _onOrientationChangeCallback((Orientation)random);
+#endif
+        }
+
+        /// <summary>
+        /// Request to switch to another game. The API will reject if the switch fails - else, the client will load the new game.
+        /// </summary>
+        /// <param name="callback">Void callback event triggered when the async JS function resolves.</param>
+        /// <param name="errorCallback">Error callback event with <see cref="WortalError"/> describing the error.</param>
+        /// <example><code>
+        /// Wortal.Session.SwitchGame("someGameId",
+        ///     () => Debug.Log("Switched game successfully"),
+        ///     error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
+        /// </code></example>
+        /// <throws><ul>
+        /// <li>INVALID_PARAMS</li>
+        /// <li>USER_INPUT</li>
+        /// <li>PENDING_REQUEST</li>
+        /// <li>CLIENT_REQUIRES_UPDATE</li>
+        /// <li>NOT_SUPPORTED</li>
+        /// </ul></throws>
+        public void SwitchGame(Action callback, Action<WortalError> errorCallback)
+        {
+            _switchGameCallback = callback;
+            Wortal.WortalError = errorCallback;
+#if UNITY_WEBGL && !UNITY_EDITOR
+            SessionSwitchGameJS(SessionSwitchGameCallback, Wortal.WortalErrorCallback);
+#else
+            Debug.Log("[Wortal] Mock Session.SwitchGame()");
+            SessionSwitchGameCallback();
+#endif
+        }
+
 #endregion Public API
 #region JSlib Interface
 
@@ -154,10 +235,34 @@ namespace DigitalWill.WortalSDK
         [DllImport("__Internal")]
         private static extern string SessionGetPlatformJS();
 
+        [DllImport("__Internal")]
+        private static extern string SessionGetDeviceJS();
+
+        [DllImport("__Internal")]
+        private static extern string SessionGetOrientationJS();
+
+        [DllImport("__Internal")]
+        private static extern void SessionOnOrientationChangeJS(Action<string> callback);
+
+        [DllImport("__Internal")]
+        private static extern void SessionSwitchGameJS(Action callback, Action<string> errorCallback);
+
         [MonoPInvokeCallback(typeof(Action<string>))]
         private static void SessionGetEntryPointCallback(string entryPoint)
         {
             _getEntryPointCallback?.Invoke(entryPoint);
+        }
+
+        [MonoPInvokeCallback(typeof(Action<string>))]
+        private static void SessionOnOrientationChangeCallback(string orientation)
+        {
+            _onOrientationChangeCallback?.Invoke((Orientation)Enum.Parse(typeof(Orientation), orientation.ToUpper()));
+        }
+
+        [MonoPInvokeCallback(typeof(Action))]
+        private static void SessionSwitchGameCallback()
+        {
+            _switchGameCallback?.Invoke();
         }
 
 #endregion JSlib Interface

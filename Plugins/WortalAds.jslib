@@ -1,5 +1,9 @@
 ﻿mergeInto(LibraryManager.library, {
 
+    IsAdBlockedJS: function () {
+        return window.Wortal.ads.isAdBlocked();
+    },
+
     ShowInterstitialJS: function (placement, description, beforeAdCallback, afterAdCallback, noFillCallback) {
         window.Wortal.ads.showInterstitial(
             UTF8ToString(placement),
