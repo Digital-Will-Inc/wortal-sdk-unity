@@ -4,6 +4,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [5.6.0] - 2023-08-24
+### Added
+- Core
+  - Tournament API
+  - Manual initialization option
+- Ads
+  - IsAdBlocked API
+- Session
+  - GetDevice, GetOrientation, OnOrientationChange, SwitchGame APIs
+
+### Fixed
+- Core
+  - Newtonsoft JSON dependency is now included
+- Notifications
+  - Template is now wrapped in compiler directives to prevent errors when Localization package is not present
+
+### Changed
+- Core
+  - Upgraded to SDK Core v1.6.0
+  - SDK is now distributed as a UPM package via git URL
+
 ## [5.5.2] - 2023-07-07
 ### Fixed
 - Notifications

@@ -2,8 +2,13 @@
 
 ## Installation
 
-- Install the <b>Wortal SDK</b> Unity package.
-- Set the necessary project settings via toolbar: `DigitalWill/Wortal/Set Project Settings`
+1. Install the <b>Wortal SDK</b> Unity package via git URL:
+
+`https://github.com/Digital-Will-Inc/wortal-sdk-unity.git`
+
+2. Install the Wortal WebGL template via toolbar: `Wortal/Install WebGL Template`
+
+3. Set the necessary project settings via toolbar: `Wortal/Set Project Settings`
 
 ## How to Use
 
@@ -232,4 +237,22 @@ foreach (KeyValuePair<string, object> kvp in data)
 {
     // Do stuff with the data.
 }
+```
+
+### Tournament
+
+[API Reference](https://sdk.html5gameportal.com/api/tournament/)
+
+The Tournament API is used to create and manage tournaments for your game.
+
+```csharp
+// Create a tournament.
+Wortal.Tournament.Create(createPayload,
+    tournament => Debug.Log("Tournament ID: " + tournament.ID),
+    error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
+
+// Post a score to a tournament.
+Wortal.Tournament.PostScore(200,
+    () => Debug.Log("Score posted!"),
+    error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
 ```
