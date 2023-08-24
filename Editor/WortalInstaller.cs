@@ -25,7 +25,14 @@ namespace DigitalWill.WortalEditor
 
             Debug.Log( $"{LOG_PREFIX}Copying template from {sourceFolder}...");
 
-            FileUtil.ReplaceDirectory(sourceFolder, destinationFolder);
+            try
+            {
+                FileUtil.CopyFileOrDirectory(sourceFolder, destinationFolder);
+            }
+            catch (IOException exception)
+            {
+                Debug.LogError("Failed to copy WebGL template: " + exception.Message);
+            }
 
             AssetDatabase.Refresh();
 
