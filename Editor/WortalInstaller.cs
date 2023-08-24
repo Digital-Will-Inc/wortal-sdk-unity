@@ -27,11 +27,25 @@ namespace DigitalWill.WortalEditor
 
             try
             {
-                FileUtil.CopyFileOrDirectory(sourceFolder, destinationFolder);
+                if (!Directory.Exists(destinationFolder))
+                {
+                    Directory.CreateDirectory(destinationFolder);
+                }
+
+                foreach (string dirPath in Directory.GetDirectories(sourceFolder, "*", SearchOption.AllDirectories))
+                {
+                    Directory.CreateDirectory(dirPath.Replace(sourceFolder, destinationFolder));
+                }
+
+                foreach (string newPath in Directory.GetFiles(sourceFolder, "*.*", SearchOption.AllDirectories))
+                {
+                    File.Copy(newPath, newPath.Replace(sourceFolder, destinationFolder), true);
+                }
             }
             catch (IOException exception)
             {
                 Debug.LogError("Failed to copy WebGL template: " + exception.Message);
+                return;
             }
 
             AssetDatabase.Refresh();
