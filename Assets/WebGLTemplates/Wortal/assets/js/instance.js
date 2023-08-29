@@ -53,13 +53,16 @@ let platform = "";
 var script = document.createElement("script");
 script.src = loaderUrl;
 script.onload = () => {
-    if (window.Wortal) {
+    // We need to wait a short moment for the Wortal SDK to initialize, otherwise _initializeInternal
+    // might not have parsed the manual-init flag yet.
+    setTimeout(() => {
         platform = window.Wortal.session.getPlatform();
         if (platform === 'link' || platform === 'viber' || platform === 'facebook') {
             // Comment this out if you want to manually initialize Wortal.
             window.Wortal.initializeAsync().catch(error => { console.error(error); });
         }
-    }
+    }, 500);
+
     createUnityInstance(canvas, config, (progress) => {
         if (platform === 'link' || platform === 'viber' || platform === 'facebook') {
             // Comment this out if you want to manually initialize Wortal.
