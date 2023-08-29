@@ -53,7 +53,7 @@ let platform = "";
 var script = document.createElement("script");
 script.src = loaderUrl;
 script.onload = () => {
-    if (window.Window) {
+    if (window.Wortal) {
         platform = window.Wortal.session.getPlatform();
         if (platform === 'link' || platform === 'viber' || platform === 'facebook') {
             // Comment this out if you want to manually initialize Wortal.
