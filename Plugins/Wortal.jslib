@@ -1,7 +1,7 @@
 ﻿mergeInto(LibraryManager.library, {
 
     IsInitializedJS: function () {
-        return window.Wortal.isInitialized();
+        return window.Wortal.isInitialized;
     },
 
     InitializeJS: function (callback, errorCallback) {
