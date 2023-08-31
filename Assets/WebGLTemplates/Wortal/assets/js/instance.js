@@ -38,55 +38,14 @@ if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
 canvas.style.background = "url('" + buildUrl + "/{{{ BACKGROUND_FILENAME.replace(/'/g, '%27') }}}') center / cover";
 #endif
 
+//////////////////////////////////////////
+// Loading bar and progress text
+//////////////////////////////////////////
+
 loadingBar.style.display = "block";
 
 let dotCount = 0;
 var dots = "";
-
-const progressTexts = {
-    // If you want to display different texts while loading, add them here and then
-    // reference them in updateLoadingText().
-    default: "Loading game",
-};
-
-let platform = "";
-var script = document.createElement("script");
-script.src = loaderUrl;
-script.onload = () => {
-    // We need to wait a short moment for the Wortal SDK to initialize, otherwise _initializeInternal
-    // might not have parsed the manual-init flag yet.
-    setTimeout(() => {
-        platform = window.Wortal.session.getPlatform();
-        if (platform === 'link' || platform === 'viber' || platform === 'facebook') {
-            // Comment this out if you want to manually initialize Wortal.
-            window.Wortal.initializeAsync().catch(error => { console.error(error); });
-        }
-    }, 500);
-
-    createUnityInstance(canvas, config, (progress) => {
-        if (platform === 'link' || platform === 'viber' || platform === 'facebook') {
-            // Comment this out if you want to manually initialize Wortal.
-            window.Wortal.setLoadingProgress(100 * progress);
-        } else {
-            let value = Math.round(progress * 100);
-            updateProgressText(value);
-            progressValue.innerText = value + '%';
-            progressBarFull.style.width = value + '%';
-        }
-    }).then((unityInstance) => {
-        loadingBar.style.display = 'none';
-        clearInterval(dotInterval);
-        if (platform === 'link' || platform === 'viber' || platform === 'facebook') {
-            // Comment this out if you want to manually initialize Wortal.
-            window.Wortal.setLoadingProgress(100);
-            window.Wortal.startGameAsync().catch(error => { console.error(error); });
-        }
-        gameInstance = unityInstance;
-    }).catch(error => {
-        console.error(error);
-    });
-}
-document.body.appendChild(script);
 
 var dotInterval = setInterval(() => {
     if (dotCount > 3) {
@@ -96,9 +55,71 @@ var dotInterval = setInterval(() => {
     dots = new Array(dotCount % 10).join('.');
 }, 500);
 
+const progressTexts = {
+    // If you want to display different texts while loading, add them here and then
+    // reference them in updateLoadingText().
+    default: "Loading game",
+};
+
 function updateProgressText(value) {
     // You can add different value ranges here to display different text to the player during the loading process.
     if (value < 100) {
         progressText.innerText = progressTexts.default + dots;
     }
 }
+
+//////////////////////////////////////////
+// Unity loader
+//////////////////////////////////////////
+
+// Wortal SDK has an isInitialized property that we would normally check before accessing the SDK, but
+// in the jslib we use gameInstance.Module to return data to the WASM module, which may not be available
+// yet even if the SDK is initialized. So we use this flag instead of Wortal.isInitialized.
+window.isUnitySDKInitialized = false;
+
+let platform = "";
+var script = document.createElement("script");
+script.src = loaderUrl;
+script.onload = () => {
+    platform = window.Wortal.session.getPlatform();
+    if (platform === 'link' || platform === 'viber' || platform === 'facebook') {
+        window.Wortal.initializeAsync().then(() => {
+            createUnityInstance(canvas, config, (progress) => {
+                window.Wortal.setLoadingProgress(100 * progress);
+            }).then((unityInstance) => {
+                loadingBar.style.display = 'none';
+                clearInterval(dotInterval);
+
+                window.Wortal.setLoadingProgress(100);
+                window.Wortal.startGameAsync().catch(error => {
+                    console.error(error);
+                });
+
+                gameInstance = unityInstance;
+                window.isUnitySDKInitialized = true;
+            }).catch(error => {
+                console.error(error);
+            });
+        }).catch(error => {
+            console.error(error);
+        });
+    } else {
+        createUnityInstance(canvas, config, (progress) => {
+            let value = Math.round(progress * 100);
+            updateProgressText(value);
+
+            progressValue.innerText = value + '%';
+            progressBarFull.style.width = value + '%';
+        }).then((unityInstance) => {
+            loadingBar.style.display = 'none';
+            clearInterval(dotInterval);
+
+            gameInstance = unityInstance;
+            window.isUnitySDKInitialized = true;
+        }).catch(error => {
+            console.error(error);
+        });
+    }
+}
+
+document.body.appendChild(script);
