@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [5.6.4] - 2023-08-31
+### Added
+- Core
+  - Template for portrait mode games
+
+### Fixed
+- Core
+  - IsInitialized now checks a flag from the Unity SDK instead of SDK Core
+
 ## [5.6.3] - 2023-08-30
 ### Fixed
 - Core
