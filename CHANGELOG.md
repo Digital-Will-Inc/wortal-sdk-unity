@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [5.6.5] - 2023-09-05
+### Added
+- Core
+  - URL to relevant API docs in WortalError structs
+
+### Changed
+- Core
+  - Template no longer performs platform check on initialization
+
 ## [5.6.4] - 2023-08-31
 ### Added
 - Core
