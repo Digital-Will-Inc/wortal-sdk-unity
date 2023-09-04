@@ -3,6 +3,11 @@ using Newtonsoft.Json;
 
 namespace DigitalWill.WortalSDK
 {
+    /// <summary>
+    /// Represents an error returned from the Wortal SDK. You can check the ErrorCode property to determine the type
+    /// of error, and the Message property for more details. The URL property will contain a link to the relevant API
+    /// docs for the error.
+    /// </summary>
     [Serializable]
     public struct WortalError
     {
@@ -21,7 +26,15 @@ namespace DigitalWill.WortalSDK
         /// </summary>
         [JsonProperty("context")]
         public string Context;
+        /// <summary>
+        /// URL to the relevant API docs for this error.
+        /// </summary>
+        [JsonProperty("url", NullValueHandling = NullValueHandling.Ignore, DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public string URL;
 
+        /// <summary>
+        /// Returns the enum value of the parsed error code.
+        /// </summary>
         public WortalErrorCodes ErrorCode => (WortalErrorCodes)Enum.Parse(typeof(WortalErrorCodes), Code);
 
         public override string ToString()
