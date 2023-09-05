@@ -39,7 +39,14 @@
     },
 
     ContextShareJS: function (payload, callback, errorCallback) {
-        window.Wortal.context.shareAsync(JSON.parse(UTF8ToString(payload)))
+        parsedPayload = JSON.parse(UTF8ToString(payload));
+
+        // Facebook will reject the call if shareDestination is an empty array.
+        if (parsedPayload.shareDestination.length === 0) {
+            parsedPayload.shareDestination = undefined;
+        }
+
+        window.Wortal.context.shareAsync(parsedPayload)
             .then(result => {
                 return Module.dynCall_vi(callback, result);
             })
