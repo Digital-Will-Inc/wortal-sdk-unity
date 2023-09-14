@@ -214,6 +214,47 @@ namespace DigitalWill.WortalSDK
 #endif
         }
 
+        /// <summary>
+        /// The HappyTime method can be called on various player achievements (beating a boss, reaching a high score, etc.).
+        /// It makes the website celebrate (for example by launching some confetti). There is no need to call this when a level
+        /// is completed, or an item is obtained.
+        /// </summary>
+        public void HappyTime()
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            SessionHappyTimeJS();
+#else
+            Debug.Log("[Wortal] Mock Session.HappyTime()");
+#endif
+        }
+
+        /// <summary>
+        /// Tracks the start of a gameplay session, including resuming play after a break.
+        /// Call whenever the player starts playing or resumes playing after a break
+        /// (menu/loading/achievement screen, game paused, etc.).
+        /// </summary>
+        public void GameplayStart()
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            SessionGameplayStartJS();
+#else
+            Debug.Log("[Wortal] Mock Session.GameplayStart()");
+#endif
+        }
+
+        /// <summary>
+        /// Tracks the end of a gameplay session, including pausing play or opening a menu.
+        /// Call on every game break (entering a menu, switching level, pausing the game, ...)
+        /// </summary>
+        public void GameplayStop()
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            SessionGameplayStopJS();
+#else
+            Debug.Log("[Wortal] Mock Session.GameplayStop()");
+#endif
+        }
+
 #endregion Public API
 #region JSlib Interface
 
@@ -246,6 +287,15 @@ namespace DigitalWill.WortalSDK
 
         [DllImport("__Internal")]
         private static extern void SessionSwitchGameJS(Action callback, Action<string> errorCallback);
+
+        [DllImport("__Internal")]
+        private static extern void SessionHappyTimeJS();
+
+        [DllImport("__Internal")]
+        private static extern void SessionGameplayStartJS();
+
+        [DllImport("__Internal")]
+        private static extern void SessionGameplayStopJS();
 
         [MonoPInvokeCallback(typeof(Action<string>))]
         private static void SessionGetEntryPointCallback(string entryPoint)

@@ -10,6 +10,10 @@
         viber,
         gd,
         facebook,
+        crazygames,
+        gamepix,
+        y8,
+        telegram,
         debug,
     }
 }
