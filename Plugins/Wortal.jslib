@@ -24,6 +24,26 @@
             });
     },
 
+    AuthenticateJS: function (callback, errorCallback) {
+        window.Wortal.authenticateAsync()
+            .then(response => {
+                return Module.dynCall_vi(callback, gameInstance.Module.allocString(JSON.stringify(response)));
+            })
+            .catch(error => {
+                return Module.dynCall_vi(errorCallback, gameInstance.Module.allocString(JSON.stringify(error)));
+            });
+    },
+
+    LinkAccountJS: function (callback, errorCallback) {
+        window.Wortal.linkAccountAsync()
+            .then(result => {
+                return Module.dynCall_vi(callback, result);
+            })
+            .catch(error => {
+                return Module.dynCall_vi(errorCallback, gameInstance.Module.allocString(JSON.stringify(error)));
+            });
+    },
+
     SetLoadingProgressJS: function (progress) {
         window.Wortal.setLoadingProgress(progress);
     },
