@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [5.6.7] - 2023-09-14
+### Added
+- Core
+  - Support for CrazyGames platform
+- Context
+  - context.switchAsync now has an optional payload
+  - context.chooseAsync now supports payloads on Link
+
 ## [5.6.6] - 2023-09-05
 ### Fixed
 - Context

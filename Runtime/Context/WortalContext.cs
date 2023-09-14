@@ -322,6 +322,19 @@ namespace DigitalWill.WortalSDK
 #endif
         }
 
+        /// <inheritdoc cref="Switch(string,DigitalWill.WortalSDK.SwitchPayload,System.Action,System.Action{DigitalWill.WortalSDK.WortalError})"/>
+        public void Switch(string contextId, SwitchPayload payload, Action callback, Action<WortalError> errorCallback)
+        {
+            _switchCallback = callback;
+            Wortal.WortalError = errorCallback;
+#if UNITY_WEBGL && !UNITY_EDITOR
+            ContextSwitchWithPayloadJS(contextId, payload, ContextSwitchCallback, Wortal.WortalErrorCallback);
+#else
+            Debug.Log($"[Wortal] Mock Context.Switch({contextId})");
+            ContextSwitchCallback();
+#endif
+        }
+
         /// <summary>
         /// Request a switch into a specific context. If the player does not have permission to enter that context, or if the
         /// player does not provide permission for the game to enter that context, this will reject. Otherwise, the promise will
@@ -421,6 +434,9 @@ namespace DigitalWill.WortalSDK
 
         [DllImport("__Internal")]
         private static extern void ContextSwitchJS(string contextId, Action callback, Action<string> errorCallback);
+
+        [DllImport("__Internal")]
+        private static extern void ContextSwitchWithPayloadJS(string contextId, SwitchPayload payload, Action callback, Action<string> errorCallback);
 
         [DllImport("__Internal")]
         private static extern string ContextIsSizeBetweenJS(int min, int max);

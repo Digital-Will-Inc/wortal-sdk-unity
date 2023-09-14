@@ -13,6 +13,8 @@ namespace DigitalWill.WortalSDK
     {
         private static Action _initializeCallback;
         private static Action _startGameCallback;
+        private static Action<AuthResponse> _authenticateCallback;
+        private static Action<bool> _linkAccountCallback;
         private static Action _performHapticFeedbackCallback;
 
 #region Public API
@@ -141,6 +143,69 @@ namespace DigitalWill.WortalSDK
         }
 
         /// <summary>
+        /// Starts the authentication process for the player. If the current platform has its own authentication prompt then
+        /// this will be displayed.
+        /// </summary>
+        /// <param name="callback">Callback that is fired when the authentication process is complete. Contains the response
+        /// with the authentication status.</param>
+        /// <param name="errorCallback">Error callback event with <see cref="WortalError"/> describing the error.</param>
+        /// <example><code>
+        /// Wortal.Authenticate(
+        ///     response => Debug.Log("Authentication Complete. Status: " + response.Status),
+        ///     error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
+        /// </code></example>
+        /// <throws><ul>
+        /// <li>AUTH_IN_PROGRESS</li>
+        /// <li>USER_ALREADY_AUTHENTICATED</li>
+        /// <li>USER_INPUT</li>
+        /// <li>NOT_SUPPORTED</li>
+        /// </ul></throws>
+        public static void Authenticate(Action<AuthResponse> callback, Action<WortalError> errorCallback)
+        {
+            _authenticateCallback = callback;
+            WortalError = errorCallback;
+#if UNITY_WEBGL && !UNITY_EDITOR
+            AuthenticateJS(AuthenticateCallback, WortalErrorCallback);
+#else
+            Debug.Log("[Wortal] Mock AuthenticateAsync()");
+            var status = new AuthResponse
+            {
+                Status = AuthStatus.SUCCESS,
+            };
+            _authenticateCallback?.Invoke(status);
+#endif
+        }
+
+        /// <summary>
+        /// Starts the account linking process for the player. If the current platform has its own account linking prompt then
+        /// this will be displayed.
+        /// </summary>
+        /// <param name="callback">Callback that is fired when the account linking process is complete. Contains whether
+        /// the account was linked or not.</param>
+        /// <param name="errorCallback">Error callback event with <see cref="WortalError"/> describing the error.</param>
+        /// <example><code>
+        /// Wortal.LinkAccount(
+        ///     result => Debug.Log("Account Linking Complete. Linked: " + result),
+        ///     error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
+        /// </code></example>
+        /// <throws><ul>
+        /// <li>LINK_IN_PROGRESS</li>
+        /// <li>USER_NOT_AUTHENTICATED</li>
+        /// <li>NOT_SUPPORTED</li>
+        /// </ul></throws>
+        public static void LinkAccount(Action<bool> callback, Action<WortalError> errorCallback)
+        {
+            _linkAccountCallback = callback;
+            WortalError = errorCallback;
+#if UNITY_WEBGL && !UNITY_EDITOR
+            LinkAccountJS(LinkAccountCallback, WortalErrorCallback);
+#else
+            Debug.Log("[Wortal] Mock LinkAccount()");
+            _linkAccountCallback?.Invoke(true);
+#endif
+        }
+
+        /// <summary>
         /// Sets the loading progress value for the game. This is required for the game to start. Failure to call this with 100
         /// once the game is fully loaded will prevent the game from starting.
         /// </summary>
@@ -217,6 +282,12 @@ namespace DigitalWill.WortalSDK
         private static extern void StartGameJS(Action callback, Action<string> errorCallback);
 
         [DllImport("__Internal")]
+        private static extern void AuthenticateJS(Action<string> callback, Action<string> errorCallback);
+
+        [DllImport("__Internal")]
+        private static extern void LinkAccountJS(Action<bool> callback, Action<string> errorCallback);
+
+        [DllImport("__Internal")]
         private static extern void SetLoadingProgressJS(int value);
 
         [DllImport("__Internal")]
@@ -245,6 +316,19 @@ namespace DigitalWill.WortalSDK
         private static void StartGameCallback()
         {
             _startGameCallback?.Invoke();
+        }
+
+        [MonoPInvokeCallback(typeof(Action<string>))]
+        private static void AuthenticateCallback(string status)
+        {
+            var authResponse = JsonConvert.DeserializeObject<AuthResponse>(status);
+            _authenticateCallback?.Invoke(authResponse);
+        }
+
+        [MonoPInvokeCallback(typeof(Action<bool>))]
+        private static void LinkAccountCallback(bool status)
+        {
+            _linkAccountCallback?.Invoke(status);
         }
 
         [MonoPInvokeCallback(typeof(Action))]

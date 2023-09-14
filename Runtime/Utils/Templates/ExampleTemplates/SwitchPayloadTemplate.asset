@@ -9,10 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a87545f8567b42198c085ec16d8c8ece, type: 3}
-  m_Name: InvitePayloadTemplate
+  m_Script: {fileID: 11500000, guid: 934a4dde0599487da3dcf26c77503ea1, type: 3}
+  m_Name: SwitchPayloadTemplate
   m_EditorClassIdentifier: 
-  _image: {fileID: 2800000, guid: 8ab332ecc2f2d0d4e921ae0afbedf391, type: 3}
   _text:
     m_TableReference:
       m_TableCollectionName: GUID:ea2bf69f3b331f54bad962134e6637fd
@@ -22,7 +21,7 @@ MonoBehaviour:
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
-  _cta:
+  _caption:
     m_TableReference:
       m_TableCollectionName: GUID:ea2bf69f3b331f54bad962134e6637fd
     m_TableEntryReference:
@@ -31,16 +30,7 @@ MonoBehaviour:
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
-  _filters: 02000000
-  _dialogTitle:
-    m_TableReference:
-      m_TableCollectionName: 
-    m_TableEntryReference:
-      m_KeyId: 0
-      m_Key: 
-    m_FallbackState: 0
-    m_WaitForCompletion: 0
-    m_LocalVariables: []
+  _switchSilentlyIfSolo: 1
   references:
     version: 2
     RefIds: []

@@ -46,6 +46,18 @@
 
     SessionSwitchGameJS: function (gameId) {
         window.Wortal.session.switchGameAsync(UTF8ToString(gameId));
+    },
+
+    SessionHappyTimeJS: function () {
+        window.Wortal.session.happyTime();
+    },
+
+    SessionGameplayStartJS: function () {
+        window.Wortal.session.gameplayStart();
+    },
+
+    SessionGameplayStopJS: function () {
+        window.Wortal.session.gameplayStop();
     }
 
 });
