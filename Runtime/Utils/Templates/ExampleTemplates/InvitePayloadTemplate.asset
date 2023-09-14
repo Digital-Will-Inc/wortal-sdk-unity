@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a87545f8567b42198c085ec16d8c8ece, type: 3}
   m_Name: InvitePayloadTemplate
   m_EditorClassIdentifier: 
-  _image: {fileID: 2800000, guid: 3bceba979ece62b43b688ed4a6ad6c70, type: 3}
+  _image: {fileID: 2800000, guid: 8ab332ecc2f2d0d4e921ae0afbedf391, type: 3}
   _text:
     m_TableReference:
       m_TableCollectionName: GUID:ea2bf69f3b331f54bad962134e6637fd
@@ -24,9 +24,9 @@ MonoBehaviour:
     m_LocalVariables: []
   _cta:
     m_TableReference:
-      m_TableCollectionName: 
+      m_TableCollectionName: GUID:ea2bf69f3b331f54bad962134e6637fd
     m_TableEntryReference:
-      m_KeyId: 0
+      m_KeyId: 26465302093967360
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0
