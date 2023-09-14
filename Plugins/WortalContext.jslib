@@ -105,6 +105,16 @@
             });
     },
 
+    ContextSwitchWithPayloadJS: function (contextId, payload, callback, errorCallback) {
+        window.Wortal.context.switchAsync(UTF8ToString(contextId), JSON.parse(UTF8ToString(payload)))
+            .then(() => {
+                return Module.dynCall_v(callback);
+            })
+            .catch(error => {
+                return Module.dynCall_vi(errorCallback, gameInstance.Module.allocString(JSON.stringify(error)));
+            });
+    },
+
     ContextIsSizeBetweenJS: function (minSize, maxSize) {
         return gameInstance.Module.allocString(JSON.stringify(window.Wortal.context.isSizeBetween(minSize, maxSize)));
     }
