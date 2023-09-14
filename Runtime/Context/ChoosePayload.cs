@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace DigitalWill.WortalSDK
@@ -39,5 +40,39 @@ namespace DigitalWill.WortalSDK
         /// </summary>
         [JsonProperty("minSize", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public int MinSize;
+        /// <summary>
+        /// Image which will be displayed to contact.
+        /// A string containing data URL of a base64 encoded image.
+        /// If not specified, game's icon image will be used by default.
+        ///
+        /// PLATFORM NOTE: Link only.
+        /// </summary>
+        [JsonProperty("image", NullValueHandling = NullValueHandling.Ignore, DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public string Image;
+        /// <summary>
+        /// Message which will be displayed to contact.
+        /// If not specified, "SENDER_NAMEと一緒に「GAME_NAME」をプレイしよう！" will be used by default.
+        ///
+        /// PLATFORM NOTE: Link only.
+        /// </summary>
+        [JsonProperty("text", NullValueHandling = NullValueHandling.Ignore, DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public LocalizableContent Text;
+        /// <summary>
+        /// Text of the call-to-action button.
+        /// If not specified, "今すぐプレイ" will be used by default.
+        ///
+        /// PLATFORM NOTE: Link only.
+        /// </summary>
+        [JsonProperty("caption", NullValueHandling = NullValueHandling.Ignore, DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public LocalizableContent Caption;
+        /// <summary>
+        /// Object passed to any session launched from this update message.
+        /// It can be accessed from `Wortal.session.getEntryPointData()`.
+        /// Its size must be less than or equal to 1000 chars when stringified.
+        ///
+        /// PLATFORM NOTE: Link only.
+        /// </summary>
+        [JsonProperty("data", NullValueHandling = NullValueHandling.Ignore, DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public Dictionary<string, object> Data;
     }
 }
