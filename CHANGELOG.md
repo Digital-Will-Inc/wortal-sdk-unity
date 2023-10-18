@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [5.6.8] - 2023-10-18
+### Added
+- Core
+  - Support for Telegram, GameMonetize and future potential platforms to reduce the need for new SDK releases
+- Ads
+  - Banner ads
+
 ## [5.6.7] - 2023-09-14
 ### Added
 - Core

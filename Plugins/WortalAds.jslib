@@ -23,6 +23,13 @@
             () => Module.dynCall_v(adViewedCallback),
             () => Module.dynCall_v(noFillCallback),
         );
+    },
+
+    ShowBannerJS: function (shouldShow, position) {
+        window.Wortal.ads.showBanner(
+            shouldShow,
+            UTF8ToString(position),
+        );
     }
 
 });

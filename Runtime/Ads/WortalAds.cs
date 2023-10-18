@@ -136,6 +136,21 @@ namespace DigitalWill.WortalSDK
 #endif
         }
 
+        /// <summary>
+        /// Shows a banner ad. These are small ads that are shown at the top or bottom of the screen.
+        /// They are typically used on menus or other non-gameplay screens. They can be shown or hidden at any time.
+        /// </summary>
+        /// <param name="shouldShow">Whether the banner should be shown or hidden. Default is show.</param>
+        /// <param name="position">Where the banner should be shown. Top or bottom of the screen. Default is the bottom.</param>
+        public void ShowBanner(bool shouldShow = true, BannerPosition position = BannerPosition.Bottom)
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            ShowBannerJS(shouldShow, position.ToString().ToLower());
+#else
+            Debug.Log($"[Wortal] Mock Ads.ShowBanner({shouldShow}, {position})");
+#endif
+        }
+
 #endregion Public API
 #region JSlib Interface
 
@@ -156,6 +171,9 @@ namespace DigitalWill.WortalSDK
                                                   Action adDismissedCallback,
                                                   Action adViewedCallback,
                                                   Action noFillCallback);
+
+        [DllImport("__Internal")]
+        private static extern void ShowBannerJS(bool shouldShow, string position);
 
         [MonoPInvokeCallback(typeof(Action))]
         private static void BeforeAdCallback()
