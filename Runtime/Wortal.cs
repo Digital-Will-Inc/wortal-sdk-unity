@@ -23,6 +23,10 @@ namespace DigitalWill.WortalSDK
         public static Action OnPause;
 
         /// <summary>
+        /// Achievements API
+        /// </summary>
+        public static WortalAchievements Achievements { get; } = new();
+        /// <summary>
         /// Ads API
         /// </summary>
         public static WortalAds Ads { get; } = new();
