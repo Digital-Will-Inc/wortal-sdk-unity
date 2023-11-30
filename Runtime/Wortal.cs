@@ -23,6 +23,10 @@ namespace DigitalWill.WortalSDK
         public static Action OnPause;
 
         /// <summary>
+        /// Achievements API
+        /// </summary>
+        public static WortalAchievements Achievements { get; } = new();
+        /// <summary>
         /// Ads API
         /// </summary>
         public static WortalAds Ads { get; } = new();
@@ -54,6 +58,10 @@ namespace DigitalWill.WortalSDK
         /// Session API
         /// </summary>
         public static WortalSession Session { get; } = new();
+        /// <summary>
+        /// Stats API
+        /// </summary>
+        public static WortalStats Stats { get; } = new();
         /// <summary>
         /// Tournament API
         /// </summary>

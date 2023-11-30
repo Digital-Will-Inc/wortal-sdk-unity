@@ -327,8 +327,9 @@ namespace DigitalWill.WortalSDK
         {
             _switchCallback = callback;
             Wortal.WortalError = errorCallback;
+            string payloadObj = JsonConvert.SerializeObject(payload);
 #if UNITY_WEBGL && !UNITY_EDITOR
-            ContextSwitchWithPayloadJS(contextId, payload, ContextSwitchCallback, Wortal.WortalErrorCallback);
+            ContextSwitchWithPayloadJS(contextId, payloadObj, ContextSwitchCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log($"[Wortal] Mock Context.Switch({contextId})");
             ContextSwitchCallback();
@@ -436,7 +437,7 @@ namespace DigitalWill.WortalSDK
         private static extern void ContextSwitchJS(string contextId, Action callback, Action<string> errorCallback);
 
         [DllImport("__Internal")]
-        private static extern void ContextSwitchWithPayloadJS(string contextId, SwitchPayload payload, Action callback, Action<string> errorCallback);
+        private static extern void ContextSwitchWithPayloadJS(string contextId, string payload, Action callback, Action<string> errorCallback);
 
         [DllImport("__Internal")]
         private static extern string ContextIsSizeBetweenJS(int min, int max);
