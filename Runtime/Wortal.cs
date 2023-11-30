@@ -59,6 +59,10 @@ namespace DigitalWill.WortalSDK
         /// </summary>
         public static WortalSession Session { get; } = new();
         /// <summary>
+        /// Stats API
+        /// </summary>
+        public static WortalStats Stats { get; } = new();
+        /// <summary>
         /// Tournament API
         /// </summary>
         public static WortalTournament Tournament { get; } = new();
