@@ -7,7 +7,7 @@ using UnityEngine;
 namespace DigitalWill.WortalSDK
 {
     /// <summary>
-    ///
+    /// Achievements API for Wortal.
     /// </summary>
     public class WortalAchievements
     {
