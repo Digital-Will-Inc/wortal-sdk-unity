@@ -245,14 +245,48 @@ namespace DigitalWill.WortalSDK
         [MonoPInvokeCallback(typeof(Action<string>))]
         private static void TournamentGetCurrentCallback(string tournament)
         {
-            Tournament tournamentObj = JsonConvert.DeserializeObject<Tournament>(tournament);
+            Tournament tournamentObj;
+
+            try
+            {
+                tournamentObj = JsonConvert.DeserializeObject<Tournament>(tournament);
+            }
+            catch (Exception e)
+            {
+                WortalError error = new()
+                {
+                    Code = WortalErrorCodes.SERIALIZATION_ERROR.ToString(),
+                    Message = e.Message,
+                };
+
+                Wortal.WortalError?.Invoke(error);
+                return;
+            }
+
             _getCurrentCallback?.Invoke(tournamentObj);
         }
 
         [MonoPInvokeCallback(typeof(Action<string>))]
         private static void TournamentGetAllCallback(string tournaments)
         {
-            Tournament[] tournamentObj = JsonConvert.DeserializeObject<Tournament[]>(tournaments);
+            Tournament[] tournamentObj;
+
+            try
+            {
+                tournamentObj = JsonConvert.DeserializeObject<Tournament[]>(tournaments);
+            }
+            catch (Exception e)
+            {
+                WortalError error = new()
+                {
+                    Code = WortalErrorCodes.SERIALIZATION_ERROR.ToString(),
+                    Message = e.Message,
+                };
+
+                Wortal.WortalError?.Invoke(error);
+                return;
+            }
+
             _getAllCallback?.Invoke(tournamentObj);
         }
 
@@ -265,7 +299,24 @@ namespace DigitalWill.WortalSDK
         [MonoPInvokeCallback(typeof(Action<string>))]
         private static void TournamentCreateCallback(string tournament)
         {
-            Tournament tournamentObj = JsonConvert.DeserializeObject<Tournament>(tournament);
+            Tournament tournamentObj;
+
+            try
+            {
+                tournamentObj = JsonConvert.DeserializeObject<Tournament>(tournament);
+            }
+            catch (Exception e)
+            {
+                WortalError error = new()
+                {
+                    Code = WortalErrorCodes.SERIALIZATION_ERROR.ToString(),
+                    Message = e.Message,
+                };
+
+                Wortal.WortalError?.Invoke(error);
+                return;
+            }
+
             _createCallback?.Invoke(tournamentObj);
         }
 

@@ -113,7 +113,24 @@ namespace DigitalWill.WortalSDK
         [MonoPInvokeCallback(typeof(Action<string>))]
         private static void StatsGetStatsCallback(string statsJson)
         {
-            Stats[] stats = JsonConvert.DeserializeObject<Stats[]>(statsJson);
+            Stats[] stats;
+
+            try
+            {
+                stats = JsonConvert.DeserializeObject<Stats[]>(statsJson);
+            }
+            catch (Exception e)
+            {
+                WortalError error = new()
+                {
+                    Code = WortalErrorCodes.SERIALIZATION_ERROR.ToString(),
+                    Message = e.Message
+                };
+
+                Wortal.WortalError?.Invoke(error);
+                return;
+            }
+
             _getStatsCallback?.Invoke(stats);
         }
 

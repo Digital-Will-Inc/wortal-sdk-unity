@@ -103,7 +103,24 @@ namespace DigitalWill.WortalSDK
         [MonoPInvokeCallback(typeof(Action<string>))]
         private static void AchievementsGetAchievementsCallback(string achievementsJson)
         {
-            Achievement[] achievements = JsonConvert.DeserializeObject<Achievement[]>(achievementsJson);
+            Achievement[] achievements;
+
+            try
+            {
+                achievements = JsonConvert.DeserializeObject<Achievement[]>(achievementsJson);
+            }
+            catch (Exception e)
+            {
+                WortalError error = new()
+                {
+                    Code = WortalErrorCodes.SERIALIZATION_ERROR.ToString(),
+                    Message = e.Message,
+                };
+
+                Wortal.WortalError?.Invoke(error);
+                return;
+            }
+
             _getAchievementsCallback?.Invoke(achievements);
         }
 

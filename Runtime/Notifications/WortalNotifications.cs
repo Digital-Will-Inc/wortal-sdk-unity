@@ -174,14 +174,48 @@ namespace DigitalWill.WortalSDK
         [MonoPInvokeCallback(typeof(Action<string>))]
         private static void NotificationsScheduleCallback(string result)
         {
-            NotificationScheduleResult resultObj = JsonConvert.DeserializeObject<NotificationScheduleResult>(result);
+            NotificationScheduleResult resultObj;
+
+            try
+            {
+                resultObj = JsonConvert.DeserializeObject<NotificationScheduleResult>(result);
+            }
+            catch (Exception e)
+            {
+                WortalError error = new()
+                {
+                    Code = WortalErrorCodes.SERIALIZATION_ERROR.ToString(),
+                    Message = e.Message,
+                };
+
+                Wortal.WortalError?.Invoke(error);
+                return;
+            }
+
             _scheduleCallback?.Invoke(resultObj);
         }
 
         [MonoPInvokeCallback(typeof(Action<string>))]
         private static void NotificationsGetHistoryCallback(string result)
         {
-            ScheduledNotification[] resultObj = JsonConvert.DeserializeObject<ScheduledNotification[]>(result);
+            ScheduledNotification[] resultObj;
+
+            try
+            {
+                resultObj = JsonConvert.DeserializeObject<ScheduledNotification[]>(result);
+            }
+            catch (Exception e)
+            {
+                WortalError error = new()
+                {
+                    Code = WortalErrorCodes.SERIALIZATION_ERROR.ToString(),
+                    Message = e.Message,
+                };
+
+                Wortal.WortalError?.Invoke(error);
+                return;
+            }
+
             _getHistoryCallback?.Invoke(resultObj);
         }
 
