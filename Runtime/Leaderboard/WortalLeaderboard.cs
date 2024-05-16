@@ -323,28 +323,96 @@ namespace DigitalWill.WortalSDK
         [MonoPInvokeCallback(typeof(Action<string>))]
         private static void LeaderboardGetCallback(string leaderboard)
         {
-            Leaderboard leaderboardObj = JsonConvert.DeserializeObject<Leaderboard>(leaderboard);
+            Leaderboard leaderboardObj;
+
+            try
+            {
+                leaderboardObj = JsonConvert.DeserializeObject<Leaderboard>(leaderboard);
+            }
+            catch (Exception e)
+            {
+                WortalError error = new()
+                {
+                    Code = WortalErrorCodes.SERIALIZATION_ERROR.ToString(),
+                    Message = e.Message
+                };
+
+                Wortal.WortalError?.Invoke(error);
+                return;
+            }
+
             _getLeaderboardCallback?.Invoke(leaderboardObj);
         }
 
         [MonoPInvokeCallback(typeof(Action<string>))]
         private static void LeaderboardSendEntryCallback(string entry)
         {
-            LeaderboardEntry entryObj = JsonConvert.DeserializeObject<LeaderboardEntry>(entry);
+            LeaderboardEntry entryObj;
+
+            try
+            {
+                entryObj = JsonConvert.DeserializeObject<LeaderboardEntry>(entry);
+            }
+            catch (Exception e)
+            {
+                WortalError error = new()
+                {
+                    Code = WortalErrorCodes.SERIALIZATION_ERROR.ToString(),
+                    Message = e.Message
+                };
+
+                Wortal.WortalError?.Invoke(error);
+                return;
+            }
+
             _sendEntryCallback?.Invoke(entryObj);
         }
 
         [MonoPInvokeCallback(typeof(Action<string>))]
         private static void LeaderboardGetEntriesCallback(string entries)
         {
-            LeaderboardEntry[] entriesObj = JsonConvert.DeserializeObject<LeaderboardEntry[]>(entries);
+            LeaderboardEntry[] entriesObj;
+
+            try
+            {
+                entriesObj = JsonConvert.DeserializeObject<LeaderboardEntry[]>(entries);
+            }
+            catch (Exception e)
+            {
+                WortalError error = new()
+                {
+                    Code = WortalErrorCodes.SERIALIZATION_ERROR.ToString(),
+                    Message = e.Message
+                };
+
+                Wortal.WortalError?.Invoke(error);
+                return;
+            }
+
             _getEntriesCallback?.Invoke(entriesObj);
         }
 
         [MonoPInvokeCallback(typeof(Action<string>))]
         private static void LeaderboardGetPlayerEntryCallback(string entry)
         {
-            LeaderboardEntry entryObj = JsonConvert.DeserializeObject<LeaderboardEntry>(entry);
+            LeaderboardEntry entryObj;
+
+            try
+            {
+                entryObj = JsonConvert.DeserializeObject<LeaderboardEntry>(entry);
+            }
+            catch (Exception e)
+            {
+                WortalError error = new()
+                {
+                    Code = WortalErrorCodes.SERIALIZATION_ERROR.ToString(),
+                    Message = e.Message
+                };
+
+                Wortal.WortalError?.Invoke(error);
+                return;
+            }
+
             _getPlayerEntryCallback?.Invoke(entryObj);
         }
 
@@ -357,7 +425,24 @@ namespace DigitalWill.WortalSDK
         [MonoPInvokeCallback(typeof(Action<string>))]
         private static void LeaderboardGetConnectedPlayersEntriesCallback(string entries)
         {
-            LeaderboardEntry[] entriesObj = JsonConvert.DeserializeObject<LeaderboardEntry[]>(entries);
+            LeaderboardEntry[] entriesObj;
+
+            try
+            {
+                entriesObj = JsonConvert.DeserializeObject<LeaderboardEntry[]>(entries);
+            }
+            catch (Exception e)
+            {
+                WortalError error = new()
+                {
+                    Code = WortalErrorCodes.SERIALIZATION_ERROR.ToString(),
+                    Message = e.Message
+                };
+
+                Wortal.WortalError?.Invoke(error);
+                return;
+            }
+
             _getConnectedPlayersEntriesCallback?.Invoke(entriesObj);
         }
 

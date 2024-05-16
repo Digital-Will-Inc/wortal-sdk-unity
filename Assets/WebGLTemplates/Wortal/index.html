@@ -3,26 +3,26 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=yes">
-
-  <link rel="stylesheet" href="assets/css/style.css">
-
   <title>{{{ PRODUCT_NAME }}}</title>
-  <script src="https://storage.googleapis.com/html5gameportal.com/wortal-sdk/v1/wortal-core.js" data-manual-init="true"></script>
+
+  <link rel="shortcut icon" href="assets/images/favicon.ico">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="manifest" href="assets/manifest.webmanifest">
+
+  <script src="https://storage.googleapis.com/cdn-wortal-ai/v2/wortal-core.js"></script>
 </head>
 <body>
-<div class="webgl-wrapper">
-  <div id="unity-container" class="unity-desktop">
-    <canvas id="unity-canvas" width={{{ WIDTH }}} height={{{ HEIGHT }}}></canvas>
-  </div>
-  <div id="unity-loading-bar">
-    <div id="unity-progress-bar-empty">
-      <div id="unity-progress-bar-full"></div>
-      <p id="unity-progress-value"></p><br/>
-      <p id="unity-progress-text"></p>
+  <div id="unity-container">
+    <canvas id="unity-canvas" width={{{ WIDTH }}} height={{{ HEIGHT }}} tabindex="-1"></canvas>
+    <div id="unity-loading-bar">
+      <div id="unity-progress-bar-empty">
+        <div id="unity-progress-bar-full"></div>
+        <p id="unity-progress-value"></p><br/>
+        <p id="unity-progress-text"></p>
+      </div>
     </div>
   </div>
-</div>
-<script src="assets/js/instance.js"></script>
+
+  <script src="assets/js/instance.js"></script>
 </body>
 </html>

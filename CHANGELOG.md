@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [6.0.0] - 2024-05-16
+### BREAKING CHANGE
+Auto initialization has been removed. You must now call `Wortal.Initialize()` and `Wortal.StartGame()` manually to initialize the SDK.
+
+### Changed
+- Core
+  - Improved error handling
+  - WebGL template now based off of Unity PWA template for responsive builds
+  - Updated to latest SDK Core v2
+
 ## [5.7.0] - 2023-11-30
 ### Added
 - Core

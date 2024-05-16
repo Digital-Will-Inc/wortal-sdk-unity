@@ -465,7 +465,24 @@ namespace DigitalWill.WortalSDK
         private static void PlayerGetDataCallback(string data)
         {
             // Data is Record<string, unknown> in JS.
-            IDictionary<string, object> dataObj = JsonConvert.DeserializeObject<JObject>(data).ToDictionary();
+            IDictionary<string, object> dataObj;
+
+            try
+            {
+                dataObj = JsonConvert.DeserializeObject<JObject>(data).ToDictionary();
+            }
+            catch (Exception e)
+            {
+                WortalError error = new()
+                {
+                    Code = WortalErrorCodes.SERIALIZATION_ERROR.ToString(),
+                    Message = e.Message,
+                };
+
+                Wortal.WortalError?.Invoke(error);
+                return;
+            }
+
             _getDataCallback?.Invoke(dataObj);
         }
 
@@ -484,7 +501,24 @@ namespace DigitalWill.WortalSDK
         [MonoPInvokeCallback(typeof(Action<string>))]
         private static void PlayerGetConnectedPlayersCallback(string players)
         {
-            WortalPlayer[] playersObj = JsonConvert.DeserializeObject<WortalPlayer[]>(players);
+            WortalPlayer[] playersObj;
+
+            try
+            {
+                playersObj = JsonConvert.DeserializeObject<WortalPlayer[]>(players);
+            }
+            catch (Exception e)
+            {
+                WortalError error = new()
+                {
+                    Code = WortalErrorCodes.SERIALIZATION_ERROR.ToString(),
+                    Message = e.Message,
+                };
+
+                Wortal.WortalError?.Invoke(error);
+                return;
+            }
+
             _getConnectedPlayersCallback?.Invoke(playersObj);
         }
 
