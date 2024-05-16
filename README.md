@@ -14,7 +14,7 @@
 
 ### Ads
 
-[API Reference](https://sdk.html5gameportal.com/api/ads/)
+[API Reference](https://docs.games-api.ai/api/ads/)
 
 Interstitial ads can be shown at various points in the game such as a level end, restart or a timed
 interval in games with longer levels.
@@ -61,7 +61,7 @@ Wortal.Ads.ShowRewarded("ReviveAndContinue",
 
 ### Analytics
 
-[API Reference](https://sdk.html5gameportal.com/api/analytics/)
+[API Reference](https://docs.games-api.ai/api/analytics/)
 
 The Analytics API can be used to track game events that can help better understand how players are interacting with
 the game. This data will be available for viewing in the Wortal dashboard.
@@ -79,9 +79,33 @@ Wortal.Analytics.LogLevelEnd("Level 3", "100", true);
 Wortal.Analytics.LogGameChoice("Character", "Blue");
 ```
 
+### Achievements
+
+[API Reference](https://docs.games-api.ai/api/achievements/)
+
+The Achievements API is used to track player progress in the game. This can be useful for rewarding players
+for completing certain tasks or for tracking player progress.
+
+```csharp
+// Unlock an achievement.
+Wortal.Achievements.UnlockAchievement("achievementID",
+        success => Debug.Log("Achievement Unlocked: " + success),
+        error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
+
+// Get the player's progress on an achievement.
+Wortal.Achievements.GetAchievements(achievements =>
+    {
+        foreach (Achievement achievement in achievements)
+        {
+            Debug.Log(achievement.Name);
+        }
+    },
+    error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
+```
+
 ### Context
 
-[API Reference](https://sdk.html5gameportal.com/api/context/)
+[API Reference](https://docs.games-api.ai/api/context/)
 
 The Context API is used to connect players and allow them to interact in the game session, share their content
 and send messages to each other.
@@ -107,7 +131,7 @@ for more details and limitations of the templates.
 
 ### In-App Purchases
 
-[API Reference](https://sdk.html5gameportal.com/api/iap/)
+[API Reference](https://docs.games-api.ai/api/iap/)
 
 The In-App Purchases (IAP) API is used to provide an interface for in-game transactions on the platforms.
 This process will differ based on what platform the game is being played on, but the API remains the same.
@@ -129,7 +153,7 @@ Wortal.IAP.MakePurchase(new WortalIAP.PurchaseConfig
 
 ### Leaderboards
 
-[API Reference](https://sdk.html5gameportal.com/api/leaderboard/)
+[API Reference](https://docs.games-api.ai/api/leaderboard/)
 
 The Leaderboard API gives the game access to the platform's leaderboard functionality. This is where
 you can track player's scores and compare them to other players.
@@ -148,7 +172,7 @@ Wortal.Leaderboard.SendEntry("global", 100,
 
 ### Notifications
 
-[API Reference](https://sdk.html5gameportal.com/api/notifications/)
+[API Reference](https://docs.games-api.ai/api/notifications/)
 
 The notifications API is used to send notifications to the player. This can be useful for letting the player
 know when they have received a gift or when they haven't played in a while.
@@ -174,7 +198,7 @@ for more details and limitations of the templates.
 
 ### Player
 
-[API Reference](https://sdk.html5gameportal.com/api/player/)
+[API Reference](https://docs.games-api.ai/api/player/)
 
 You can find details about the current player via the Player API.
 
@@ -219,7 +243,7 @@ Wortal.Player.GetData(new[] { "items", "lives" },
 
 ### Session
 
-[API Reference](https://sdk.html5gameportal.com/api/session/)
+[API Reference](https://docs.games-api.ai/api/session/)
 
 Details about the current session can be accessed in the Session API.
 
@@ -239,9 +263,40 @@ foreach (KeyValuePair<string, object> kvp in data)
 }
 ```
 
+### Stats
+
+[API Reference](https://docs.games-api.ai/api/stats/)
+
+The Stats API is used to track player statistics in the game. This can be useful for tracking player progress
+and balancing the game.
+
+```csharp
+// Get a player's stats.
+Wortal.Stats.GetStats(
+    "Level 1",
+    new GetStatsPayload { Period = StatPeriod.ALLTIME },
+    stats =>
+    {
+        foreach (Stats stat in stats)
+        {
+            Debug.Log(stat.Name);
+        }
+    },
+    error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
+
+// Update a player's stats.
+Wortal.Stats.PostStats(
+    "Level 1",
+    100,
+    new PostStatsPayload { Period = StatPeriod.DAILY },
+    allback => Debug.Log("Stats posted!"),
+    error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
+};
+```
+
 ### Tournament
 
-[API Reference](https://sdk.html5gameportal.com/api/tournament/)
+[API Reference](https://docs.games-api.ai/api/tournament/)
 
 The Tournament API is used to create and manage tournaments for your game.
 
