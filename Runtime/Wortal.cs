@@ -310,7 +310,21 @@ namespace DigitalWill.WortalSDK
         [MonoPInvokeCallback(typeof(Action<string>))]
         public static void WortalErrorCallback(string error)
         {
-            var wortalError = JsonConvert.DeserializeObject<WortalError>(error);
+            WortalError wortalError;
+
+            try
+            {
+                wortalError = JsonConvert.DeserializeObject<WortalError>(error);
+            }
+            catch (Exception e)
+            {
+                wortalError = new WortalError
+                {
+                    Code = WortalErrorCodes.SERIALIZATION_ERROR.ToString(),
+                    Message = e.Message
+                };
+            }
+
             WortalError?.Invoke(wortalError);
         }
 
@@ -329,7 +343,24 @@ namespace DigitalWill.WortalSDK
         [MonoPInvokeCallback(typeof(Action<string>))]
         private static void AuthenticateCallback(string status)
         {
-            var authResponse = JsonConvert.DeserializeObject<AuthResponse>(status);
+            AuthResponse authResponse;
+
+            try
+            {
+                authResponse = JsonConvert.DeserializeObject<AuthResponse>(status);
+            }
+            catch (Exception e)
+            {
+                WortalError error = new()
+                {
+                    Code = WortalErrorCodes.SERIALIZATION_ERROR.ToString(),
+                    Message = e.Message
+                };
+
+                WortalError?.Invoke(error);
+                return;
+            }
+
             _authenticateCallback?.Invoke(authResponse);
         }
 

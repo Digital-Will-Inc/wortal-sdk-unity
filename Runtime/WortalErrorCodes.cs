@@ -79,5 +79,10 @@
         /// The SDK failed to initialize, this can occur if the Wortal SDK encountered an error during initialization or if the platform SDK failed to initialize.
         /// </summary>
         INITIALIZATION_ERROR,
+        /// <summary>
+        /// The SDK failed to serialize or deserialize an object. This can occur if the object is malformed or does
+        /// not match the intended data type.
+        /// </summary>
+        SERIALIZATION_ERROR,
     }
 }

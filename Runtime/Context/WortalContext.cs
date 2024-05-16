@@ -445,7 +445,24 @@ namespace DigitalWill.WortalSDK
         [MonoPInvokeCallback(typeof(Action<string>))]
         private static void ContextGetPlayersCallback(string players)
         {
-            WortalPlayer[] playersObj = JsonConvert.DeserializeObject<WortalPlayer[]>(players);
+            WortalPlayer[] playersObj;
+
+            try
+            {
+                playersObj = JsonConvert.DeserializeObject<WortalPlayer[]>(players);
+            }
+            catch (Exception e)
+            {
+                WortalError error = new()
+                {
+                    Code = WortalErrorCodes.SERIALIZATION_ERROR.ToString(),
+                    Message = e.Message,
+                };
+
+                Wortal.WortalError?.Invoke(error);
+                return;
+            }
+
             _getPlayersCallback?.Invoke(playersObj);
         }
 

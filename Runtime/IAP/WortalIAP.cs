@@ -207,21 +207,72 @@ namespace DigitalWill.WortalSDK
         [MonoPInvokeCallback(typeof(Action<string>))]
         private static void IAPGetCatalogCallback(string catalog)
         {
-            Product[] catalogObj = JsonConvert.DeserializeObject<Product[]>(catalog);
+            Product[] catalogObj;
+
+            try
+            {
+                catalogObj = JsonConvert.DeserializeObject<Product[]>(catalog);
+            }
+            catch (Exception e)
+            {
+                WortalError error = new()
+                {
+                    Code = WortalErrorCodes.SERIALIZATION_ERROR.ToString(),
+                    Message = e.Message
+                };
+
+                Wortal.WortalError?.Invoke(error);
+                return;
+            }
+
             _getCatalogCallback?.Invoke(catalogObj);
         }
 
         [MonoPInvokeCallback(typeof(Action<string>))]
         private static void IAPGetPurchasesCallback(string purchases)
         {
-            Purchase[] purchasesObj = JsonConvert.DeserializeObject<Purchase[]>(purchases);
+            Purchase[] purchasesObj;
+
+            try
+            {
+                purchasesObj = JsonConvert.DeserializeObject<Purchase[]>(purchases);
+            }
+            catch (Exception e)
+            {
+                WortalError error = new()
+                {
+                    Code = WortalErrorCodes.SERIALIZATION_ERROR.ToString(),
+                    Message = e.Message
+                };
+
+                Wortal.WortalError?.Invoke(error);
+                return;
+            }
+
             _getPurchasesCallback?.Invoke(purchasesObj);
         }
 
         [MonoPInvokeCallback(typeof(Action<string>))]
         private static void IAPMakePurchaseCallback(string purchase)
         {
-            Purchase purchaseObj = JsonConvert.DeserializeObject<Purchase>(purchase);
+            Purchase purchaseObj;
+
+            try
+            {
+                purchaseObj = JsonConvert.DeserializeObject<Purchase>(purchase);
+            }
+            catch (Exception e)
+            {
+                WortalError error = new()
+                {
+                    Code = WortalErrorCodes.SERIALIZATION_ERROR.ToString(),
+                    Message = e.Message
+                };
+
+                Wortal.WortalError?.Invoke(error);
+                return;
+            }
+
             _makePurchaseCallback?.Invoke(purchaseObj);
         }
 
