@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [6.0.1] - 2024-06-12
+### Fixed
+- Core
+  - Incorrect asset paths in serviceWorker.js
+
 ## [6.0.0] - 2024-05-16
 ### BREAKING CHANGE
 Auto initialization has been removed. You must now call `Wortal.Initialize()` and `Wortal.StartGame()` manually to initialize the SDK.

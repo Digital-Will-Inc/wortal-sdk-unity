@@ -1,14 +1,14 @@
 #if USE_DATA_CACHING
 const cacheName = {{{JSON.stringify(COMPANY_NAME + "-" + PRODUCT_NAME + "-" + PRODUCT_VERSION )}}};
 const contentToCache = [
-    "Build/{{{ LOADER_FILENAME }}}",
-    "Build/{{{ FRAMEWORK_FILENAME }}}",
+    "../../Build/{{{ LOADER_FILENAME }}}",
+    "../../Build/{{{ FRAMEWORK_FILENAME }}}",
 #if USE_THREADS
-    "Build/{{{ WORKER_FILENAME }}}",
+    "../../Build/{{{ WORKER_FILENAME }}}",
 #endif
-    "Build/{{{ DATA_FILENAME }}}",
-    "Build/{{{ CODE_FILENAME }}}",
-    "assets/css/style.css",
+    "../../Build/{{{ DATA_FILENAME }}}",
+    "../../Build/{{{ CODE_FILENAME }}}",
+    "../../assets/css/style.css",
 ];
 #endif
 
