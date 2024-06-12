@@ -10,6 +10,12 @@
 
 3. Set the necessary project settings via toolbar: `Wortal/Set Project Settings`
 
+## Updating
+
+To update the Wortal SDK, simply open the Package Manager, select the Wortal package, and click the `Update` button.
+
+The WebGL build may change between versions so it is recommended to re-install the WebGL template after updating the package. Delete the `Assets/WebGLTemplates/Wortal` folder and re-install the template via the toolbar `Wortal/Install WebGL Template`.
+
 ## How to Use
 
 ### Ads
