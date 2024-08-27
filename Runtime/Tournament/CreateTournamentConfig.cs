@@ -1,5 +1,6 @@
 ﻿using System;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace DigitalWill.WortalSDK
 {
@@ -24,12 +25,14 @@ namespace DigitalWill.WortalSDK
         /// or 'LOWER_IS_BETTER'. If not specified, the default is 'HIGHER_IS_BETTER'.
         /// </summary>
         [JsonProperty("sortOrder", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonConverter(typeof(StringEnumConverter))]
         public SortOrder SortOrder;
         /// <summary>
         /// Optional input for the formatting of the scores in the tournament leaderboard. The options are 'NUMERIC'
         /// or 'TIME'. If not specified, the default is 'NUMERIC'.
         /// </summary>
         [JsonProperty("scoreFormat", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonConverter(typeof(StringEnumConverter))]
         public ScoreFormat ScoreFormat;
         /// <summary>
         /// Optional input for setting a custom end time for the tournament. The number passed in represents a
