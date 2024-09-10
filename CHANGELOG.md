@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Ad
   - Add isEnabled
 
+## [6.0.2] - 2024-08-27
+### Fixed
+- Tournament
+  - Ensured that enum values are correctly converted to strings for JSON serialization
+
 ## [6.0.1] - 2024-06-12
 ### Fixed
 - Core
