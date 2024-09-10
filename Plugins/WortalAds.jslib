@@ -4,6 +4,10 @@
         return window.Wortal.ads.isAdBlocked();
     },
 
+    IsEnabledJS: function () {
+        return window.Wortal.ads.isEnabled();
+    },
+
     ShowInterstitialJS: function (placement, description, beforeAdCallback, afterAdCallback, noFillCallback) {
         window.Wortal.ads.showInterstitial(
             UTF8ToString(placement),
