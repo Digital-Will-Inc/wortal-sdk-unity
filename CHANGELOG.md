@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [6.1.0] - 2024-09-10
+### Fixed
+- Ad
+  - Add isEnabled
+
 ## [6.0.1] - 2024-06-12
 ### Fixed
 - Core
