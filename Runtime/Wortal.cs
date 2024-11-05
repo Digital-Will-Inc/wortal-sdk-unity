@@ -17,10 +17,12 @@ namespace DigitalWill.WortalSDK
         private static Action<bool> _linkAccountCallback;
         private static Action _performHapticFeedbackCallback;
 
-#region Public API
+        #region Public API
 
         public static Action<WortalError> WortalError;
         public static Action OnPause;
+
+        public static Action OnResume;
 
         /// <summary>
         /// Achievements API
@@ -267,15 +269,17 @@ namespace DigitalWill.WortalSDK
 #endif
         }
 
-#endregion Public API
-#region Internal
+        #endregion Public API
+        #region Internal
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void Init()
         {
             Debug.Log("[Wortal] Initializing Unity SDK..");
 #if UNITY_WEBGL && !UNITY_EDITOR
+            //registering callback
             OnPauseJS(OnPauseCallback);
+            OnResumeJS(OnResumeCallback);
 #endif
             Debug.Log("[Wortal] Unity SDK initialization complete.");
         }
@@ -300,6 +304,9 @@ namespace DigitalWill.WortalSDK
 
         [DllImport("__Internal")]
         private static extern void OnPauseJS(Action callback);
+
+        [DllImport("__Internal")]
+        private static extern void OnResumeJS(Action callback);
 
         [DllImport("__Internal")]
         private static extern string GetSupportedAPIsJS();
@@ -377,11 +384,17 @@ namespace DigitalWill.WortalSDK
         }
 
         [MonoPInvokeCallback(typeof(Action))]
+        private static void OnResumeCallback()
+        {
+            OnResume?.Invoke();
+        }
+
+        [MonoPInvokeCallback(typeof(Action))]
         private static void PerformHapticFeedbackCallback()
         {
             _performHapticFeedbackCallback?.Invoke();
         }
 
-#endregion Internal
+        #endregion Internal
     }
 }

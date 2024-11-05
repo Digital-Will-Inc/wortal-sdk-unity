@@ -52,6 +52,10 @@
         window.Wortal.onPause(() => Module.dynCall_v(callback));
     },
 
+    OnResumeJS: function (callback) {
+        window.Wortal.onResume(() => Module.dynCall_v(callback));
+    },
+
     GetSupportedAPIsJS: function () {
         return gameInstance.Module.allocString(JSON.stringify(window.Wortal.getSupportedAPIs()));
     },
