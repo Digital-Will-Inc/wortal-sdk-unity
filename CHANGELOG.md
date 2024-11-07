@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [6.2.0] - 2024-11-07
+### Added
+- Core
+ - onResume
+-Session
+ - isAudioEnabled
+ - onAudioStatusChange
+
 ## [6.1.0] - 2024-09-10
 ### Fixed
 - Ad
