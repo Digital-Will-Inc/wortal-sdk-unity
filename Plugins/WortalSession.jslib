@@ -58,6 +58,17 @@
 
     SessionGameplayStopJS: function () {
         window.Wortal.session.gameplayStop();
-    }
+    },
+
+    SessionIsAudioEnabledJS: function() {
+        window.Wortal.session.isAudioEnabled();
+    },
+
+    SessionOnAudioStatusChangeJS: function (callback) {
+        window.Wortal.session.onAudioStatusChange(isAudioEnabled => {
+            Module.dynCall_vi(callback, isAudioEnabled ? 1 : 0); // 1 for true, 0 for false
+        });
+    },
+
 
 });
