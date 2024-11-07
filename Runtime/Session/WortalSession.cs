@@ -16,7 +16,7 @@ namespace DigitalWill.WortalSDK
                 private static Action<string> _getEntryPointCallback;
                 private static Action<Orientation> _onOrientationChangeCallback;
                 private static Action _switchGameCallback;
-                private static Action<bool> _onAudioStatusChangedCallback;
+                private static Action<bool> _onAudioStatusChangeCallback;
 
                 #region Public API
 
@@ -274,15 +274,15 @@ namespace DigitalWill.WortalSDK
                 /// Assigns a callback to be invoked when the audio status of the player changes.
                 /// </summary>
                 /// <param name="callback">Callback to be invoked when the audio status of the player changes.</param>
-                public void OnAudioStatusChanged(Action<bool> callback)
+                public void OnAudioStatusChange(Action<bool> callback)
                 {
-                        _onAudioStatusChangedCallback = callback;
+                        _onAudioStatusChangeCallback = callback;
 #if UNITY_WEBGL && !UNITY_EDITOR
         SessionOnAudioStatusChangeJS(SessionOnAudioStatusChangeCallback);
 #else
                         Debug.Log("[Wortal] Mock Session.OnAudioStatusChange()");
                         int random = UnityEngine.Random.Range(0, 2); // Range is exclusive, so (0, 2) gives 0 or 1.
-                        _onAudioStatusChangedCallback?.Invoke(random == 1);
+                        _onAudioStatusChangeCallback?.Invoke(random == 1);
 #endif
                 }
 
@@ -356,7 +356,7 @@ namespace DigitalWill.WortalSDK
                 private static void SessionOnAudioStatusChangeCallback(int isEnabled)
                 {
                         bool isAudio = isEnabled == 1;
-                        _onAudioStatusChangedCallback?.Invoke(isAudio);
+                        _onAudioStatusChangeCallback?.Invoke(isAudio);
                 }
 
                 #endregion JSlib Interface
