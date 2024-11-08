@@ -1,6 +1,6 @@
 ﻿{
     "name": "jp.co.digitalwill.wortal",
-    "version": "6.1.0",
+    "version": "6.2.0",
     "displayName": "Wortal SDK",
     "description": "SDK for the Wortal platform",
     "unity": "2021.3",
