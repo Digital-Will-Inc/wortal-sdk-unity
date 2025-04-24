@@ -1,6 +1,7 @@
 ﻿body {
   padding: 0;
   margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 #unity-container {
@@ -12,42 +13,267 @@
 #unity-canvas {
   width: 100%;
   height: 100%;
-  background: #231F20
+  background: #FFFFFF;
+  /* White background */
+  visibility: hidden;
 }
 
-#unity-loading-bar {
+/* Initial spinner that shows before Unity starts loading */
+#initial-spinner {
   position: absolute;
-  left: 50%;
   top: 50%;
+  left: 50%;
   transform: translate(-50%, -50%);
-  display: none
+  width: 150px;
+  height: 150px;
+  border: 6px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  border-top: 6px solid #ffffff;
+  animation: spin 1s linear infinite;
+  z-index: 5;
 }
 
-#unity-progress-bar-empty {
-  margin-left: auto;
-  margin-right: auto;
-  width: 141px;
-  height: 18px;
-  margin-top: 10px;
-  background: url("../images/progressEmpty.Dark.png") no-repeat center
+@keyframes spin {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
 }
 
-#unity-progress-bar-full {
-  width: 0%;
-  height: 18px;
-  margin-top: 10px;
-  background: url("../images/progressFull.Dark.png") no-repeat center
+#loading-overlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.95);
+  /* White with opacity */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+#loading-content {
+  width: 80%;
+  max-width: 500px;
+  text-align: center;
+  position: relative;
+}
+
+#loading-logo {
+  margin-bottom: 20px;
+}
+
+#loading-logo img {
+  max-width: 200px;
+  height: auto;
+}
+
+/* Container for visual elements (rainbow + mascot) */
+#visual-container {
+  position: relative;
+  height: 240px;
+  /* Provide enough space for rainbow and mascot */
+  margin-bottom: 20px;
+}
+
+/* Umbrella-shaped Rainbow Progress Bar */
+#rainbow-progress-container {
+  width: 100%;
+  height: 160px;
+  /* Increased height for more pronounced umbrella shape */
+  position: relative;
+  overflow: visible;
+  z-index: 5;
+  /* Allow rainbow to extend beyond container */
+}
+
+#rainbow-progress-bg {
+  position: absolute;
+  width: 80%;
+  height: 15px;
+  top: 0;
+  left: 10%;
+  border-radius: 180px 180px 0 0;
+  background: repeating-linear-gradient(90deg,
+      #ff0000 0%,
+      #ff0000 12.5%,
+      #ff8000 12.5%,
+      #ff8000 25%,
+      #ffff00 25%,
+      #ffff00 37.5%,
+      #00ff00 37.5%,
+      #00ff00 50%,
+      #00ffff 50%,
+      #00ffff 62.5%,
+      #0080ff 62.5%,
+      #0080ff 75%,
+      #8000ff 75%,
+      #8000ff 87.5%,
+      #ff0080 87.5%,
+      #ff0080 100%);
+  background-size: 200% 100%;
+  animation: rainbow-animation 3s linear infinite;
+  opacity: 0.95;
+  filter: saturate(1.8) brightness(1.1);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.8),
+    0 0 20px rgba(255, 192, 203, 0.6);
+}
+
+@keyframes rainbow-animation {
+  0% {
+    background-position: 0% 0%;
+  }
+
+  100% {
+    background-position: -100% 0%;
+  }
+}
+
+
+/* Add "posts" for the rainbow to rest on */
+.rainbow-post {
+  position: absolute;
+  top: 0;
+  width: 4px;
+  height: 50px;
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 2px;
+  z-index: 1;
+}
+
+
+
+/* Position mascot animation centered under the rainbow */
+#mascot-animation {
+  position: absolute;
+  top: 90px;
+  /* Position properly below the rainbow */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  transition: transform 0.3s ease-out;
+  /* Ensure mascot appears above the rainbow fill layer */
+}
+
+/* Add the bounce animation for the mascot */
+@keyframes mascot-bounce {
+
+  0%,
+  100% {
+    transform: translateX(-50%) translateY(0);
+  }
+
+  40% {
+    transform: translateX(-50%) translateY(-20px);
+  }
+
+  60% {
+    transform: translateX(-50%) translateY(-15px);
+  }
+
+  80% {
+    transform: translateX(-50%) translateY(-5px);
+  }
+}
+
+/* Rainbow SVG Arc Styles */
+.rainbow-segment {
+  stroke-dasharray: 283;
+  stroke-dashoffset: 283;
+  transition: stroke-dashoffset 0.8s ease-out, opacity 0.6s ease-in;
+  opacity: 0.3;
+  filter: saturate(1.5);
+}
+
+/* Progress Information */
+#loading-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+  position: relative;
+  z-index: 3;
 }
 
 #unity-progress-value {
-  position: absolute;
-  color: white;
-  font-family: Consolas, monospace;
+  color: #333333;
+  /* Dark text on white background */
+  font-weight: bold;
+  font-size: 18px;
 }
 
 #unity-progress-text {
-  position: absolute;
-  color: white;
-  font-family: Consolas, monospace;
-  white-space: nowrap;
+  color: #333333;
+  /* Dark text on white background */
+  margin: 5px 0 0 0;
+  font-size: 14px;
+}
+
+#loading-tip {
+  color: rgba(0, 0, 0, 0.6);
+  /* Dark with opacity */
+  font-size: 12px;
+  font-style: italic;
+  margin-top: 30px;
+  padding: 10px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  transition: opacity 0.3s ease-in-out;
+  position: relative;
+}
+
+/* Hide original progress bar, keeping it for compatibility */
+#unity-progress-bar {
+  display: none;
+}
+
+/* Legacy loading bar styling (hidden but maintained for compatibility) */
+#unity-loading-bar {
+  display: none;
+}
+
+/* Rainbow SVG Arc Styles */
+.rainbow-arc {
+  width: 100%;
+  height: auto;
+  position: relative;
+  z-index: 1;
+}
+
+.rainbow-arc-path {
+  stroke-dasharray: 283;
+  /* Total visible arc length */
+  stroke-dashoffset: 283;
+  /* Start fully hidden */
+  transition: stroke-dashoffset 0.3s ease-out;
+}
+
+/* Floating animation for the mascot during mid-loading */
+@keyframes mascot-float {
+
+  0%,
+  100% {
+    transform: translateX(-50%) translateY(0);
+  }
+
+  50% {
+    transform: translateX(-50%) translateY(-10px);
+  }
+}
+
+/* Subtle pulse animation for when we're waiting at ~90% */
+@keyframes mascot-pulse {
+
+  0%,
+  100% {
+    transform: translateX(-50%) scale(1);
+  }
+
+  50% {
+    transform: translateX(-50%) scale(1.05);
+  }
 }
