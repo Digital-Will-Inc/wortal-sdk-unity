@@ -1,7 +1,10 @@
 {
     "name": "DigitalWill.WortalSDK",
     "rootNamespace": "DigitalWill.WortalSDK",
-    "references": [],
+    "references": [
+        "Unity.Addressables",
+        "Unity.ResourceManager"
+    ],
     "includePlatforms": [
         "Editor",
         "WebGL"
