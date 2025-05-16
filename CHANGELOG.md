@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - Optimizations
  - Add Lazy load system for optimize WebGL build
+ - Add Asset Stripping Viewer
+ - Add access to compression build
 
 ## [6.2.1] - 2025-04-25
 ### Changed
