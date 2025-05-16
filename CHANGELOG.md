@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
+## [6.2.2] - 2025-04-25
+### Changed
+- Optimizations
+ - Add Lazy load system for optimize WebGL build
 
 ## [6.2.1] - 2025-04-25
 ### Changed
