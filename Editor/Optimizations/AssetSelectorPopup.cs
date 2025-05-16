@@ -3,7 +3,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using DigitalWill.WortalSDK;
 
-namespace DigitalWill.WortalEditor
+namespace DigitalWill.WortalEditor.Optimizations
 {
     public class AssetSelectorPopup : EditorWindow
     {

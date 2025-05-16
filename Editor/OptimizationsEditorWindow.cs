@@ -3,16 +3,17 @@ using UnityEngine;
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
-using DigitalWill.WortalSDK;
 using System;
 using System.Threading;
+using DigitalWill.WortalSDK;
+using DigitalWill.WortalEditor.Optimizations;
 
 namespace DigitalWill.WortalEditor
 {
 
     public class OptimizationsEditorWindow : EditorWindow
     {
-        private enum OptimizationTab { General, LazyLoad }
+        private enum OptimizationTab { General, LazyLoad, AssetStripPreview }
         private OptimizationTab currentTab = OptimizationTab.General;
 
 
@@ -40,6 +41,7 @@ namespace DigitalWill.WortalEditor
         // UI colors for highlighting
         private readonly Color highlightColor = new Color(0.6f, 0.9f, 0.6f, 0.5f);
 
+        private UnusedAssetScanner unusedAssetScanner;
         [MenuItem("Wortal/Optimizations/Configurator")]
         public static void ShowWindow()
         {
@@ -60,6 +62,8 @@ namespace DigitalWill.WortalEditor
 
             // Set up editor update callback for animations
             EditorApplication.update += OnEditorUpdate;
+
+            unusedAssetScanner = new UnusedAssetScanner();
         }
 
         private void OnDisable()
@@ -166,9 +170,7 @@ namespace DigitalWill.WortalEditor
                 return;
             }
 
-            GUILayout.Space(10);
-            EditorGUILayout.LabelField("Wortal SDK WebGL Optimization Config", EditorStyles.boldLabel);
-            GUILayout.Space(5);
+            DrawHeader();
 
             // Draw tab buttons
             EditorGUILayout.BeginHorizontal();
@@ -177,6 +179,9 @@ namespace DigitalWill.WortalEditor
 
             if (config.enableLazyLoad && GUILayout.Toggle(currentTab == OptimizationTab.LazyLoad, "Lazy Load Settings", EditorStyles.toolbarButton))
                 currentTab = OptimizationTab.LazyLoad;
+
+            if (GUILayout.Toggle(currentTab == OptimizationTab.AssetStripPreview, "Asset Strip Viewer", EditorStyles.toolbarButton))
+                currentTab = OptimizationTab.AssetStripPreview;
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.Space(10);
@@ -190,7 +195,19 @@ namespace DigitalWill.WortalEditor
                 case OptimizationTab.LazyLoad:
                     DrawLazyLoadSettingsTab();
                     break;
+                case OptimizationTab.AssetStripPreview:
+                    unusedAssetScanner.OnGUI(); //here
+                    break;
             }
+        }
+
+        private void DrawHeader()
+        {
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            EditorGUILayout.LabelField("Wortal SDK Optimization Tools", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Tools to help optimize your WebGL build size and performance");
+            EditorGUILayout.EndVertical();
+            EditorGUILayout.Space(5);
         }
 
         private void DrawGeneralSettingsTab()
@@ -236,14 +253,14 @@ namespace DigitalWill.WortalEditor
                 "To strip unused engine code in WebGL builds:\n" +
                 "1. Open File → Build Settings → WebGL\n" +
                 "2. Click 'Player Settings' → 'Publishing Settings'\n" +
-                "3. Enable 'Strip Engine Code'",
+                "3. Enable 'Strip Engine Code'\n" +
+                "Use our 'Asset Strip Viewer' tool to preview what will be stripped.\n",
                 MessageType.Info);
 
 
             EditorGUILayout.Space(5);
             EditorGUILayout.HelpBox("These settings affect build size, compatibility, and performance for WebGL. Be sure to test your builds after applying changes.", MessageType.None);
         }
-
 
         private void DrawLazyLoadSettingsTab()
         {
