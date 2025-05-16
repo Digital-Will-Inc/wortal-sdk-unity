@@ -195,11 +195,14 @@ namespace DigitalWill.WortalEditor
 
         private void DrawGeneralSettingsTab()
         {
-            EditorGUILayout.LabelField("General Optimizations", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("General WebGL Optimizations", EditorStyles.boldLabel);
+            EditorGUILayout.Space(5);
 
+            // Section: Lazy Loading
+            EditorGUILayout.LabelField("Lazy Load System", EditorStyles.miniBoldLabel);
             EditorGUI.BeginChangeCheck();
             bool newEnableLazy = EditorGUILayout.Toggle(
-                new GUIContent("Enable Lazy Loading", "Toggle to enable or disable Lazy Load system at runtime."),
+                new GUIContent("Enable Lazy Loading", "Toggle this ON to enable LazyLoadManager, which loads assets dynamically based on scene, type, and priority."),
                 config.enableLazyLoad);
             if (EditorGUI.EndChangeCheck())
             {
@@ -207,13 +210,40 @@ namespace DigitalWill.WortalEditor
                 config.enableLazyLoad = newEnableLazy;
                 EditorUtility.SetDirty(config);
 
-                // Reset to Lazy Load tab if just enabled
+                // Auto switch to Lazy Load tab
                 if (newEnableLazy)
                     currentTab = OptimizationTab.LazyLoad;
             }
 
-            EditorGUILayout.HelpBox("When enabled, Lazy Load will manage asset loading based on groups and memory budget. Disable it to use traditional loading.", MessageType.Info);
+            EditorGUILayout.HelpBox("When enabled, Lazy Load will load only essential assets at startup. The rest are loaded on demand to reduce memory usage and improve load times.", MessageType.Info);
+            EditorGUILayout.Space(10);
+
+            // Section: WebGL Build Settings
+            EditorGUILayout.LabelField("WebGL Build Settings", EditorStyles.miniBoldLabel);
+
+            // Compression Format
+            PlayerSettings.WebGL.compressionFormat = (WebGLCompressionFormat)EditorGUILayout.EnumPopup(
+                new GUIContent("Compression Format", "Choose how to compress your WebGL build files:\n- Brotli: smallest size (recommended)\n- Gzip: broader browser support\n- Disabled: no compression"),
+                PlayerSettings.WebGL.compressionFormat);
+
+            // Memory/Heap Size
+            PlayerSettings.WebGL.memorySize = EditorGUILayout.IntSlider(
+                new GUIContent("Heap Size (MB)", "Sets the memory allocated to WebGL at startup. Higher values reduce out-of-memory errors.\nRecommended: 256–1024 MB for 3D games."),
+                PlayerSettings.WebGL.memorySize, 64, 2048);
+
+            // Strip Engine Code
+            EditorGUILayout.HelpBox(
+                "To strip unused engine code in WebGL builds:\n" +
+                "1. Open File → Build Settings → WebGL\n" +
+                "2. Click 'Player Settings' → 'Publishing Settings'\n" +
+                "3. Enable 'Strip Engine Code'",
+                MessageType.Info);
+
+
+            EditorGUILayout.Space(5);
+            EditorGUILayout.HelpBox("These settings affect build size, compatibility, and performance for WebGL. Be sure to test your builds after applying changes.", MessageType.None);
         }
+
 
         private void DrawLazyLoadSettingsTab()
         {
