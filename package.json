@@ -2,13 +2,14 @@
     "name": "jp.co.digitalwill.wortal",
     "version": "6.2.2",
     "displayName": "Wortal SDK",
-    "description": "SDK for the Wortal platform",
+    "description": "Unified SDK for WebGL, Android, and iOS game services including Wortal platform support",
     "unity": "2021.3",
     "documentationUrl": "https://github.com/Digital-Will-Inc/wortal-sdk-unity",
     "changelogUrl": "https://github.com/Digital-Will-Inc/wortal-sdk-unity/blob/master/CHANGELOG.md",
     "license": "MIT",
     "author": "Digital Will Inc",
     "dependencies": {
-        "com.unity.nuget.newtonsoft-json": "3.2.1"
+        "com.unity.nuget.newtonsoft-json": "3.2.1",
+        "com.unity.localization": "1.5.4"
     }
 }

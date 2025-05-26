@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dependencies>
+  <!-- iOS doesn't need external dependencies for Game Center as it's built into iOS -->
+  <!-- Game Center is part of iOS SDK, so no CocoaPods needed -->
+  <iosPods>
+    <!-- Empty - no external pods needed for Game Center -->
+  </iosPods>
+</dependencies>
