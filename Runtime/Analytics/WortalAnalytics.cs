@@ -1,4 +1,6 @@
-﻿using System.Runtime.InteropServices;
+﻿#if UNITY_WEBGL
+using System.Runtime.InteropServices;
+#endif
 using UnityEngine;
 
 namespace DigitalWill.WortalSDK
@@ -22,10 +24,16 @@ namespace DigitalWill.WortalSDK
         /// </ul></throws>
         public void LogLevelStart(string level)
         {
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             LogLevelStartJS(level);
-#else
+#elif UNITY_EDITOR
             Debug.Log($"[Wortal] Mock Analytics.LogLevelStart({level})");
+#elif UNITY_ANDROID
+            Debug.LogWarning($"[Wortal] Analytics.LogLevelStart({level}) not supported on Android.");
+#elif UNITY_IOS
+            Debug.LogWarning($"[Wortal] Analytics.LogLevelStart({level}) not supported on iOS.");
+#else
+            Debug.LogWarning($"[Wortal] Analytics.LogLevelStart({level}) not supported on this platform.");
 #endif
         }
 
@@ -45,10 +53,16 @@ namespace DigitalWill.WortalSDK
         /// </ul></throws>
         public void LogLevelEnd(string level, string score, bool wasCompleted)
         {
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             LogLevelEndJS(level, score, wasCompleted);
-#else
+#elif UNITY_EDITOR
             Debug.Log($"[Wortal] Mock Analytics.LogLevelEnd({level}, {score}, {wasCompleted})");
+#elif UNITY_ANDROID
+            Debug.LogWarning($"[Wortal] Analytics.LogLevelEnd({level}, {score}, {wasCompleted}) not supported on Android.");
+#elif UNITY_IOS
+            Debug.LogWarning($"[Wortal] Analytics.LogLevelEnd({level}, {score}, {wasCompleted}) not supported on iOS.");
+#else
+            Debug.LogWarning($"[Wortal] Analytics.LogLevelEnd({level}, {score}, {wasCompleted}) not supported on this platform.");
 #endif
         }
 
@@ -64,10 +78,16 @@ namespace DigitalWill.WortalSDK
         /// </ul></throws>
         public void LogLevelUp(string level)
         {
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             LogLevelUpJS(level);
-#else
+#elif UNITY_EDITOR
             Debug.Log($"[Wortal] Mock Analytics.LogLevelUp({level})");
+#elif UNITY_ANDROID
+            Debug.LogWarning($"[Wortal] Analytics.LogLevelUp({level}) not supported on Android.");
+#elif UNITY_IOS
+            Debug.LogWarning($"[Wortal] Analytics.LogLevelUp({level}) not supported on iOS.");
+#else
+            Debug.LogWarning($"[Wortal] Analytics.LogLevelUp({level}) not supported on this platform.");
 #endif
         }
 
@@ -83,10 +103,16 @@ namespace DigitalWill.WortalSDK
         /// </ul></throws>
         public void LogScore(string score)
         {
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             LogScoreJS(score);
-#else
+#elif UNITY_EDITOR
             Debug.Log($"[Wortal] Mock Analytics.LogScore({score})");
+#elif UNITY_ANDROID
+            Debug.LogWarning($"[Wortal] Analytics.LogScore({score}) not supported on Android.");
+#elif UNITY_IOS
+            Debug.LogWarning($"[Wortal] Analytics.LogScore({score}) not supported on iOS.");
+#else
+            Debug.LogWarning($"[Wortal] Analytics.LogScore({score}) not supported on this platform.");
 #endif
         }
 
@@ -99,10 +125,16 @@ namespace DigitalWill.WortalSDK
         /// </code></example>
         public void LogTutorialStart(string tutorial)
         {
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             LogTutorialStartJS(tutorial);
-#else
+#elif UNITY_EDITOR
             Debug.Log($"[Wortal] Mock Analytics.LogTutorialStart({tutorial})");
+#elif UNITY_ANDROID
+            Debug.LogWarning($"[Wortal] Analytics.LogTutorialStart({tutorial}) not supported on Android.");
+#elif UNITY_IOS
+            Debug.LogWarning($"[Wortal] Analytics.LogTutorialStart({tutorial}) not supported on iOS.");
+#else
+            Debug.LogWarning($"[Wortal] Analytics.LogTutorialStart({tutorial}) not supported on this platform.");
 #endif
         }
 
@@ -118,10 +150,16 @@ namespace DigitalWill.WortalSDK
         /// </code></example>
         public void LogTutorialEnd(string tutorial, bool wasCompleted)
         {
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             LogTutorialEndJS(tutorial, wasCompleted);
-#else
+#elif UNITY_EDITOR
             Debug.Log($"[Wortal] Mock Analytics.LogTutorialEnd({tutorial}, {wasCompleted})");
+#elif UNITY_ANDROID
+            Debug.LogWarning($"[Wortal] Analytics.LogTutorialEnd({tutorial}, {wasCompleted}) not supported on Android.");
+#elif UNITY_IOS
+            Debug.LogWarning($"[Wortal] Analytics.LogTutorialEnd({tutorial}, {wasCompleted}) not supported on iOS.");
+#else
+            Debug.LogWarning($"[Wortal] Analytics.LogTutorialEnd({tutorial}, {wasCompleted}) not supported on this platform.");
 #endif
         }
 
@@ -139,10 +177,16 @@ namespace DigitalWill.WortalSDK
         /// </ul></throws>
         public void LogGameChoice(string decision, string choice)
         {
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             LogGameChoiceJS(decision, choice);
-#else
+#elif UNITY_EDITOR
             Debug.Log($"[Wortal] Mock Analytics.LogGameChoice({decision}, {choice})");
+#elif UNITY_ANDROID
+            Debug.LogWarning($"[Wortal] Analytics.LogGameChoice({decision}, {choice}) not supported on Android.");
+#elif UNITY_IOS
+            Debug.LogWarning($"[Wortal] Analytics.LogGameChoice({decision}, {choice}) not supported on iOS.");
+#else
+            Debug.LogWarning($"[Wortal] Analytics.LogGameChoice({decision}, {choice}) not supported on this platform.");
 #endif
         }
 
@@ -159,10 +203,16 @@ namespace DigitalWill.WortalSDK
         /// </ul></throws>
         public void LogPurchase(string productID, string data = null)
         {
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             LogPurchaseJS(productID, data);
-#else
+#elif UNITY_EDITOR
             Debug.Log($"[Wortal] Mock Analytics.LogPurchase({productID} / {data})");
+#elif UNITY_ANDROID
+            Debug.LogWarning($"[Wortal] Analytics.LogPurchase({productID} / {data}) not supported on Android.");
+#elif UNITY_IOS
+            Debug.LogWarning($"[Wortal] Analytics.LogPurchase({productID} / {data}) not supported on iOS.");
+#else
+            Debug.LogWarning($"[Wortal] Analytics.LogPurchase({productID} / {data}) not supported on this platform.");
 #endif
         }
 
@@ -179,10 +229,16 @@ namespace DigitalWill.WortalSDK
         /// </ul></throws>
         public void LogPurchaseSubscription(string productID, string data = null)
         {
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             LogPurchaseSubscriptionJS(productID, data);
-#else
+#elif UNITY_EDITOR
             Debug.Log($"[Wortal] Mock Analytics.LogPurchaseSubscription({productID} / {data})");
+#elif UNITY_ANDROID
+            Debug.LogWarning($"[Wortal] Analytics.LogPurchaseSubscription({productID} / {data}) not supported on Android.");
+#elif UNITY_IOS
+            Debug.LogWarning($"[Wortal] Analytics.LogPurchaseSubscription({productID} / {data}) not supported on iOS.");
+#else
+            Debug.LogWarning($"[Wortal] Analytics.LogPurchaseSubscription({productID} / {data}) not supported on this platform.");
 #endif
         }
 
@@ -195,10 +251,16 @@ namespace DigitalWill.WortalSDK
         /// </code></example>
         public void LogSocialInvite(string placement)
         {
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             LogSocialInviteJS(placement);
-#else
+#elif UNITY_EDITOR
             Debug.Log($"[Wortal] Mock Analytics.LogSocialInvite({placement})");
+#elif UNITY_ANDROID
+            Debug.LogWarning($"[Wortal] Analytics.LogSocialInvite({placement}) not supported on Android.");
+#elif UNITY_IOS
+            Debug.LogWarning($"[Wortal] Analytics.LogSocialInvite({placement}) not supported on iOS.");
+#else
+            Debug.LogWarning($"[Wortal] Analytics.LogSocialInvite({placement}) not supported on this platform.");
 #endif
         }
 
@@ -211,16 +273,23 @@ namespace DigitalWill.WortalSDK
         /// </code></example>
         public void LogSocialShare(string placement)
         {
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             LogSocialShareJS(placement);
-#else
+#elif UNITY_EDITOR
             Debug.Log($"[Wortal] Mock Analytics.LogSocialShare({placement})");
+#elif UNITY_ANDROID
+            Debug.LogWarning($"[Wortal] Analytics.LogSocialShare({placement}) not supported on Android.");
+#elif UNITY_IOS
+            Debug.LogWarning($"[Wortal] Analytics.LogSocialShare({placement}) not supported on iOS.");
+#else
+            Debug.LogWarning($"[Wortal] Analytics.LogSocialShare({placement}) not supported on this platform.");
 #endif
         }
 
 #endregion Public API
 #region JSlib Interface
 
+#if UNITY_WEBGL
         [DllImport("__Internal")]
         private static extern void LogLevelStartJS(string level);
 
@@ -253,6 +322,7 @@ namespace DigitalWill.WortalSDK
 
         [DllImport("__Internal")]
         private static extern void LogSocialShareJS(string placement);
+#endif
 
 #endregion JSlib Interface
     }

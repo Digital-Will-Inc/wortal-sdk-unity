@@ -1,7 +1,9 @@
 using System;
+#if UNITY_WEBGL
 using System.Runtime.InteropServices;
 using AOT;
 using Newtonsoft.Json;
+#endif
 using UnityEngine;
 
 namespace DigitalWill.WortalSDK
@@ -25,11 +27,20 @@ namespace DigitalWill.WortalSDK
         /// the player's device, or the IAP service failed to load properly.</returns>
         public bool IsEnabled()
         {
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             return IAPIsEnabledJS();
-#else
+#elif UNITY_EDITOR
             Debug.Log("[Wortal] Mock IAP.IsEnabled()");
             return true;
+#elif UNITY_ANDROID
+            Debug.LogWarning("[Wortal] IAP.IsEnabled not supported on Android. Returning false.");
+            return false;
+#elif UNITY_IOS
+            Debug.LogWarning("[Wortal] IAP.IsEnabled not supported on iOS. Returning false.");
+            return false;
+#else
+            Debug.LogWarning("[Wortal] IAP.IsEnabled not supported on this platform. Returning false.");
+            return false;
 #endif
         }
 
@@ -53,9 +64,9 @@ namespace DigitalWill.WortalSDK
         {
             _getCatalogCallback = callback;
             Wortal.WortalError = errorCallback;
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             IAPGetCatalogJS(IAPGetCatalogCallback, Wortal.WortalErrorCallback);
-#else
+#elif UNITY_EDITOR
             Debug.Log("[Wortal] Mock IAP.GetCatalog()");
             var product = new Product
             {
@@ -66,8 +77,16 @@ namespace DigitalWill.WortalSDK
                 Price = "10",
                 PriceCurrencyCode = "USD",
             };
-            Product[] products = { product };
-            IAPGetCatalogCallback(JsonConvert.SerializeObject(products));
+            _getCatalogCallback?.Invoke(new Product[] { product });
+#elif UNITY_ANDROID
+            Debug.LogWarning("[Wortal] IAP.GetCatalog not supported on Android. Returning empty array.");
+            _getCatalogCallback?.Invoke(Array.Empty<Product>());
+#elif UNITY_IOS
+            Debug.LogWarning("[Wortal] IAP.GetCatalog not supported on iOS. Returning empty array.");
+            _getCatalogCallback?.Invoke(Array.Empty<Product>());
+#else
+            Debug.LogWarning("[Wortal] IAP.GetCatalog not supported on this platform. Returning empty array.");
+            _getCatalogCallback?.Invoke(Array.Empty<Product>());
 #endif
         }
 
@@ -92,9 +111,9 @@ namespace DigitalWill.WortalSDK
         {
             _getPurchasesCallback = callback;
             Wortal.WortalError = errorCallback;
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             IAPGetPurchasesJS(IAPGetPurchasesCallback, Wortal.WortalErrorCallback);
-#else
+#elif UNITY_EDITOR
             Debug.Log("[Wortal] Mock IAP.GetPurchases()");
             var purchase = new Purchase
             {
@@ -105,8 +124,16 @@ namespace DigitalWill.WortalSDK
                 PurchaseToken = "abcd-1234-xyz",
                 SignedRequest = "aBcDeF12g",
             };
-            Purchase[] purchases = { purchase };
-            IAPGetPurchasesCallback(JsonConvert.SerializeObject(purchases));
+            _getPurchasesCallback?.Invoke(new Purchase[] { purchase });
+#elif UNITY_ANDROID
+            Debug.LogWarning("[Wortal] IAP.GetPurchases not supported on Android. Returning empty array.");
+            _getPurchasesCallback?.Invoke(Array.Empty<Purchase>());
+#elif UNITY_IOS
+            Debug.LogWarning("[Wortal] IAP.GetPurchases not supported on iOS. Returning empty array.");
+            _getPurchasesCallback?.Invoke(Array.Empty<Purchase>());
+#else
+            Debug.LogWarning("[Wortal] IAP.GetPurchases not supported on this platform. Returning empty array.");
+            _getPurchasesCallback?.Invoke(Array.Empty<Purchase>());
 #endif
         }
 
@@ -137,21 +164,30 @@ namespace DigitalWill.WortalSDK
         {
             _makePurchaseCallback = callback;
             Wortal.WortalError = errorCallback;
+#if UNITY_WEBGL
             string purchaseObj = JsonConvert.SerializeObject(purchase);
-#if UNITY_WEBGL && !UNITY_EDITOR
             IAPMakePurchaseJS(purchaseObj, IAPMakePurchaseCallback, Wortal.WortalErrorCallback);
-#else
-            Debug.Log($"[Wortal] Mock IAP.MakePurchase({purchase})");
+#elif UNITY_EDITOR
+            Debug.Log($"[Wortal] Mock IAP.MakePurchase({JsonConvert.SerializeObject(purchase)})");
             var purchaseReceipt = new Purchase
             {
-                DeveloperPayload = "MyPayload",
-                PaymentID = "XYZ123",
-                ProductID = "mock.product.id",
-                PurchaseTime = "1672098823",
-                PurchaseToken = "abcd-1234-xyz",
-                SignedRequest = "aBcDeF12g",
+                DeveloperPayload = purchase.DeveloperPayload,
+                PaymentID = "mockPaymentID",
+                ProductID = purchase.ProductID,
+                PurchaseTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(),
+                PurchaseToken = Guid.NewGuid().ToString(),
+                SignedRequest = "mockSignedRequest",
             };
-            IAPMakePurchaseCallback(JsonConvert.SerializeObject(purchaseReceipt));
+            _makePurchaseCallback?.Invoke(purchaseReceipt);
+#elif UNITY_ANDROID
+            Debug.LogWarning($"[Wortal] IAP.MakePurchase not supported on Android. Returning null.");
+            _makePurchaseCallback?.Invoke(null);
+#elif UNITY_IOS
+            Debug.LogWarning($"[Wortal] IAP.MakePurchase not supported on iOS. Returning null.");
+            _makePurchaseCallback?.Invoke(null);
+#else
+            Debug.LogWarning($"[Wortal] IAP.MakePurchase not supported on this platform. Returning null.");
+            _makePurchaseCallback?.Invoke(null);
 #endif
         }
 
@@ -178,17 +214,27 @@ namespace DigitalWill.WortalSDK
         {
             _consumePurchaseCallback = callback;
             Wortal.WortalError = errorCallback;
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             IAPConsumePurchaseJS(token, IAPConsumePurchaseCallback, Wortal.WortalErrorCallback);
-#else
+#elif UNITY_EDITOR
             Debug.Log($"[Wortal] Mock IAP.ConsumePurchase({token})");
-            IAPConsumePurchaseCallback();
+            _consumePurchaseCallback?.Invoke();
+#elif UNITY_ANDROID
+            Debug.LogWarning($"[Wortal] IAP.ConsumePurchase({token}) not supported on Android.");
+            _consumePurchaseCallback?.Invoke();
+#elif UNITY_IOS
+            Debug.LogWarning($"[Wortal] IAP.ConsumePurchase({token}) not supported on iOS.");
+            _consumePurchaseCallback?.Invoke();
+#else
+            Debug.LogWarning($"[Wortal] IAP.ConsumePurchase({token}) not supported on this platform.");
+            _consumePurchaseCallback?.Invoke();
 #endif
         }
 
 #endregion Public API
 #region JSlib Interface
 
+#if UNITY_WEBGL
         [DllImport("__Internal")]
         private static extern bool IAPIsEnabledJS();
 
@@ -203,7 +249,9 @@ namespace DigitalWill.WortalSDK
 
         [DllImport("__Internal")]
         private static extern void IAPConsumePurchaseJS(string token, Action callback, Action<string> errorCallback);
+#endif
 
+#if UNITY_WEBGL
         [MonoPInvokeCallback(typeof(Action<string>))]
         private static void IAPGetCatalogCallback(string catalog)
         {
@@ -281,6 +329,7 @@ namespace DigitalWill.WortalSDK
         {
             _consumePurchaseCallback?.Invoke();
         }
+#endif
 
 #endregion JSlib Interface
     }

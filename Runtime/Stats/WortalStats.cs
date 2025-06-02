@@ -1,7 +1,9 @@
 using System;
+#if UNITY_WEBGL
 using System.Runtime.InteropServices;
 using AOT;
 using Newtonsoft.Json;
+#endif
 using UnityEngine;
 
 namespace DigitalWill.WortalSDK
@@ -44,26 +46,36 @@ namespace DigitalWill.WortalSDK
         {
             _getStatsCallback = callback;
             Wortal.WortalError = errorCallback;
+#if UNITY_WEBGL
             string payloadJson = JsonConvert.SerializeObject(payload);
-#if UNITY_WEBGL && !UNITY_EDITOR
             StatsGetStatsJS(level, payloadJson, StatsGetStatsCallback, Wortal.WortalErrorCallback);
-#else
-            Debug.Log("[Wortal] Mock Stats.GetStats()");
-            callback?.Invoke(new Stats[]
+#elif UNITY_EDITOR
+            string payloadJsonForLog = JsonConvert.SerializeObject(payload);
+            Debug.Log($"[Wortal] Mock Stats.GetStats({level}, {payloadJsonForLog})");
+            _getStatsCallback?.Invoke(new Stats[]
             {
                 new()
                 {
-                    Level = "Mock Level",
+                    Level = level, // Use requested level
                     Value = 100,
-                    Period = StatPeriod.WEEKLY,
+                    Period = payload.Period ?? StatPeriod.ALLTIME, // Use requested period or default
                 },
                 new()
                 {
-                    Level = "Mock Level",
-                    Value = 150,
-                    Period = StatPeriod.ALLTIME,
+                    Level = level,
+                    Value = (payload.Period == StatPeriod.DAILY) ? 50 : 150, // Different value for daily
+                    Period = payload.Period ?? StatPeriod.ALLTIME,
                 },
             });
+#elif UNITY_ANDROID
+            Debug.LogWarning($"[Wortal] Stats.GetStats({level}) not supported on Android. Returning empty array.");
+            _getStatsCallback?.Invoke(Array.Empty<Stats>());
+#elif UNITY_IOS
+            Debug.LogWarning($"[Wortal] Stats.GetStats({level}) not supported on iOS. Returning empty array.");
+            _getStatsCallback?.Invoke(Array.Empty<Stats>());
+#else
+            Debug.LogWarning($"[Wortal] Stats.GetStats({level}) not supported on this platform. Returning empty array.");
+            _getStatsCallback?.Invoke(Array.Empty<Stats>());
 #endif
         }
 
@@ -92,24 +104,37 @@ namespace DigitalWill.WortalSDK
         {
             _postStatsCallback = callback;
             Wortal.WortalError = errorCallback;
+#if UNITY_WEBGL
             string payloadJson = JsonConvert.SerializeObject(payload);
-#if UNITY_WEBGL && !UNITY_EDITOR
             StatsPostStatsJS(level, value, payloadJson, StatsPostStatsCallback, Wortal.WortalErrorCallback);
+#elif UNITY_EDITOR
+            string payloadJsonForLog = JsonConvert.SerializeObject(payload);
+            Debug.Log($"[Wortal] Mock Stats.PostStats({level}, {value}, {payloadJsonForLog})");
+            _postStatsCallback?.Invoke();
+#elif UNITY_ANDROID
+            Debug.LogWarning($"[Wortal] Stats.PostStats({level}, {value}) not supported on Android.");
+            _postStatsCallback?.Invoke();
+#elif UNITY_IOS
+            Debug.LogWarning($"[Wortal] Stats.PostStats({level}, {value}) not supported on iOS.");
+            _postStatsCallback?.Invoke();
 #else
-            Debug.Log($"[Wortal] Mock Stats.PostStats() + {level} + {value} + {payloadJson}");
-            callback?.Invoke();
+            Debug.LogWarning($"[Wortal] Stats.PostStats({level}, {value}) not supported on this platform.");
+            _postStatsCallback?.Invoke();
 #endif
         }
 
 #endregion Public API
 #region JSlib Interface
 
+#if UNITY_WEBGL
         [DllImport("__Internal")]
         private static extern void StatsGetStatsJS(string level, string payload, Action<string> callback, Action<string> errorCallback);
 
         [DllImport("__Internal")]
         private static extern void StatsPostStatsJS(string level, int value, string payload, Action callback, Action<string> errorCallback);
+#endif
 
+#if UNITY_WEBGL
         [MonoPInvokeCallback(typeof(Action<string>))]
         private static void StatsGetStatsCallback(string statsJson)
         {
@@ -139,7 +164,7 @@ namespace DigitalWill.WortalSDK
         {
             _postStatsCallback?.Invoke();
         }
-
+#endif
 
 #endregion JSlib Interface
     }

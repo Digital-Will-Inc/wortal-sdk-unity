@@ -1,7 +1,9 @@
 using System;
+#if UNITY_WEBGL
 using System.Runtime.InteropServices;
 using AOT;
 using Newtonsoft.Json;
+#endif
 using UnityEngine;
 
 namespace DigitalWill.WortalSDK
@@ -38,9 +40,9 @@ namespace DigitalWill.WortalSDK
         {
             _getAchievementsCallback = callback;
             Wortal.WortalError = errorCallback;
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             AchievementsGetAchievementsJS(AchievementsGetAchievementsCallback, Wortal.WortalErrorCallback);
-#else
+#elif UNITY_EDITOR
             Debug.Log("[Wortal] Mock Achievements.GetAchievements()");
             callback?.Invoke(new Achievement[]
             {
@@ -61,6 +63,15 @@ namespace DigitalWill.WortalSDK
                     Type = AchievementType.SINGLE,
                 },
             });
+#elif UNITY_ANDROID
+            Debug.LogWarning("[Wortal] Achievements.GetAchievements not supported on Android. Returning empty array.");
+            callback?.Invoke(Array.Empty<Achievement>());
+#elif UNITY_IOS
+            Debug.LogWarning("[Wortal] Achievements.GetAchievements not supported on iOS. Returning empty array.");
+            callback?.Invoke(Array.Empty<Achievement>());
+#else
+            Debug.LogWarning("[Wortal] Achievements.GetAchievements not supported on this platform. Returning empty array.");
+            callback?.Invoke(Array.Empty<Achievement>());
 #endif
         }
 
@@ -84,22 +95,35 @@ namespace DigitalWill.WortalSDK
         {
             _unlockAchievementCallback = callback;
             Wortal.WortalError = errorCallback;
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             AchievementsUnlockAchievementJS(achievementID, AchievementsUnlockAchievementCallback, Wortal.WortalErrorCallback);
-#else
+#elif UNITY_EDITOR
             Debug.Log($"[Wortal] Mock Achievements.UnlockAchievement({achievementID})");
+            callback?.Invoke(true); // Mock success
+#elif UNITY_ANDROID
+            Debug.LogWarning($"[Wortal] Achievements.UnlockAchievement({achievementID}) not supported on Android. Returning false.");
+            callback?.Invoke(false);
+#elif UNITY_IOS
+            Debug.LogWarning($"[Wortal] Achievements.UnlockAchievement({achievementID}) not supported on iOS. Returning false.");
+            callback?.Invoke(false);
+#else
+            Debug.LogWarning($"[Wortal] Achievements.UnlockAchievement({achievementID}) not supported on this platform. Returning false.");
+            callback?.Invoke(false);
 #endif
         }
 
 #endregion Public API
 #region JSlib Interface
 
+#if UNITY_WEBGL
         [DllImport("__Internal")]
         private static extern void AchievementsGetAchievementsJS(Action<string> callback, Action<string> errorCallback);
 
         [DllImport("__Internal")]
         private static extern void AchievementsUnlockAchievementJS(string achievementID, Action<bool> callback, Action<string> errorCallback);
+#endif
 
+#if UNITY_WEBGL
         [MonoPInvokeCallback(typeof(Action<string>))]
         private static void AchievementsGetAchievementsCallback(string achievementsJson)
         {
@@ -129,6 +153,7 @@ namespace DigitalWill.WortalSDK
         {
             _unlockAchievementCallback?.Invoke(success);
         }
+#endif
 
 #endregion JSlib Interface
     }

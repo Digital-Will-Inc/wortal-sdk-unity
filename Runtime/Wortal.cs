@@ -1,6 +1,8 @@
 using System;
+#if UNITY_WEBGL
 using System.Runtime.InteropServices;
 using AOT;
+#endif
 using Newtonsoft.Json;
 using UnityEngine;
 
@@ -76,11 +78,20 @@ namespace DigitalWill.WortalSDK
         {
             get
             {
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
                 return IsInitializedJS();
-#else
+#elif UNITY_EDITOR
                 Debug.Log("[Wortal] Mock IsInitialized()");
                 return true;
+#elif UNITY_ANDROID
+                Debug.LogWarning("[Wortal] IsInitialized not supported on Android. Returning false.");
+                return false;
+#elif UNITY_IOS
+                Debug.LogWarning("[Wortal] IsInitialized not supported on iOS. Returning false.");
+                return false;
+#else
+                Debug.LogWarning("[Wortal] IsInitialized not supported on this platform. Returning false.");
+                return false;
 #endif
             }
         }
@@ -108,10 +119,19 @@ namespace DigitalWill.WortalSDK
         {
             _initializeCallback = callback;
             WortalError = errorCallback;
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             InitializeJS(InitializeCallback, WortalErrorCallback);
-#else
+#elif UNITY_EDITOR
             Debug.Log("[Wortal] Mock Initialize()");
+            _initializeCallback?.Invoke();
+#elif UNITY_ANDROID
+            Debug.LogWarning("[Wortal] Initialize not supported on Android.");
+            _initializeCallback?.Invoke();
+#elif UNITY_IOS
+            Debug.LogWarning("[Wortal] Initialize not supported on iOS.");
+            _initializeCallback?.Invoke();
+#else
+            Debug.LogWarning("[Wortal] Initialize not supported on this platform.");
             _initializeCallback?.Invoke();
 #endif
         }
@@ -144,10 +164,19 @@ namespace DigitalWill.WortalSDK
         {
             _startGameCallback = callback;
             WortalError = errorCallback;
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             StartGameJS(StartGameCallback, WortalErrorCallback);
-#else
+#elif UNITY_EDITOR
             Debug.Log("[Wortal] Mock StartGame()");
+            _startGameCallback?.Invoke();
+#elif UNITY_ANDROID
+            Debug.LogWarning("[Wortal] StartGame not supported on Android.");
+            _startGameCallback?.Invoke();
+#elif UNITY_IOS
+            Debug.LogWarning("[Wortal] StartGame not supported on iOS.");
+            _startGameCallback?.Invoke();
+#else
+            Debug.LogWarning("[Wortal] StartGame not supported on this platform.");
             _startGameCallback?.Invoke();
 #endif
         }
@@ -174,15 +203,24 @@ namespace DigitalWill.WortalSDK
         {
             _authenticateCallback = callback;
             WortalError = errorCallback;
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             AuthenticateJS(AuthenticateCallback, WortalErrorCallback);
-#else
+#elif UNITY_EDITOR
             Debug.Log("[Wortal] Mock AuthenticateAsync()");
             var status = new AuthResponse
             {
                 Status = AuthStatus.SUCCESS,
             };
             _authenticateCallback?.Invoke(status);
+#elif UNITY_ANDROID
+            Debug.LogWarning("[Wortal] Authenticate not supported on Android.");
+            _authenticateCallback?.Invoke(new AuthResponse { Status = AuthStatus.NOT_SUPPORTED });
+#elif UNITY_IOS
+            Debug.LogWarning("[Wortal] Authenticate not supported on iOS.");
+            _authenticateCallback?.Invoke(new AuthResponse { Status = AuthStatus.NOT_SUPPORTED });
+#else
+            Debug.LogWarning("[Wortal] Authenticate not supported on this platform.");
+            _authenticateCallback?.Invoke(new AuthResponse { Status = AuthStatus.NOT_SUPPORTED });
 #endif
         }
 
@@ -207,11 +245,20 @@ namespace DigitalWill.WortalSDK
         {
             _linkAccountCallback = callback;
             WortalError = errorCallback;
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             LinkAccountJS(LinkAccountCallback, WortalErrorCallback);
-#else
+#elif UNITY_EDITOR
             Debug.Log("[Wortal] Mock LinkAccount()");
             _linkAccountCallback?.Invoke(true);
+#elif UNITY_ANDROID
+            Debug.LogWarning("[Wortal] LinkAccount not supported on Android.");
+            _linkAccountCallback?.Invoke(false);
+#elif UNITY_IOS
+            Debug.LogWarning("[Wortal] LinkAccount not supported on iOS.");
+            _linkAccountCallback?.Invoke(false);
+#else
+            Debug.LogWarning("[Wortal] LinkAccount not supported on this platform.");
+            _linkAccountCallback?.Invoke(false);
 #endif
         }
 
@@ -222,10 +269,16 @@ namespace DigitalWill.WortalSDK
         /// <param name="value">Percentage of loading complete. Range is 0 to 100.</param>
         public static void SetLoadingProgress(int value)
         {
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             SetLoadingProgressJS(value);
-#else
+#elif UNITY_EDITOR
             Debug.Log($"[Wortal] Mock SetLoadingProgress({value})");
+#elif UNITY_ANDROID
+            Debug.LogWarning($"[Wortal] SetLoadingProgress({value}) not supported on Android.");
+#elif UNITY_IOS
+            Debug.LogWarning($"[Wortal] SetLoadingProgress({value}) not supported on iOS.");
+#else
+            Debug.LogWarning($"[Wortal] SetLoadingProgress({value}) not supported on this platform.");
 #endif
         }
 
@@ -240,15 +293,24 @@ namespace DigitalWill.WortalSDK
         /// </code></example>
         public static string[] GetSupportedAPIs()
         {
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             return JsonConvert.DeserializeObject<string[]>(GetSupportedAPIsJS());
-#else
+#elif UNITY_EDITOR
             Debug.Log("[Wortal] Mock GetSupportedAPIs()");
             return new[]
             {
                 "mock.API",
                 "mock.API2",
             };
+#elif UNITY_ANDROID
+            Debug.LogWarning("[Wortal] GetSupportedAPIs not supported on Android. Returning empty array.");
+            return Array.Empty<string>();
+#elif UNITY_IOS
+            Debug.LogWarning("[Wortal] GetSupportedAPIs not supported on iOS. Returning empty array.");
+            return Array.Empty<string>();
+#else
+            Debug.LogWarning("[Wortal] GetSupportedAPIs not supported on this platform. Returning empty array.");
+            return Array.Empty<string>();
 #endif
         }
 
@@ -262,10 +324,20 @@ namespace DigitalWill.WortalSDK
         {
             _performHapticFeedbackCallback = callback;
             WortalError = errorCallback;
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             PerformHapticFeedbackJS(PerformHapticFeedbackCallback, WortalErrorCallback);
-#else
+#elif UNITY_EDITOR
             Debug.Log("[Wortal] Mock PerformHapticFeedback()");
+            _performHapticFeedbackCallback?.Invoke();
+#elif UNITY_ANDROID
+            Debug.LogWarning("[Wortal] PerformHapticFeedback not supported on Android.");
+            _performHapticFeedbackCallback?.Invoke();
+#elif UNITY_IOS
+            Debug.LogWarning("[Wortal] PerformHapticFeedback not supported on iOS.");
+            _performHapticFeedbackCallback?.Invoke();
+#else
+            Debug.LogWarning("[Wortal] PerformHapticFeedback not supported on this platform.");
+            _performHapticFeedbackCallback?.Invoke();
 #endif
         }
 
@@ -276,7 +348,7 @@ namespace DigitalWill.WortalSDK
         private static void Init()
         {
             Debug.Log("[Wortal] Initializing Unity SDK..");
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             //registering callback
             OnPauseJS(OnPauseCallback);
             OnResumeJS(OnResumeCallback);
@@ -284,6 +356,7 @@ namespace DigitalWill.WortalSDK
             Debug.Log("[Wortal] Unity SDK initialization complete.");
         }
 
+#if UNITY_WEBGL
         [DllImport("__Internal")]
         private static extern bool IsInitializedJS();
 
@@ -313,7 +386,9 @@ namespace DigitalWill.WortalSDK
 
         [DllImport("__Internal")]
         private static extern void PerformHapticFeedbackJS(Action callback, Action<string> errorCallback);
+#endif
 
+#if UNITY_WEBGL
         [MonoPInvokeCallback(typeof(Action<string>))]
         public static void WortalErrorCallback(string error)
         {
@@ -394,6 +469,7 @@ namespace DigitalWill.WortalSDK
         {
             _performHapticFeedbackCallback?.Invoke();
         }
+#endif
 
         #endregion Internal
     }

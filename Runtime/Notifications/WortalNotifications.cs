@@ -1,7 +1,9 @@
 ﻿using System;
+#if UNITY_WEBGL
 using System.Runtime.InteropServices;
 using AOT;
 using Newtonsoft.Json;
+#endif
 using UnityEngine;
 
 namespace DigitalWill.WortalSDK
@@ -35,18 +37,28 @@ namespace DigitalWill.WortalSDK
         {
             _scheduleCallback = callback;
             Wortal.WortalError = errorCallback;
+#if UNITY_WEBGL
             string payloadObj = JsonConvert.SerializeObject(payload);
-#if UNITY_WEBGL && !UNITY_EDITOR
             Debug.Log($"[Wortal] Notifications.Schedule({payloadObj})");
             NotificationsScheduleJS(payloadObj, NotificationsScheduleCallback, Wortal.WortalErrorCallback);
-#else
-            Debug.Log($"[Wortal] Mock Notifications.Schedule({payload})");
+#elif UNITY_EDITOR
+            string payloadJson = JsonConvert.SerializeObject(payload); // Keep for debug log
+            Debug.Log($"[Wortal] Mock Notifications.Schedule({payloadJson})");
             var result = new NotificationScheduleResult
             {
-                ID = "mock.ID",
+                ID = Guid.NewGuid().ToString(), // More realistic mock ID
                 Success = true,
             };
-            NotificationsScheduleCallback(JsonConvert.SerializeObject(result));
+            _scheduleCallback?.Invoke(result);
+#elif UNITY_ANDROID
+            Debug.LogWarning($"[Wortal] Notifications.Schedule not supported on Android. Returning Success = false.");
+            _scheduleCallback?.Invoke(new NotificationScheduleResult { Success = false });
+#elif UNITY_IOS
+            Debug.LogWarning($"[Wortal] Notifications.Schedule not supported on iOS. Returning Success = false.");
+            _scheduleCallback?.Invoke(new NotificationScheduleResult { Success = false });
+#else
+            Debug.LogWarning($"[Wortal] Notifications.Schedule not supported on this platform. Returning Success = false.");
+            _scheduleCallback?.Invoke(new NotificationScheduleResult { Success = false });
 #endif
         }
 
@@ -68,19 +80,36 @@ namespace DigitalWill.WortalSDK
         {
             _getHistoryCallback = callback;
             Wortal.WortalError = errorCallback;
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             NotificationsGetHistoryJS(NotificationsGetHistoryCallback, Wortal.WortalErrorCallback);
-#else
+#elif UNITY_EDITOR
             Debug.Log("[Wortal] Mock Notifications.GetHistory()");
             ScheduledNotification[] result = {
                 new()
                 {
-                    ID = "mock.ID",
+                    ID = Guid.NewGuid().ToString(),
                     Status = NotificationStatus.SCHEDULED,
-                    CreatedTime = "0000000",
+                    CreatedTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(),
+                    Label = "mockLabel1"
+                },
+                new()
+                {
+                    ID = Guid.NewGuid().ToString(),
+                    Status = NotificationStatus.DELIVERED,
+                    CreatedTime = (DateTimeOffset.UtcNow.ToUnixTimeSeconds() - 86400).ToString(), // Yesterday
+                    Label = "mockLabel2"
                 },
             };
-            NotificationsGetHistoryCallback(JsonConvert.SerializeObject(result));
+            _getHistoryCallback?.Invoke(result);
+#elif UNITY_ANDROID
+            Debug.LogWarning("[Wortal] Notifications.GetHistory not supported on Android. Returning empty array.");
+            _getHistoryCallback?.Invoke(Array.Empty<ScheduledNotification>());
+#elif UNITY_IOS
+            Debug.LogWarning("[Wortal] Notifications.GetHistory not supported on iOS. Returning empty array.");
+            _getHistoryCallback?.Invoke(Array.Empty<ScheduledNotification>());
+#else
+            Debug.LogWarning("[Wortal] Notifications.GetHistory not supported on this platform. Returning empty array.");
+            _getHistoryCallback?.Invoke(Array.Empty<ScheduledNotification>());
 #endif
         }
 
@@ -104,11 +133,20 @@ namespace DigitalWill.WortalSDK
         {
             _cancelCallback = callback;
             Wortal.WortalError = errorCallback;
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             NotificationsCancelJS(id, NotificationsCancelCallback, Wortal.WortalErrorCallback);
+#elif UNITY_EDITOR
+            Debug.Log($"[Wortal] Mock Notifications.Cancel({id})");
+            _cancelCallback?.Invoke(true);
+#elif UNITY_ANDROID
+            Debug.LogWarning($"[Wortal] Notifications.Cancel({id}) not supported on Android. Returning false.");
+            _cancelCallback?.Invoke(false);
+#elif UNITY_IOS
+            Debug.LogWarning($"[Wortal] Notifications.Cancel({id}) not supported on iOS. Returning false.");
+            _cancelCallback?.Invoke(false);
 #else
-            Debug.Log("[Wortal] Mock Notifications.Cancel()");
-            NotificationsCancelCallback(true);
+            Debug.LogWarning($"[Wortal] Notifications.Cancel({id}) not supported on this platform. Returning false.");
+            _cancelCallback?.Invoke(false);
 #endif
         }
 
@@ -117,11 +155,20 @@ namespace DigitalWill.WortalSDK
         {
             _cancelAllCallback = callback;
             Wortal.WortalError = errorCallback;
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             NotificationsCancelAllJS(NotificationsCancelAllCallback, Wortal.WortalErrorCallback);
+#elif UNITY_EDITOR
+            Debug.Log("[Wortal] Mock Notifications.CancelAll() (no label)");
+            _cancelAllCallback?.Invoke(true);
+#elif UNITY_ANDROID
+            Debug.LogWarning("[Wortal] Notifications.CancelAll() (no label) not supported on Android. Returning false.");
+            _cancelAllCallback?.Invoke(false);
+#elif UNITY_IOS
+            Debug.LogWarning("[Wortal] Notifications.CancelAll() (no label) not supported on iOS. Returning false.");
+            _cancelAllCallback?.Invoke(false);
 #else
-            Debug.Log("[Wortal] Mock Notifications.CancelAll()");
-            NotificationsCancelAllCallback(true);
+            Debug.LogWarning("[Wortal] Notifications.CancelAll() (no label) not supported on this platform. Returning false.");
+            _cancelAllCallback?.Invoke(false);
 #endif
         }
 
@@ -145,17 +192,27 @@ namespace DigitalWill.WortalSDK
         {
             _cancelAllCallback = callback;
             Wortal.WortalError = errorCallback;
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             NotificationsCancelAllLabelJS(label, NotificationsCancelAllCallback, Wortal.WortalErrorCallback);
+#elif UNITY_EDITOR
+            Debug.Log($"[Wortal] Mock Notifications.CancelAll(label: {label})");
+            _cancelAllCallback?.Invoke(true);
+#elif UNITY_ANDROID
+            Debug.LogWarning($"[Wortal] Notifications.CancelAll(label: {label}) not supported on Android. Returning false.");
+            _cancelAllCallback?.Invoke(false);
+#elif UNITY_IOS
+            Debug.LogWarning($"[Wortal] Notifications.CancelAll(label: {label}) not supported on iOS. Returning false.");
+            _cancelAllCallback?.Invoke(false);
 #else
-            Debug.Log("[Wortal] Mock Notifications.CancelAll()");
-            NotificationsCancelAllCallback(true);
+            Debug.LogWarning($"[Wortal] Notifications.CancelAll(label: {label}) not supported on this platform. Returning false.");
+            _cancelAllCallback?.Invoke(false);
 #endif
         }
 
 #endregion Public API
 #region JSlib Interface
 
+#if UNITY_WEBGL
         [DllImport("__Internal")]
         private static extern void NotificationsScheduleJS(string payload, Action<string> callback, Action<string> errorCallback);
 
@@ -170,7 +227,9 @@ namespace DigitalWill.WortalSDK
 
         [DllImport("__Internal")]
         private static extern void NotificationsCancelAllLabelJS(string label, Action<bool> callback, Action<string> errorCallback);
+#endif
 
+#if UNITY_WEBGL
         [MonoPInvokeCallback(typeof(Action<string>))]
         private static void NotificationsScheduleCallback(string result)
         {
@@ -230,6 +289,7 @@ namespace DigitalWill.WortalSDK
         {
             _cancelAllCallback?.Invoke(result);
         }
+#endif
 
 #endregion JSlib Interface
     }

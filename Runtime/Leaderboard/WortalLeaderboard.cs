@@ -1,7 +1,9 @@
 using System;
+#if UNITY_WEBGL
 using System.Runtime.InteropServices;
 using AOT;
 using Newtonsoft.Json;
+#endif
 using UnityEngine;
 
 namespace DigitalWill.WortalSDK
@@ -43,16 +45,26 @@ namespace DigitalWill.WortalSDK
         {
             _getLeaderboardCallback = callback;
             Wortal.WortalError = errorCallback;
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             LeaderboardGetJS(name, LeaderboardGetCallback, Wortal.WortalErrorCallback);
-#else
+#elif UNITY_EDITOR
             Debug.Log($"[Wortal] Mock Leaderboard.GetLeaderboard({name})");
             var leaderboard = new Leaderboard
             {
-                Id = "global",
-                Name = "global",
+                Id = name, // Use the requested name for mock
+                Name = name, // Use the requested name for mock
+                ContextID = "mockContextID" // Added for completeness if needed
             };
-            LeaderboardGetCallback(JsonConvert.SerializeObject(leaderboard));
+            _getLeaderboardCallback?.Invoke(leaderboard);
+#elif UNITY_ANDROID
+            Debug.LogWarning($"[Wortal] Leaderboard.GetLeaderboard({name}) not supported on Android. Returning null.");
+            _getLeaderboardCallback?.Invoke(null);
+#elif UNITY_IOS
+            Debug.LogWarning($"[Wortal] Leaderboard.GetLeaderboard({name}) not supported on iOS. Returning null.");
+            _getLeaderboardCallback?.Invoke(null);
+#else
+            Debug.LogWarning($"[Wortal] Leaderboard.GetLeaderboard({name}) not supported on this platform. Returning null.");
+            _getLeaderboardCallback?.Invoke(null);
 #endif
         }
 
@@ -90,27 +102,35 @@ namespace DigitalWill.WortalSDK
         {
             _sendEntryCallback = callback;
             Wortal.WortalError = errorCallback;
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             LeaderboardSendEntryJS(name, score, details, LeaderboardSendEntryCallback, Wortal.WortalErrorCallback);
-#else
+#elif UNITY_EDITOR
             Debug.Log($"[Wortal] Mock Leaderboard.SendEntry({name}, {score}, {details})");
             var entry = new LeaderboardEntry
             {
-                Player = new Player
+                Player = new WortalPlayer // Changed from Player to WortalPlayer for consistency
                 {
-                    ID = "player1",
-                    Name = "Player",
+                    ID = "mockPlayerID",
+                    Name = "Mock Player",
                     Photo = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==",
                     IsFirstPlay = false,
-                    DaysSinceFirstPlay = 0,
                 },
-                Details = "",
-                FormattedScore = "100 points",
-                Rank = 1,
-                Score = 100,
-                Timestamp = 1672098823,
+                Details = details,
+                FormattedScore = score + " points",
+                Rank = 1, // Mock rank
+                Score = score,
+                Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
             };
-            LeaderboardSendEntryCallback(JsonConvert.SerializeObject(entry));
+            _sendEntryCallback?.Invoke(entry);
+#elif UNITY_ANDROID
+            Debug.LogWarning($"[Wortal] Leaderboard.SendEntry({name}, {score}, {details}) not supported on Android. Returning null.");
+            _sendEntryCallback?.Invoke(null);
+#elif UNITY_IOS
+            Debug.LogWarning($"[Wortal] Leaderboard.SendEntry({name}, {score}, {details}) not supported on iOS. Returning null.");
+            _sendEntryCallback?.Invoke(null);
+#else
+            Debug.LogWarning($"[Wortal] Leaderboard.SendEntry({name}, {score}, {details}) not supported on this platform. Returning null.");
+            _sendEntryCallback?.Invoke(null);
 #endif
         }
 
@@ -143,29 +163,40 @@ namespace DigitalWill.WortalSDK
         {
             _getEntriesCallback = callback;
             Wortal.WortalError = errorCallback;
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             LeaderboardGetEntriesJS(name, count, offset,
                 LeaderboardGetEntriesCallback, Wortal.WortalErrorCallback);
-#else
+#elif UNITY_EDITOR
             Debug.Log($"[Wortal] Mock Leaderboard.GetEntries({name}, {count}, {offset})");
-            var entry = new LeaderboardEntry
+            var entries = new System.Collections.Generic.List<LeaderboardEntry>();
+            for (int i = 0; i < count; i++)
             {
-                Player = new Player
+                entries.Add(new LeaderboardEntry
                 {
-                    ID = "player1",
-                    Name = "Player",
-                    Photo = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==",
-                    IsFirstPlay = false,
-                    DaysSinceFirstPlay = 0,
-                },
-                Details = "",
-                FormattedScore = "100 points",
-                Rank = 1,
-                Score = 100,
-                Timestamp = 1672098823,
-            };
-            LeaderboardEntry[] entries = { entry };
-            LeaderboardGetEntriesCallback(JsonConvert.SerializeObject(entries));
+                    Player = new WortalPlayer
+                    {
+                        ID = $"mockPlayerID_{offset + i}",
+                        Name = $"Mock Player {offset + i}",
+                        Photo = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==",
+                        IsFirstPlay = false,
+                    },
+                    Details = $"Details for rank {offset + i + 1}",
+                    FormattedScore = (1000 - (offset + i) * 10) + " points",
+                    Rank = offset + i + 1,
+                    Score = 1000 - (offset + i) * 10,
+                    Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds() - (ulong)(offset + i * 60)
+                });
+            }
+            _getEntriesCallback?.Invoke(entries.ToArray());
+#elif UNITY_ANDROID
+            Debug.LogWarning($"[Wortal] Leaderboard.GetEntries({name}, {count}, {offset}) not supported on Android. Returning empty array.");
+            _getEntriesCallback?.Invoke(Array.Empty<LeaderboardEntry>());
+#elif UNITY_IOS
+            Debug.LogWarning($"[Wortal] Leaderboard.GetEntries({name}, {count}, {offset}) not supported on iOS. Returning empty array.");
+            _getEntriesCallback?.Invoke(Array.Empty<LeaderboardEntry>());
+#else
+            Debug.LogWarning($"[Wortal] Leaderboard.GetEntries({name}, {count}, {offset}) not supported on this platform. Returning empty array.");
+            _getEntriesCallback?.Invoke(Array.Empty<LeaderboardEntry>());
 #endif
         }
 
@@ -191,27 +222,35 @@ namespace DigitalWill.WortalSDK
         {
             _getPlayerEntryCallback = callback;
             Wortal.WortalError = errorCallback;
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             LeaderboardGetPlayerEntryJS(name, LeaderboardGetPlayerEntryCallback, Wortal.WortalErrorCallback);
-#else
+#elif UNITY_EDITOR
             Debug.Log($"[Wortal] Mock Leaderboard.GetPlayerEntry({name})");
             var entry = new LeaderboardEntry
             {
-                Player = new Player
+                Player = new WortalPlayer // Assuming this is the current player
                 {
-                    ID = "player1",
-                    Name = "Player",
+                    ID = "currentPlayerMockID",
+                    Name = "Current Mock Player",
                     Photo = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==",
                     IsFirstPlay = false,
-                    DaysSinceFirstPlay = 0,
                 },
-                Details = "",
-                FormattedScore = "100 points",
-                Rank = 1,
-                Score = 100,
-                Timestamp = 1672098823,
+                Details = "Player-specific details",
+                FormattedScore = "550 points", // Mock score
+                Rank = 5, // Mock rank
+                Score = 550,
+                Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds() - 3600 // An hour ago
             };
-            LeaderboardGetPlayerEntryCallback(JsonConvert.SerializeObject(entry));
+            _getPlayerEntryCallback?.Invoke(entry);
+#elif UNITY_ANDROID
+            Debug.LogWarning($"[Wortal] Leaderboard.GetPlayerEntry({name}) not supported on Android. Returning null.");
+            _getPlayerEntryCallback?.Invoke(null);
+#elif UNITY_IOS
+            Debug.LogWarning($"[Wortal] Leaderboard.GetPlayerEntry({name}) not supported on iOS. Returning null.");
+            _getPlayerEntryCallback?.Invoke(null);
+#else
+            Debug.LogWarning($"[Wortal] Leaderboard.GetPlayerEntry({name}) not supported on this platform. Returning null.");
+            _getPlayerEntryCallback?.Invoke(null);
 #endif
         }
 
@@ -236,11 +275,20 @@ namespace DigitalWill.WortalSDK
         {
             _getEntryCountCallback = callback;
             Wortal.WortalError = errorCallback;
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             LeaderboardGetEntryCountJS(name, LeaderboardGetEntryCountCallback, Wortal.WortalErrorCallback);
-#else
+#elif UNITY_EDITOR
             Debug.Log($"[Wortal] Mock Leaderboard.GetEntryCount({name})");
-            LeaderboardGetEntryCountCallback(1);
+            _getEntryCountCallback?.Invoke(100); // Mocking a larger count
+#elif UNITY_ANDROID
+            Debug.LogWarning($"[Wortal] Leaderboard.GetEntryCount({name}) not supported on Android. Returning 0.");
+            _getEntryCountCallback?.Invoke(0);
+#elif UNITY_IOS
+            Debug.LogWarning($"[Wortal] Leaderboard.GetEntryCount({name}) not supported on iOS. Returning 0.");
+            _getEntryCountCallback?.Invoke(0);
+#else
+            Debug.LogWarning($"[Wortal] Leaderboard.GetEntryCount({name}) not supported on this platform. Returning 0.");
+            _getEntryCountCallback?.Invoke(0);
 #endif
         }
 
@@ -273,35 +321,49 @@ namespace DigitalWill.WortalSDK
         {
             _getConnectedPlayersEntriesCallback = callback;
             Wortal.WortalError = errorCallback;
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             LeaderboardGetConnectedPlayersEntriesJS(name, count, offset,
                 LeaderboardGetConnectedPlayersEntriesCallback, Wortal.WortalErrorCallback);
-#else
+#elif UNITY_EDITOR
             Debug.Log($"[Wortal] Mock Leaderboard.GetConnectedPlayersEntries({name}, {count}, {offset})");
-            var entry = new LeaderboardEntry
+            var entries = new System.Collections.Generic.List<LeaderboardEntry>();
+            // Mock a smaller list for connected players, distinct from general GetEntries
+            int mockCount = Math.Min(count, 5); // Max 5 connected player entries for mock
+            for (int i = 0; i < mockCount; i++)
             {
-                Player = new Player
+                entries.Add(new LeaderboardEntry
                 {
-                    ID = "player1",
-                    Name = "Player",
-                    Photo = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==",
-                    IsFirstPlay = false,
-                    DaysSinceFirstPlay = 0,
-                },
-                Details = "",
-                FormattedScore = "100 points",
-                Rank = 1,
-                Score = 100,
-                Timestamp = 1672098823,
-            };
-            LeaderboardEntry[] entries = { entry };
-            LeaderboardGetEntriesCallback(JsonConvert.SerializeObject(entries));
+                    Player = new WortalPlayer
+                    {
+                        ID = $"connectedPlayerID_{offset + i}",
+                        Name = $"Connected Player {offset + i}",
+                        Photo = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==",
+                        IsFirstPlay = false,
+                    },
+                    Details = $"Connected player details for rank {offset + i + 1}",
+                    FormattedScore = (800 - (offset + i) * 15) + " points", // Different scoring pattern
+                    Rank = offset + i + 1,
+                    Score = 800 - (offset + i) * 15,
+                    Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds() - (ulong)(offset + i * 120) // Different time pattern
+                });
+            }
+            _getConnectedPlayersEntriesCallback?.Invoke(entries.ToArray()); // Corrected to use _getConnectedPlayersEntriesCallback
+#elif UNITY_ANDROID
+            Debug.LogWarning($"[Wortal] Leaderboard.GetConnectedPlayersEntries({name}, {count}, {offset}) not supported on Android. Returning empty array.");
+            _getConnectedPlayersEntriesCallback?.Invoke(Array.Empty<LeaderboardEntry>());
+#elif UNITY_IOS
+            Debug.LogWarning($"[Wortal] Leaderboard.GetConnectedPlayersEntries({name}, {count}, {offset}) not supported on iOS. Returning empty array.");
+            _getConnectedPlayersEntriesCallback?.Invoke(Array.Empty<LeaderboardEntry>());
+#else
+            Debug.LogWarning($"[Wortal] Leaderboard.GetConnectedPlayersEntries({name}, {count}, {offset}) not supported on this platform. Returning empty array.");
+            _getConnectedPlayersEntriesCallback?.Invoke(Array.Empty<LeaderboardEntry>());
 #endif
         }
 
 #endregion Public API
 #region JSlib Interface
 
+#if UNITY_WEBGL
         [DllImport("__Internal")]
         private static extern void LeaderboardGetJS(string name, Action<string> callback, Action<string> errorCallback);
 
@@ -319,7 +381,9 @@ namespace DigitalWill.WortalSDK
 
         [DllImport("__Internal")]
         private static extern void LeaderboardGetConnectedPlayersEntriesJS(string name, int count, int offset, Action<string> callback, Action<string> errorCallback);
+#endif
 
+#if UNITY_WEBGL
         [MonoPInvokeCallback(typeof(Action<string>))]
         private static void LeaderboardGetCallback(string leaderboard)
         {
@@ -445,6 +509,7 @@ namespace DigitalWill.WortalSDK
 
             _getConnectedPlayersEntriesCallback?.Invoke(entriesObj);
         }
+#endif
 
 #endregion JSlib Interface
     }

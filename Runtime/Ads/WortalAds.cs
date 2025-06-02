@@ -1,6 +1,8 @@
 ﻿using System;
+#if UNITY_WEBGL
 using System.Runtime.InteropServices;
 using AOT;
+#endif
 using UnityEngine;
 
 namespace DigitalWill.WortalSDK
@@ -32,11 +34,20 @@ namespace DigitalWill.WortalSDK
         /// </code></example>
         public bool IsAdBlocked()
         {
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             return IsAdBlockedJS();
-#else
+#elif UNITY_EDITOR
             Debug.Log("[Wortal] Mock Ads.IsAdBlocked()");
             return true;
+#elif UNITY_ANDROID
+            Debug.LogWarning("[Wortal] Ads.IsAdBlocked not supported on Android. Returning false.");
+            return false;
+#elif UNITY_IOS
+            Debug.LogWarning("[Wortal] Ads.IsAdBlocked not supported on iOS. Returning false.");
+            return false;
+#else
+            Debug.LogWarning("[Wortal] Ads.IsAdBlocked not supported on this platform. Returning false.");
+            return false;
 #endif
         }
 
@@ -54,10 +65,19 @@ namespace DigitalWill.WortalSDK
         /// </code></example>
         public bool IsEnabled()
         {
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             return IsEnabledJS();
-#else
+#elif UNITY_EDITOR
             Debug.Log("[Wortal] Mock Ads.IsEnabled()");
+            return false;
+#elif UNITY_ANDROID
+            Debug.LogWarning("[Wortal] Ads.IsEnabled not supported on Android. Returning false.");
+            return false;
+#elif UNITY_IOS
+            Debug.LogWarning("[Wortal] Ads.IsEnabled not supported on iOS. Returning false.");
+            return false;
+#else
+            Debug.LogWarning("[Wortal] Ads.IsEnabled not supported on this platform. Returning false.");
             return false;
 #endif
         }        
@@ -88,17 +108,29 @@ namespace DigitalWill.WortalSDK
             _beforeAdCallback = beforeAdCallback;
             _afterAdCallback = afterAdCallback;
             _noFillCallback = noFillCallback ?? afterAdCallback;
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             ShowInterstitialJS(
                 placement.ToString().ToLower(),
                 description,
                 BeforeAdCallback,
                 AfterAdCallback,
                 NoFillCallback);
-#else
+#elif UNITY_EDITOR
             Debug.Log($"[Wortal] Mock Ads.ShowInterstitial({placement}, {description})");
-            BeforeAdCallback();
-            AfterAdCallback();
+            _beforeAdCallback?.Invoke();
+            _afterAdCallback?.Invoke();
+#elif UNITY_ANDROID
+            Debug.LogWarning($"[Wortal] Ads.ShowInterstitial({placement}, {description}) not supported on Android.");
+            _beforeAdCallback?.Invoke();
+            _noFillCallback?.Invoke();
+#elif UNITY_IOS
+            Debug.LogWarning($"[Wortal] Ads.ShowInterstitial({placement}, {description}) not supported on iOS.");
+            _beforeAdCallback?.Invoke();
+            _noFillCallback?.Invoke();
+#else
+            Debug.LogWarning($"[Wortal] Ads.ShowInterstitial({placement}, {description}) not supported on this platform.");
+            _beforeAdCallback?.Invoke();
+            _noFillCallback?.Invoke();
 #endif
         }
 
@@ -135,7 +167,7 @@ namespace DigitalWill.WortalSDK
             _adDismissedCallback = adDismissedCallback;
             _adViewedCallback = adViewedCallback;
             _noFillCallback = noFillCallback ?? afterAdCallback;
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             ShowRewardedJS(
                 description,
                 BeforeAdCallback,
@@ -143,18 +175,30 @@ namespace DigitalWill.WortalSDK
                 AdDismissedCallback,
                 AdViewedCallback,
                 NoFillCallback);
-#else
+#elif UNITY_EDITOR
             Debug.Log($"[Wortal] Mock Ads.ShowRewarded({description})");
-            BeforeAdCallback();
-            AfterAdCallback();
+            _beforeAdCallback?.Invoke();
+            _afterAdCallback?.Invoke();
             if (description == "dismiss")
             {
-                AdDismissedCallback();
+                _adDismissedCallback?.Invoke();
             }
             else
             {
-                AdViewedCallback();
+                _adViewedCallback?.Invoke();
             }
+#elif UNITY_ANDROID
+            Debug.LogWarning($"[Wortal] Ads.ShowRewarded({description}) not supported on Android.");
+            _beforeAdCallback?.Invoke();
+            _adDismissedCallback?.Invoke(); // Or _noFillCallback, depending on desired behavior for "not supported"
+#elif UNITY_IOS
+            Debug.LogWarning($"[Wortal] Ads.ShowRewarded({description}) not supported on iOS.");
+            _beforeAdCallback?.Invoke();
+            _adDismissedCallback?.Invoke(); // Or _noFillCallback
+#else
+            Debug.LogWarning($"[Wortal] Ads.ShowRewarded({description}) not supported on this platform.");
+            _beforeAdCallback?.Invoke();
+            _adDismissedCallback?.Invoke(); // Or _noFillCallback
 #endif
         }
 
@@ -166,16 +210,23 @@ namespace DigitalWill.WortalSDK
         /// <param name="position">Where the banner should be shown. Top or bottom of the screen. Default is the bottom.</param>
         public void ShowBanner(bool shouldShow = true, BannerPosition position = BannerPosition.Bottom)
         {
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             ShowBannerJS(shouldShow, position.ToString().ToLower());
-#else
+#elif UNITY_EDITOR
             Debug.Log($"[Wortal] Mock Ads.ShowBanner({shouldShow}, {position})");
+#elif UNITY_ANDROID
+            Debug.LogWarning($"[Wortal] Ads.ShowBanner({shouldShow}, {position}) not supported on Android.");
+#elif UNITY_IOS
+            Debug.LogWarning($"[Wortal] Ads.ShowBanner({shouldShow}, {position}) not supported on iOS.");
+#else
+            Debug.LogWarning($"[Wortal] Ads.ShowBanner({shouldShow}, {position}) not supported on this platform.");
 #endif
         }
 
 #endregion Public API
 #region JSlib Interface
 
+#if UNITY_WEBGL
         [DllImport("__Internal")]
         private static extern bool IsAdBlockedJS();
 
@@ -199,7 +250,9 @@ namespace DigitalWill.WortalSDK
 
         [DllImport("__Internal")]
         private static extern void ShowBannerJS(bool shouldShow, string position);
+#endif
 
+#if UNITY_WEBGL
         [MonoPInvokeCallback(typeof(Action))]
         private static void BeforeAdCallback()
         {
@@ -229,6 +282,7 @@ namespace DigitalWill.WortalSDK
         {
             _noFillCallback?.Invoke();
         }
+#endif
 
 #endregion JSlib Interface
     }

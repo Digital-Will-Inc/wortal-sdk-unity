@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+#if UNITY_WEBGL
 using System.Runtime.InteropServices;
 using AOT;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+#endif
 using UnityEngine;
 
 namespace DigitalWill.WortalSDK
@@ -31,11 +33,20 @@ namespace DigitalWill.WortalSDK
         /// <returns>The player's ID.</returns>
         public string GetID()
         {
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             return PlayerGetIDJS();
-#else
+#elif UNITY_EDITOR
             Debug.Log("[Wortal] Mock Player.GetID()");
             return "player1";
+#elif UNITY_ANDROID
+            Debug.LogWarning("[Wortal] Player.GetID not supported on Android. Returning unknown_player_id.");
+            return "unknown_player_id";
+#elif UNITY_IOS
+            Debug.LogWarning("[Wortal] Player.GetID not supported on iOS. Returning unknown_player_id.");
+            return "unknown_player_id";
+#else
+            Debug.LogWarning("[Wortal] Player.GetID not supported on this platform. Returning unknown_player_id.");
+            return "unknown_player_id";
 #endif
         }
 
@@ -45,11 +56,20 @@ namespace DigitalWill.WortalSDK
         /// <returns>The player's name.</returns>
         public string GetName()
         {
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             return PlayerGetNameJS();
-#else
+#elif UNITY_EDITOR
             Debug.Log("[Wortal] Mock Player.GetName()");
             return "Player";
+#elif UNITY_ANDROID
+            Debug.LogWarning("[Wortal] Player.GetName not supported on Android. Returning Unknown Player.");
+            return "Unknown Player";
+#elif UNITY_IOS
+            Debug.LogWarning("[Wortal] Player.GetName not supported on iOS. Returning Unknown Player.");
+            return "Unknown Player";
+#else
+            Debug.LogWarning("[Wortal] Player.GetName not supported on this platform. Returning Unknown Player.");
+            return "Unknown Player";
 #endif
         }
 
@@ -59,11 +79,20 @@ namespace DigitalWill.WortalSDK
         /// <returns>URL of base64 image for the player's photo.</returns>
         public string GetPhoto()
         {
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             return PlayerGetPhotoJS();
-#else
+#elif UNITY_EDITOR
             Debug.Log("[Wortal] Mock Player.GetPhoto()");
             return "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
+#elif UNITY_ANDROID
+            Debug.LogWarning("[Wortal] Player.GetPhoto not supported on Android. Returning null.");
+            return null;
+#elif UNITY_IOS
+            Debug.LogWarning("[Wortal] Player.GetPhoto not supported on iOS. Returning null.");
+            return null;
+#else
+            Debug.LogWarning("[Wortal] Player.GetPhoto not supported on this platform. Returning null.");
+            return null;
 #endif
         }
 
@@ -73,11 +102,20 @@ namespace DigitalWill.WortalSDK
         /// <returns>True if it is the first play. Some platforms always return true.</returns>
         public bool IsFirstPlay()
         {
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             return PlayerIsFirstPlayJS();
-#else
+#elif UNITY_EDITOR
             Debug.Log("[Wortal] Mock Player.IsFirstPlay()");
             return false;
+#elif UNITY_ANDROID
+            Debug.LogWarning("[Wortal] Player.IsFirstPlay not supported on Android. Returning true.");
+            return true;
+#elif UNITY_IOS
+            Debug.LogWarning("[Wortal] Player.IsFirstPlay not supported on iOS. Returning true.");
+            return true;
+#else
+            Debug.LogWarning("[Wortal] Player.IsFirstPlay not supported on this platform. Returning true.");
+            return true;
 #endif
         }
 
@@ -114,23 +152,34 @@ namespace DigitalWill.WortalSDK
         {
             _getDataCallback = callback;
             Wortal.WortalError = errorCallback;
+#if UNITY_WEBGL
             string keysStr = string.Join("|", keys);
-#if UNITY_WEBGL && !UNITY_EDITOR
             PlayerGetDataJS(keysStr, PlayerGetDataCallback, Wortal.WortalErrorCallback);
-#else
-            Debug.Log($"[Wortal] Mock Player.GetData({keys})");
-            Dictionary<string, object> data = new()
+#elif UNITY_EDITOR
+            Debug.Log($"[Wortal] Mock Player.GetData({string.Join(", ", keys)})");
+            Dictionary<string, object> data = new();
+            foreach (string key in keys)
             {
+                if (key == "items")
                 {
-                    "items", new Dictionary<string, int>
-                    {
-                        { "coins", 100 },
-                        { "boosters", 2 },
-                    }
-                },
-                { "lives", 3 },
-            };
-            PlayerGetDataCallback(JsonConvert.SerializeObject(data));
+                    data.Add("items", new Dictionary<string, int> { { "coins", 100 }, { "boosters", 2 } });
+                }
+                else if (key == "lives")
+                {
+                    data.Add("lives", 3);
+                }
+                // Add more mock data as needed for other keys
+            }
+            _getDataCallback?.Invoke(data); // Directly invoke with dictionary
+#elif UNITY_ANDROID
+            Debug.LogWarning($"[Wortal] Player.GetData({string.Join(", ", keys)}) not supported on Android. Returning empty dictionary.");
+            _getDataCallback?.Invoke(new Dictionary<string, object>());
+#elif UNITY_IOS
+            Debug.LogWarning($"[Wortal] Player.GetData({string.Join(", ", keys)}) not supported on iOS. Returning empty dictionary.");
+            _getDataCallback?.Invoke(new Dictionary<string, object>());
+#else
+            Debug.LogWarning($"[Wortal] Player.GetData({string.Join(", ", keys)}) not supported on this platform. Returning empty dictionary.");
+            _getDataCallback?.Invoke(new Dictionary<string, object>());
 #endif
         }
 
@@ -170,12 +219,23 @@ namespace DigitalWill.WortalSDK
         {
             _setDataCallback = callback;
             Wortal.WortalError = errorCallback;
+#if UNITY_WEBGL
             string dataObj = JsonConvert.SerializeObject(data);
-#if UNITY_WEBGL && !UNITY_EDITOR
             PlayerSetDataJS(dataObj, PlayerSetDataCallback, Wortal.WortalErrorCallback);
+#elif UNITY_EDITOR
+            // Serialize data for logging purposes only if Newtonsoft.Json is available.
+            string dataJson = JsonConvert.SerializeObject(data);
+            Debug.Log($"[Wortal] Mock Player.SetData({dataJson})");
+            _setDataCallback?.Invoke();
+#elif UNITY_ANDROID
+            Debug.LogWarning($"[Wortal] Player.SetData not supported on Android.");
+            _setDataCallback?.Invoke();
+#elif UNITY_IOS
+            Debug.LogWarning($"[Wortal] Player.SetData not supported on iOS.");
+            _setDataCallback?.Invoke();
 #else
-            Debug.Log($"[Wortal] Mock Player.SetData({data})");
-            PlayerSetDataCallback();
+            Debug.LogWarning($"[Wortal] Player.SetData not supported on this platform.");
+            _setDataCallback?.Invoke();
 #endif
         }
 
@@ -203,11 +263,20 @@ namespace DigitalWill.WortalSDK
         {
             _flushDataCallback = callback;
             Wortal.WortalError = errorCallback;
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             PlayerFlushDataJS(PlayerFlushDataCallback, Wortal.WortalErrorCallback);
-#else
+#elif UNITY_EDITOR
             Debug.Log("[Wortal] Mock Player.FlushData()");
-            PlayerFlushDataCallback();
+            _flushDataCallback?.Invoke();
+#elif UNITY_ANDROID
+            Debug.LogWarning("[Wortal] Player.FlushData not supported on Android.");
+            _flushDataCallback?.Invoke();
+#elif UNITY_IOS
+            Debug.LogWarning("[Wortal] Player.FlushData not supported on iOS.");
+            _flushDataCallback?.Invoke();
+#else
+            Debug.LogWarning("[Wortal] Player.FlushData not supported on this platform.");
+            _flushDataCallback?.Invoke();
 #endif
         }
 
@@ -235,21 +304,30 @@ namespace DigitalWill.WortalSDK
         {
             _getConnectedPlayersCallback = callback;
             Wortal.WortalError = errorCallback;
+#if UNITY_WEBGL
             string payloadStr = JsonConvert.SerializeObject(payload);
-#if UNITY_WEBGL && !UNITY_EDITOR
             PlayerGetConnectedPlayersJS(payloadStr, PlayerGetConnectedPlayersCallback, Wortal.WortalErrorCallback);
-#else
-            Debug.Log($"[Wortal] Mock Player.GetConnectedPlayers({payload})");
-            var player = new Player
+#elif UNITY_EDITOR
+            string payloadJson = JsonConvert.SerializeObject(payload);
+            Debug.Log($"[Wortal] Mock Player.GetConnectedPlayers({payloadJson})");
+            var wortalPlayer = new WortalPlayer // Changed from Player to WortalPlayer
             {
-                ID = "player1",
-                Name = "Player",
+                ID = "connectedPlayer1",
+                Name = "Connected Player 1",
                 Photo = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==",
                 IsFirstPlay = false,
-                DaysSinceFirstPlay = 0,
+                // DaysSinceFirstPlay is not a property of WortalPlayer, remove if it was from an old Player struct
             };
-            Player[] players = { player };
-            PlayerGetConnectedPlayersCallback(JsonConvert.SerializeObject(players));
+            _getConnectedPlayersCallback?.Invoke(new WortalPlayer[] { wortalPlayer });
+#elif UNITY_ANDROID
+            Debug.LogWarning($"[Wortal] Player.GetConnectedPlayers not supported on Android. Returning empty array.");
+            _getConnectedPlayersCallback?.Invoke(Array.Empty<WortalPlayer>());
+#elif UNITY_IOS
+            Debug.LogWarning($"[Wortal] Player.GetConnectedPlayers not supported on iOS. Returning empty array.");
+            _getConnectedPlayersCallback?.Invoke(Array.Empty<WortalPlayer>());
+#else
+            Debug.LogWarning($"[Wortal] Player.GetConnectedPlayers not supported on this platform. Returning empty array.");
+            _getConnectedPlayersCallback?.Invoke(Array.Empty<WortalPlayer>());
 #endif
         }
 
@@ -283,11 +361,20 @@ namespace DigitalWill.WortalSDK
         {
             _getSignedPlayerInfoCallback = callback;
             Wortal.WortalError = errorCallback;
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             PlayerGetSignedPlayerInfoJS(PlayerGetSignedPlayerInfoCallback, Wortal.WortalErrorCallback);
-#else
+#elif UNITY_EDITOR
             Debug.Log("[Wortal] Mock Player.GetSignedPlayerInfo()");
-            PlayerGetSignedPlayerInfoCallback("player1", "some-signature");
+            _getSignedPlayerInfoCallback?.Invoke("mockPlayerIdSigned", "mockSignature");
+#elif UNITY_ANDROID
+            Debug.LogWarning("[Wortal] Player.GetSignedPlayerInfo not supported on Android. Returning nulls.");
+            _getSignedPlayerInfoCallback?.Invoke(null, null);
+#elif UNITY_IOS
+            Debug.LogWarning("[Wortal] Player.GetSignedPlayerInfo not supported on iOS. Returning nulls.");
+            _getSignedPlayerInfoCallback?.Invoke(null, null);
+#else
+            Debug.LogWarning("[Wortal] Player.GetSignedPlayerInfo not supported on this platform. Returning nulls.");
+            _getSignedPlayerInfoCallback?.Invoke(null, null);
 #endif
         }
 
@@ -310,11 +397,20 @@ namespace DigitalWill.WortalSDK
         {
             _getASIDCallback = callback;
             Wortal.WortalError = errorCallback;
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             PlayerGetASIDJS(PlayerGetASIDCallback, Wortal.WortalErrorCallback);
-#else
+#elif UNITY_EDITOR
             Debug.Log("[Wortal] Mock Player.GetASID()");
-            PlayerGetASIDCallback("player1");
+            _getASIDCallback?.Invoke("mockASID");
+#elif UNITY_ANDROID
+            Debug.LogWarning("[Wortal] Player.GetASID not supported on Android. Returning null.");
+            _getASIDCallback?.Invoke(null);
+#elif UNITY_IOS
+            Debug.LogWarning("[Wortal] Player.GetASID not supported on iOS. Returning null.");
+            _getASIDCallback?.Invoke(null);
+#else
+            Debug.LogWarning("[Wortal] Player.GetASID not supported on this platform. Returning null.");
+            _getASIDCallback?.Invoke(null);
 #endif
         }
 
@@ -353,11 +449,20 @@ namespace DigitalWill.WortalSDK
         {
             _getSignedASIDCallback = callback;
             Wortal.WortalError = errorCallback;
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             PlayerGetSignedASIDJS(PlayerGetSignedASIDCallback, Wortal.WortalErrorCallback);
+#elif UNITY_EDITOR
+            Debug.Log("[Wortal] Mock Player.GetSignedASID()"); // Corrected log message
+            _getSignedASIDCallback?.Invoke("mockSignedASID", "mockSignatureForASID");
+#elif UNITY_ANDROID
+            Debug.LogWarning("[Wortal] Player.GetSignedASID not supported on Android. Returning nulls.");
+            _getSignedASIDCallback?.Invoke(null, null);
+#elif UNITY_IOS
+            Debug.LogWarning("[Wortal] Player.GetSignedASID not supported on iOS. Returning nulls.");
+            _getSignedASIDCallback?.Invoke(null, null);
 #else
-            Debug.Log("[Wortal] Mock Player.GetASID()");
-            PlayerGetSignedASIDCallback("player1", "some-signature");
+            Debug.LogWarning("[Wortal] Player.GetSignedASID not supported on this platform. Returning nulls.");
+            _getSignedASIDCallback?.Invoke(null, null);
 #endif
         }
 
@@ -381,11 +486,20 @@ namespace DigitalWill.WortalSDK
         {
             _canSubscribeBotCallback = callback;
             Wortal.WortalError = errorCallback;
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             PlayerCanSubscribeBotJS(PlayerCanSubscribeBotCallback, Wortal.WortalErrorCallback);
-#else
+#elif UNITY_EDITOR
             Debug.Log("[Wortal] Mock Player.CanSubscribeBot()");
-            PlayerCanSubscribeBotCallback(true);
+            _canSubscribeBotCallback?.Invoke(true);
+#elif UNITY_ANDROID
+            Debug.LogWarning("[Wortal] Player.CanSubscribeBot not supported on Android. Returning false.");
+            _canSubscribeBotCallback?.Invoke(false);
+#elif UNITY_IOS
+            Debug.LogWarning("[Wortal] Player.CanSubscribeBot not supported on iOS. Returning false.");
+            _canSubscribeBotCallback?.Invoke(false);
+#else
+            Debug.LogWarning("[Wortal] Player.CanSubscribeBot not supported on this platform. Returning false.");
+            _canSubscribeBotCallback?.Invoke(false);
 #endif
         }
 
@@ -411,17 +525,27 @@ namespace DigitalWill.WortalSDK
         {
             _subscribeBotCallback = callback;
             Wortal.WortalError = errorCallback;
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             PlayerSubscribeBotJS(PlayerSubscribeBotCallback, Wortal.WortalErrorCallback);
-#else
+#elif UNITY_EDITOR
             Debug.Log("[Wortal] Mock Player.SubscribeBot()");
-            PlayerSubscribeBotCallback();
+            _subscribeBotCallback?.Invoke();
+#elif UNITY_ANDROID
+            Debug.LogWarning("[Wortal] Player.SubscribeBot not supported on Android.");
+            _subscribeBotCallback?.Invoke();
+#elif UNITY_IOS
+            Debug.LogWarning("[Wortal] Player.SubscribeBot not supported on iOS.");
+            _subscribeBotCallback?.Invoke();
+#else
+            Debug.LogWarning("[Wortal] Player.SubscribeBot not supported on this platform.");
+            _subscribeBotCallback?.Invoke();
 #endif
         }
 
 #endregion Public API
 #region JSlib Interface
 
+#if UNITY_WEBGL
         [DllImport("__Internal")]
         private static extern string PlayerGetIDJS();
 
@@ -460,7 +584,9 @@ namespace DigitalWill.WortalSDK
 
         [DllImport("__Internal")]
         private static extern void PlayerSubscribeBotJS(Action callback, Action<string> errorCallback);
+#endif
 
+#if UNITY_WEBGL
         [MonoPInvokeCallback(typeof(Action<string>))]
         private static void PlayerGetDataCallback(string data)
         {
@@ -551,6 +677,7 @@ namespace DigitalWill.WortalSDK
         {
             _subscribeBotCallback?.Invoke();
         }
+#endif
 
 #endregion JSlib Interface
     }

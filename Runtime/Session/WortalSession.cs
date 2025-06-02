@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+#if UNITY_WEBGL
 using System.Runtime.InteropServices;
 using AOT;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+#endif
 using UnityEngine;
 
 namespace DigitalWill.WortalSDK
@@ -33,18 +35,27 @@ namespace DigitalWill.WortalSDK
                 /// </code></example>
                 public IDictionary<string, object> GetEntryPointData()
                 {
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             string data = SessionGetEntryPointDataJS();
-#else
+            return JsonConvert.DeserializeObject<JObject>(data).ToDictionary();
+#elif UNITY_EDITOR
                         Debug.Log("[Wortal] Mock Session.GetEntryPointData()");
-                        Dictionary<string, string> dataObj = new()
+                        Dictionary<string, object> dataObj = new() // Changed to object for direct return
             {
                 { "link", "share" },
                 { "friendID", "player2" },
             };
-                        string data = JsonConvert.SerializeObject(dataObj);
+            return dataObj;
+#elif UNITY_ANDROID
+            Debug.LogWarning("[Wortal] Session.GetEntryPointData not supported on Android. Returning empty dictionary.");
+            return new Dictionary<string, object>();
+#elif UNITY_IOS
+            Debug.LogWarning("[Wortal] Session.GetEntryPointData not supported on iOS. Returning empty dictionary.");
+            return new Dictionary<string, object>();
+#else
+            Debug.LogWarning("[Wortal] Session.GetEntryPointData not supported on this platform. Returning empty dictionary.");
+            return new Dictionary<string, object>();
 #endif
-                        return JsonConvert.DeserializeObject<JObject>(data).ToDictionary();
                 }
 
                 /// <summary>
@@ -63,11 +74,20 @@ namespace DigitalWill.WortalSDK
                 {
                         _getEntryPointCallback = callback;
                         Wortal.WortalError = errorCallback;
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             SessionGetEntryPointJS(SessionGetEntryPointCallback, Wortal.WortalErrorCallback);
-#else
+#elif UNITY_EDITOR
                         Debug.Log("[Wortal] Mock Session.GetEntryPoint()");
-                        SessionGetEntryPointCallback("social-share");
+                        _getEntryPointCallback?.Invoke("social-share");
+#elif UNITY_ANDROID
+            Debug.LogWarning("[Wortal] Session.GetEntryPoint not supported on Android. Returning unknown_entry_point.");
+            _getEntryPointCallback?.Invoke("unknown_entry_point");
+#elif UNITY_IOS
+            Debug.LogWarning("[Wortal] Session.GetEntryPoint not supported on iOS. Returning unknown_entry_point.");
+            _getEntryPointCallback?.Invoke("unknown_entry_point");
+#else
+            Debug.LogWarning("[Wortal] Session.GetEntryPoint not supported on this platform. Returning unknown_entry_point.");
+            _getEntryPointCallback?.Invoke("unknown_entry_point");
 #endif
                 }
 
@@ -84,11 +104,18 @@ namespace DigitalWill.WortalSDK
                 /// </code></example>
                 public void SetSessionData(IDictionary<string, object> data)
                 {
+#if UNITY_WEBGL
                         string dataJson = JsonConvert.SerializeObject(data);
-#if UNITY_WEBGL && !UNITY_EDITOR
             SessionSetSessionDataJS(dataJson);
+#elif UNITY_EDITOR
+                        string dataJsonToLog = JsonConvert.SerializeObject(data);
+                        Debug.Log($"[Wortal] Mock Session.SetSessionData({dataJsonToLog})");
+#elif UNITY_ANDROID
+            Debug.LogWarning($"[Wortal] Session.SetSessionData not supported on Android.");
+#elif UNITY_IOS
+            Debug.LogWarning($"[Wortal] Session.SetSessionData not supported on iOS.");
 #else
-                        Debug.Log($"[Wortal] Mock Session.SetSessionData({data})");
+            Debug.LogWarning($"[Wortal] Session.SetSessionData not supported on this platform.");
 #endif
                 }
 
@@ -98,11 +125,20 @@ namespace DigitalWill.WortalSDK
                 /// <returns>Locale in BCP47 format. http://www.ietf.org/rfc/bcp/bcp47.txt</returns>
                 public string GetLocale()
                 {
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             return SessionGetLocaleJS();
-#else
+#elif UNITY_EDITOR
                         Debug.Log("[Wortal] Mock Session.GetLocale()");
                         return "en-US";
+#elif UNITY_ANDROID
+            Debug.LogWarning("[Wortal] Session.GetLocale not supported on Android. Returning en-US.");
+            return "en-US";
+#elif UNITY_IOS
+            Debug.LogWarning("[Wortal] Session.GetLocale not supported on iOS. Returning en-US.");
+            return "en-US";
+#else
+            Debug.LogWarning("[Wortal] Session.GetLocale not supported on this platform. Returning en-US.");
+            return "en-US";
 #endif
                 }
 
@@ -112,17 +148,23 @@ namespace DigitalWill.WortalSDK
                 /// <returns>Traffic source info with the parameters that are attached to the game's URL.</returns>
                 public TrafficSource GetTrafficSource()
                 {
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             string source = SessionGetTrafficSourceJS();
-#else
+            return JsonConvert.DeserializeObject<TrafficSource>(source);
+#elif UNITY_EDITOR
                         Debug.Log("[Wortal] Mock Session.GetTrafficSource()");
-                        Dictionary<string, string> sourceObj = new()
-            {
-                { "['utm_source']", "some-source" },
-            };
-                        string source = JsonConvert.SerializeObject(sourceObj);
+                        // Return a new TrafficSource object directly for the mock
+                        return new TrafficSource { { "utm_source", "mock-source" } };
+#elif UNITY_ANDROID
+            Debug.LogWarning("[Wortal] Session.GetTrafficSource not supported on Android. Returning empty TrafficSource.");
+            return new TrafficSource();
+#elif UNITY_IOS
+            Debug.LogWarning("[Wortal] Session.GetTrafficSource not supported on iOS. Returning empty TrafficSource.");
+            return new TrafficSource();
+#else
+            Debug.LogWarning("[Wortal] Session.GetTrafficSource not supported on this platform. Returning empty TrafficSource.");
+            return new TrafficSource();
 #endif
-                        return JsonConvert.DeserializeObject<TrafficSource>(source);
                 }
 
                 /// <summary>
@@ -132,11 +174,20 @@ namespace DigitalWill.WortalSDK
                 /// <returns><see cref="Platform"/> the game is running on.</returns>
                 public Platform GetPlatform()
                 {
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             return (Platform)Enum.Parse(typeof(Platform), SessionGetPlatformJS());
-#else
-                        Debug.Log("[Wortal] Mock Session.SessionGetPlatform()");
+#elif UNITY_EDITOR
+                        Debug.Log("[Wortal] Mock Session.GetPlatform()"); // Corrected log message
                         return Platform.debug;
+#elif UNITY_ANDROID
+            Debug.LogWarning("[Wortal] Session.GetPlatform not supported on Android. Returning Platform.debug.");
+            return Platform.debug; // Or a new "Unknown" enum if it exists
+#elif UNITY_IOS
+            Debug.LogWarning("[Wortal] Session.GetPlatform not supported on iOS. Returning Platform.debug.");
+            return Platform.debug; // Or a new "Unknown" enum if it exists
+#else
+            Debug.LogWarning("[Wortal] Session.GetPlatform not supported on this platform. Returning Platform.debug.");
+            return Platform.debug; // Or a new "Unknown" enum if it exists
 #endif
                 }
 
@@ -146,12 +197,21 @@ namespace DigitalWill.WortalSDK
                 /// <returns>Device the player is using.</returns>
                 public Device GetDevice()
                 {
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             return (Device)Enum.Parse(typeof(Device), SessionGetDeviceJS());
-#else
-                        Debug.Log("[Wortal] Mock Session.SessionGetDevice()");
+#elif UNITY_EDITOR
+                        Debug.Log("[Wortal] Mock Session.GetDevice()"); // Corrected log message
                         int random = UnityEngine.Random.Range(0, 3);
                         return (Device)random;
+#elif UNITY_ANDROID
+            Debug.LogWarning("[Wortal] Session.GetDevice not supported on Android. Returning Device.DESKTOP.");
+            return Device.DESKTOP;
+#elif UNITY_IOS
+            Debug.LogWarning("[Wortal] Session.GetDevice not supported on iOS. Returning Device.DESKTOP.");
+            return Device.DESKTOP;
+#else
+            Debug.LogWarning("[Wortal] Session.GetDevice not supported on this platform. Returning Device.DESKTOP.");
+            return Device.DESKTOP;
 #endif
                 }
 
@@ -161,12 +221,21 @@ namespace DigitalWill.WortalSDK
                 /// <returns>Orientation of the device the player is using.</returns>
                 public Orientation GetOrientation()
                 {
-#if UNITY_WEBGL && !UNITY_EDITOR
-            return (Orientation)Enum.Parse(typeof(Orientation), SessionGetOrientationJS());
-#else
-                        Debug.Log("[Wortal] Mock Session.SessionGetOrientation()");
+#if UNITY_WEBGL
+            return (Orientation)Enum.Parse(typeof(Orientation), SessionGetOrientationJS().ToUpper());
+#elif UNITY_EDITOR
+                        Debug.Log("[Wortal] Mock Session.GetOrientation()"); // Corrected log message
                         int random = UnityEngine.Random.Range(0, 2);
                         return (Orientation)random;
+#elif UNITY_ANDROID
+            Debug.LogWarning("[Wortal] Session.GetOrientation not supported on Android. Returning Orientation.PORTRAIT.");
+            return Orientation.PORTRAIT;
+#elif UNITY_IOS
+            Debug.LogWarning("[Wortal] Session.GetOrientation not supported on iOS. Returning Orientation.PORTRAIT.");
+            return Orientation.PORTRAIT;
+#else
+            Debug.LogWarning("[Wortal] Session.GetOrientation not supported on this platform. Returning Orientation.PORTRAIT.");
+            return Orientation.PORTRAIT;
 #endif
                 }
 
@@ -177,12 +246,21 @@ namespace DigitalWill.WortalSDK
                 public void OnOrientationChange(Action<Orientation> callback)
                 {
                         _onOrientationChangeCallback = callback;
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             SessionOnOrientationChangeJS(SessionOnOrientationChangeCallback);
-#else
+#elif UNITY_EDITOR
                         Debug.Log("[Wortal] Mock Session.OnOrientationChange()");
                         int random = UnityEngine.Random.Range(0, 2);
-                        _onOrientationChangeCallback((Orientation)random);
+                        _onOrientationChangeCallback?.Invoke((Orientation)random);
+#elif UNITY_ANDROID
+            Debug.LogWarning("[Wortal] Session.OnOrientationChange not supported on Android. Invoking with Orientation.PORTRAIT.");
+            _onOrientationChangeCallback?.Invoke(Orientation.PORTRAIT);
+#elif UNITY_IOS
+            Debug.LogWarning("[Wortal] Session.OnOrientationChange not supported on iOS. Invoking with Orientation.PORTRAIT.");
+            _onOrientationChangeCallback?.Invoke(Orientation.PORTRAIT);
+#else
+            Debug.LogWarning("[Wortal] Session.OnOrientationChange not supported on this platform. Invoking with Orientation.PORTRAIT.");
+            _onOrientationChangeCallback?.Invoke(Orientation.PORTRAIT);
 #endif
                 }
 
@@ -207,11 +285,22 @@ namespace DigitalWill.WortalSDK
                 {
                         _switchGameCallback = callback;
                         Wortal.WortalError = errorCallback;
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             SessionSwitchGameJS(SessionSwitchGameCallback, Wortal.WortalErrorCallback);
-#else
+#elif UNITY_EDITOR
                         Debug.Log("[Wortal] Mock Session.SwitchGame()");
-                        SessionSwitchGameCallback();
+                        _switchGameCallback?.Invoke();
+#elif UNITY_ANDROID
+            Debug.LogWarning("[Wortal] Session.SwitchGame not supported on Android.");
+            // Potentially invoke errorCallback here if the API implies an error for non-support
+            // For now, just invoking success callback as per other placeholders.
+            _switchGameCallback?.Invoke();
+#elif UNITY_IOS
+            Debug.LogWarning("[Wortal] Session.SwitchGame not supported on iOS.");
+            _switchGameCallback?.Invoke();
+#else
+            Debug.LogWarning("[Wortal] Session.SwitchGame not supported on this platform.");
+            _switchGameCallback?.Invoke();
 #endif
                 }
 
@@ -222,10 +311,16 @@ namespace DigitalWill.WortalSDK
                 /// </summary>
                 public void HappyTime()
                 {
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             SessionHappyTimeJS();
-#else
+#elif UNITY_EDITOR
                         Debug.Log("[Wortal] Mock Session.HappyTime()");
+#elif UNITY_ANDROID
+            Debug.LogWarning("[Wortal] Session.HappyTime not supported on Android.");
+#elif UNITY_IOS
+            Debug.LogWarning("[Wortal] Session.HappyTime not supported on iOS.");
+#else
+            Debug.LogWarning("[Wortal] Session.HappyTime not supported on this platform.");
 #endif
                 }
 
@@ -236,10 +331,16 @@ namespace DigitalWill.WortalSDK
                 /// </summary>
                 public void GameplayStart()
                 {
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             SessionGameplayStartJS();
-#else
+#elif UNITY_EDITOR
                         Debug.Log("[Wortal] Mock Session.GameplayStart()");
+#elif UNITY_ANDROID
+            Debug.LogWarning("[Wortal] Session.GameplayStart not supported on Android.");
+#elif UNITY_IOS
+            Debug.LogWarning("[Wortal] Session.GameplayStart not supported on iOS.");
+#else
+            Debug.LogWarning("[Wortal] Session.GameplayStart not supported on this platform.");
 #endif
                 }
 
@@ -249,10 +350,16 @@ namespace DigitalWill.WortalSDK
                 /// </summary>
                 public void GameplayStop()
                 {
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             SessionGameplayStopJS();
-#else
+#elif UNITY_EDITOR
                         Debug.Log("[Wortal] Mock Session.GameplayStop()");
+#elif UNITY_ANDROID
+            Debug.LogWarning("[Wortal] Session.GameplayStop not supported on Android.");
+#elif UNITY_IOS
+            Debug.LogWarning("[Wortal] Session.GameplayStop not supported on iOS.");
+#else
+            Debug.LogWarning("[Wortal] Session.GameplayStop not supported on this platform.");
 #endif
                 }
 
@@ -262,11 +369,20 @@ namespace DigitalWill.WortalSDK
                 /// <returns>True if audio is enabled, false if it is disabled.</returns>
                 public bool IsAudioEnabled()
                 {
-#if Unity_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL // Corrected from Unity_WEBGL
         return SessionIsAudioEnabledJS();
-#else
+#elif UNITY_EDITOR
                         Debug.Log("[Wortal] Mock Session.IsAudioEnabled()");
                         return true;
+#elif UNITY_ANDROID
+            Debug.LogWarning("[Wortal] Session.IsAudioEnabled not supported on Android. Returning true.");
+            return true;
+#elif UNITY_IOS
+            Debug.LogWarning("[Wortal] Session.IsAudioEnabled not supported on iOS. Returning true.");
+            return true;
+#else
+            Debug.LogWarning("[Wortal] Session.IsAudioEnabled not supported on this platform. Returning true.");
+            return true;
 #endif
                 }
 
@@ -277,18 +393,28 @@ namespace DigitalWill.WortalSDK
                 public void OnAudioStatusChange(Action<bool> callback)
                 {
                         _onAudioStatusChangeCallback = callback;
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
         SessionOnAudioStatusChangeJS(SessionOnAudioStatusChangeCallback);
-#else
+#elif UNITY_EDITOR
                         Debug.Log("[Wortal] Mock Session.OnAudioStatusChange()");
                         int random = UnityEngine.Random.Range(0, 2); // Range is exclusive, so (0, 2) gives 0 or 1.
                         _onAudioStatusChangeCallback?.Invoke(random == 1);
+#elif UNITY_ANDROID
+            Debug.LogWarning("[Wortal] Session.OnAudioStatusChange not supported on Android. Invoking with true.");
+            _onAudioStatusChangeCallback?.Invoke(true);
+#elif UNITY_IOS
+            Debug.LogWarning("[Wortal] Session.OnAudioStatusChange not supported on iOS. Invoking with true.");
+            _onAudioStatusChangeCallback?.Invoke(true);
+#else
+            Debug.LogWarning("[Wortal] Session.OnAudioStatusChange not supported on this platform. Invoking with true.");
+            _onAudioStatusChangeCallback?.Invoke(true);
 #endif
                 }
 
                 #endregion Public API
                 #region JSlib Interface
 
+#if UNITY_WEBGL
                 [DllImport("__Internal")]
                 private static extern string SessionGetEntryPointDataJS();
 
@@ -329,11 +455,13 @@ namespace DigitalWill.WortalSDK
                 private static extern void SessionGameplayStopJS();
 
                 [DllImport("__Internal")]
-                private static extern void SessionIsAudioEnabledJS();
+                private static extern bool SessionIsAudioEnabledJS(); // Corrected return type based on usage
 
                 [DllImport("__Internal")]
                 private static extern void SessionOnAudioStatusChangeJS(Action<int> callback);
+#endif
 
+#if UNITY_WEBGL
                 [MonoPInvokeCallback(typeof(Action<string>))]
                 private static void SessionGetEntryPointCallback(string entryPoint)
                 {
@@ -358,6 +486,7 @@ namespace DigitalWill.WortalSDK
                         bool isAudio = isEnabled == 1;
                         _onAudioStatusChangeCallback?.Invoke(isAudio);
                 }
+#endif
 
                 #endregion JSlib Interface
         }

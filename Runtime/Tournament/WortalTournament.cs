@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+#if UNITY_WEBGL
 using System.Runtime.InteropServices;
 using AOT;
 using Newtonsoft.Json;
+#endif
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -46,11 +48,20 @@ namespace DigitalWill.WortalSDK
         {
             _getCurrentCallback = callback;
             Wortal.WortalError = errorCallback;
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             TournamentGetCurrentJS(TournamentGetCurrentCallback, Wortal.WortalErrorCallback);
-#else
+#elif UNITY_EDITOR
             Debug.Log("[Wortal] Mock Tournament.GetCurrent()");
             _getCurrentCallback?.Invoke(GetMockTournament());
+#elif UNITY_ANDROID
+            Debug.LogWarning("[Wortal] Tournament.GetCurrent not supported on Android. Returning null.");
+            _getCurrentCallback?.Invoke(null);
+#elif UNITY_IOS
+            Debug.LogWarning("[Wortal] Tournament.GetCurrent not supported on iOS. Returning null.");
+            _getCurrentCallback?.Invoke(null);
+#else
+            Debug.LogWarning("[Wortal] Tournament.GetCurrent not supported on this platform. Returning null.");
+            _getCurrentCallback?.Invoke(null);
 #endif
         }
 
@@ -80,9 +91,9 @@ namespace DigitalWill.WortalSDK
         {
             _getAllCallback = callback;
             Wortal.WortalError = errorCallback;
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             TournamentGetAllJS(TournamentGetAllCallback, Wortal.WortalErrorCallback);
-#else
+#elif UNITY_EDITOR
             Debug.Log("[Wortal] Mock Tournament.GetAll()");
             Tournament[] tournaments = new Tournament[Random.Range(1, 5)];
             for (int i = 0; i < tournaments.Length; i++)
@@ -90,6 +101,15 @@ namespace DigitalWill.WortalSDK
                 tournaments[i] = GetMockTournament();
             }
             _getAllCallback?.Invoke(tournaments);
+#elif UNITY_ANDROID
+            Debug.LogWarning("[Wortal] Tournament.GetAll not supported on Android. Returning empty array.");
+            _getAllCallback?.Invoke(Array.Empty<Tournament>());
+#elif UNITY_IOS
+            Debug.LogWarning("[Wortal] Tournament.GetAll not supported on iOS. Returning empty array.");
+            _getAllCallback?.Invoke(Array.Empty<Tournament>());
+#else
+            Debug.LogWarning("[Wortal] Tournament.GetAll not supported on this platform. Returning empty array.");
+            _getAllCallback?.Invoke(Array.Empty<Tournament>());
 #endif
         }
 
@@ -118,10 +138,19 @@ namespace DigitalWill.WortalSDK
         {
             _postScoreCallback = callback;
             Wortal.WortalError = errorCallback;
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             TournamentPostScoreJS(score, TournamentPostScoreCallback, Wortal.WortalErrorCallback);
-#else
+#elif UNITY_EDITOR
             Debug.Log($"[Wortal] Mock Tournament.PostScore({score})");
+            _postScoreCallback?.Invoke();
+#elif UNITY_ANDROID
+            Debug.LogWarning($"[Wortal] Tournament.PostScore({score}) not supported on Android.");
+            _postScoreCallback?.Invoke();
+#elif UNITY_IOS
+            Debug.LogWarning($"[Wortal] Tournament.PostScore({score}) not supported on iOS.");
+            _postScoreCallback?.Invoke();
+#else
+            Debug.LogWarning($"[Wortal] Tournament.PostScore({score}) not supported on this platform.");
             _postScoreCallback?.Invoke();
 #endif
         }
@@ -148,11 +177,26 @@ namespace DigitalWill.WortalSDK
         {
             _createCallback = callback;
             Wortal.WortalError = errorCallback;
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             TournamentCreateJS(JsonConvert.SerializeObject(payload), TournamentCreateCallback, Wortal.WortalErrorCallback);
+#elif UNITY_EDITOR
+            Debug.Log($"[Wortal] Mock Tournament.Create({JsonConvert.SerializeObject(payload)})");
+            // The mock Tournament constructor might need adjustment if it expects a JSON string
+            // or has different parameter needs than CreateTournamentPayload.
+            // For now, assuming it can take the payload or we create a compatible mock.
+            var mockTournament = GetMockTournament(); // Use helper for base
+            mockTournament.Title = payload.Title ?? "Mock Created Tournament";
+            // Potentially copy other relevant fields from payload to mockTournament if needed
+            _createCallback?.Invoke(mockTournament);
+#elif UNITY_ANDROID
+            Debug.LogWarning($"[Wortal] Tournament.Create not supported on Android. Returning null.");
+            _createCallback?.Invoke(null);
+#elif UNITY_IOS
+            Debug.LogWarning($"[Wortal] Tournament.Create not supported on iOS. Returning null.");
+            _createCallback?.Invoke(null);
 #else
-            Debug.Log($"[Wortal] Mock Tournament.Create({payload})");
-            _createCallback?.Invoke(new Tournament(payload));
+            Debug.LogWarning($"[Wortal] Tournament.Create not supported on this platform. Returning null.");
+            _createCallback?.Invoke(null);
 #endif
         }
 
@@ -178,10 +222,19 @@ namespace DigitalWill.WortalSDK
         {
             _shareCallback = callback;
             Wortal.WortalError = errorCallback;
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             TournamentShareJS(JsonConvert.SerializeObject(payload), TournamentShareCallback, Wortal.WortalErrorCallback);
+#elif UNITY_EDITOR
+            Debug.Log($"[Wortal] Mock Tournament.Share({JsonConvert.SerializeObject(payload)})");
+            _shareCallback?.Invoke();
+#elif UNITY_ANDROID
+            Debug.LogWarning($"[Wortal] Tournament.Share not supported on Android.");
+            _shareCallback?.Invoke();
+#elif UNITY_IOS
+            Debug.LogWarning($"[Wortal] Tournament.Share not supported on iOS.");
+            _shareCallback?.Invoke();
 #else
-            Debug.Log($"[Wortal] Mock Tournament.Share({payload})");
+            Debug.LogWarning($"[Wortal] Tournament.Share not supported on this platform.");
             _shareCallback?.Invoke();
 #endif
         }
@@ -213,10 +266,19 @@ namespace DigitalWill.WortalSDK
         {
             _joinCallback = callback;
             Wortal.WortalError = errorCallback;
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             TournamentJoinJS(tournamentID, TournamentJoinCallback, Wortal.WortalErrorCallback);
-#else
+#elif UNITY_EDITOR
             Debug.Log($"[Wortal] Mock Tournament.Join({tournamentID})");
+            _joinCallback?.Invoke();
+#elif UNITY_ANDROID
+            Debug.LogWarning($"[Wortal] Tournament.Join({tournamentID}) not supported on Android.");
+            _joinCallback?.Invoke();
+#elif UNITY_IOS
+            Debug.LogWarning($"[Wortal] Tournament.Join({tournamentID}) not supported on iOS.");
+            _joinCallback?.Invoke();
+#else
+            Debug.LogWarning($"[Wortal] Tournament.Join({tournamentID}) not supported on this platform.");
             _joinCallback?.Invoke();
 #endif
         }
@@ -224,6 +286,7 @@ namespace DigitalWill.WortalSDK
 #endregion
 #region JSlib Interface
 
+#if UNITY_WEBGL
         [DllImport("__Internal")]
         private static extern void TournamentGetCurrentJS(Action<string> callback, Action<string> errorCallback);
 
@@ -241,7 +304,9 @@ namespace DigitalWill.WortalSDK
 
         [DllImport("__Internal")]
         private static extern void TournamentJoinJS(string tournamentID, Action callback, Action<string> errorCallback);
+#endif
 
+#if UNITY_WEBGL
         [MonoPInvokeCallback(typeof(Action<string>))]
         private static void TournamentGetCurrentCallback(string tournament)
         {
@@ -331,10 +396,12 @@ namespace DigitalWill.WortalSDK
         {
             _joinCallback?.Invoke();
         }
+#endif
 
 #endregion
 #region Debug Helpers
 
+#if UNITY_EDITOR
         private static Tournament GetMockTournament()
         {
             int id = Random.Range(100000, 999999);
@@ -360,6 +427,7 @@ namespace DigitalWill.WortalSDK
 
             return tournament;
         }
+#endif
 
 #endregion Debug Helpers
     }

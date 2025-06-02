@@ -1,7 +1,9 @@
 using System;
+#if UNITY_WEBGL
 using System.Runtime.InteropServices;
 using AOT;
 using Newtonsoft.Json;
+#endif
 using UnityEngine;
 
 namespace DigitalWill.WortalSDK
@@ -29,11 +31,20 @@ namespace DigitalWill.WortalSDK
         /// if the game is being played on a platform that does not currently support context.</returns>
         public string GetID()
         {
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             return ContextGetIdJS();
-#else
+#elif UNITY_EDITOR
             Debug.Log("[Wortal] Mock Context.GetID");
             return "mock-id";
+#elif UNITY_ANDROID
+            Debug.LogWarning("[Wortal] Context.GetID not supported on Android. Returning null.");
+            return null;
+#elif UNITY_IOS
+            Debug.LogWarning("[Wortal] Context.GetID not supported on iOS. Returning null.");
+            return null;
+#else
+            Debug.LogWarning("[Wortal] Context.GetID not supported on this platform. Returning null.");
+            return null;
 #endif
         }
 
@@ -43,10 +54,19 @@ namespace DigitalWill.WortalSDK
         /// <returns>The <see cref="ContextType"/> of the current context.</returns>
         public new string GetType()
         {
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             return ContextGetTypeJS();
-#else
+#elif UNITY_EDITOR
             Debug.Log("[Wortal] Mock Context.GetType");
+            return ContextType.SOLO.ToString();
+#elif UNITY_ANDROID
+            Debug.LogWarning("[Wortal] Context.GetType not supported on Android. Returning SOLO.");
+            return ContextType.SOLO.ToString();
+#elif UNITY_IOS
+            Debug.LogWarning("[Wortal] Context.GetType not supported on iOS. Returning SOLO.");
+            return ContextType.SOLO.ToString();
+#else
+            Debug.LogWarning("[Wortal] Context.GetType not supported on this platform. Returning SOLO.");
             return ContextType.SOLO.ToString();
 #endif
         }
@@ -72,9 +92,9 @@ namespace DigitalWill.WortalSDK
         {
             _getPlayersCallback = callback;
             Wortal.WortalError = errorCallback;
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             ContextGetPlayersJS(ContextGetPlayersCallback, Wortal.WortalErrorCallback);
-#else
+#elif UNITY_EDITOR
             Debug.Log("[Wortal] Mock Context.GetPlayers()");
             var player = new Player
             {
@@ -84,8 +104,26 @@ namespace DigitalWill.WortalSDK
                 IsFirstPlay = false,
                 DaysSinceFirstPlay = 0,
             };
-            Player[] players = { player };
-            ContextGetPlayersCallback(JsonConvert.SerializeObject(players));
+            // Player array needs to be WortalPlayer for the callback.
+            // The mock was creating Player[] and then serializing/deserializing.
+            // For simplicity, let's create WortalPlayer[] directly for the mock.
+            WortalPlayer wortalPlayer = new WortalPlayer
+            {
+                ID = player.ID,
+                Name = player.Name,
+                Photo = player.Photo,
+                IsFirstPlay = player.IsFirstPlay,
+            };
+            _getPlayersCallback?.Invoke(new WortalPlayer[] { wortalPlayer });
+#elif UNITY_ANDROID
+            Debug.LogWarning("[Wortal] Context.GetPlayers not supported on Android. Returning empty array.");
+            _getPlayersCallback?.Invoke(Array.Empty<WortalPlayer>());
+#elif UNITY_IOS
+            Debug.LogWarning("[Wortal] Context.GetPlayers not supported on iOS. Returning empty array.");
+            _getPlayersCallback?.Invoke(Array.Empty<WortalPlayer>());
+#else
+            Debug.LogWarning("[Wortal] Context.GetPlayers not supported on this platform. Returning empty array.");
+            _getPlayersCallback?.Invoke(Array.Empty<WortalPlayer>());
 #endif
         }
 
@@ -115,12 +153,21 @@ namespace DigitalWill.WortalSDK
         {
             _chooseCallback = callback;
             Wortal.WortalError = errorCallback;
+#if UNITY_WEBGL
             string payloadObj = JsonConvert.SerializeObject(payload);
-#if UNITY_WEBGL && !UNITY_EDITOR
             ContextChooseJS(payloadObj, ContextChooseCallback, Wortal.WortalErrorCallback);
+#elif UNITY_EDITOR
+            Debug.Log($"[Wortal] Mock Context.Choose({JsonConvert.SerializeObject(payload)})");
+            _chooseCallback?.Invoke();
+#elif UNITY_ANDROID
+            Debug.LogWarning($"[Wortal] Context.Choose not supported on Android.");
+            _chooseCallback?.Invoke();
+#elif UNITY_IOS
+            Debug.LogWarning($"[Wortal] Context.Choose not supported on iOS.");
+            _chooseCallback?.Invoke();
 #else
-            Debug.Log($"[Wortal] Mock Context.Choose({payload})");
-            ContextChooseCallback();
+            Debug.LogWarning($"[Wortal] Context.Choose not supported on this platform.");
+            _chooseCallback?.Invoke();
 #endif
         }
 
@@ -155,12 +202,21 @@ namespace DigitalWill.WortalSDK
         {
             _inviteCallback = callback;
             Wortal.WortalError = errorCallback;
+#if UNITY_WEBGL
             string payloadObj = JsonConvert.SerializeObject(payload);
-#if UNITY_WEBGL && !UNITY_EDITOR
             ContextInviteJS(payloadObj, ContextInviteCallback, Wortal.WortalErrorCallback);
+#elif UNITY_EDITOR
+            Debug.Log($"[Wortal] Mock Context.Invite({JsonConvert.SerializeObject(payload)})");
+            _inviteCallback?.Invoke();
+#elif UNITY_ANDROID
+            Debug.LogWarning($"[Wortal] Context.Invite not supported on Android.");
+            _inviteCallback?.Invoke();
+#elif UNITY_IOS
+            Debug.LogWarning($"[Wortal] Context.Invite not supported on iOS.");
+            _inviteCallback?.Invoke();
 #else
-            Debug.Log($"[Wortal] Mock Context.Invite({payload})");
-            ContextInviteCallback();
+            Debug.LogWarning($"[Wortal] Context.Invite not supported on this platform.");
+            _inviteCallback?.Invoke();
 #endif
         }
 
@@ -191,12 +247,21 @@ namespace DigitalWill.WortalSDK
         {
             _shareCallback = callback;
             Wortal.WortalError = errorCallback;
+#if UNITY_WEBGL
             string payloadObj = JsonConvert.SerializeObject(payload);
-#if UNITY_WEBGL && !UNITY_EDITOR
             ContextShareJS(payloadObj, ContextShareCallback, Wortal.WortalErrorCallback);
+#elif UNITY_EDITOR
+            Debug.Log($"[Wortal] Mock Context.Share({JsonConvert.SerializeObject(payload)})");
+            _shareCallback?.Invoke(1);
+#elif UNITY_ANDROID
+            Debug.LogWarning($"[Wortal] Context.Share not supported on Android. Returning 0 shares.");
+            _shareCallback?.Invoke(0);
+#elif UNITY_IOS
+            Debug.LogWarning($"[Wortal] Context.Share not supported on iOS. Returning 0 shares.");
+            _shareCallback?.Invoke(0);
 #else
-            Debug.Log($"[Wortal] Mock Context.Share({payload})");
-            ContextShareCallback(1);
+            Debug.LogWarning($"[Wortal] Context.Share not supported on this platform. Returning 0 shares.");
+            _shareCallback?.Invoke(0);
 #endif
         }
 
@@ -228,12 +293,21 @@ namespace DigitalWill.WortalSDK
         {
             _shareLinkCallback = callback;
             Wortal.WortalError = errorCallback;
+#if UNITY_WEBGL
             string payloadObj = JsonConvert.SerializeObject(payload);
-#if UNITY_WEBGL && !UNITY_EDITOR
             ContextShareLinkJS(payloadObj, ContextShareLinkCallback, Wortal.WortalErrorCallback);
+#elif UNITY_EDITOR
+            Debug.Log($"[Wortal] Mock Context.ShareLinkAsync({JsonConvert.SerializeObject(payload)})");
+            _shareLinkCallback?.Invoke();
+#elif UNITY_ANDROID
+            Debug.LogWarning($"[Wortal] Context.ShareLink not supported on Android.");
+            _shareLinkCallback?.Invoke();
+#elif UNITY_IOS
+            Debug.LogWarning($"[Wortal] Context.ShareLink not supported on iOS.");
+            _shareLinkCallback?.Invoke();
 #else
-            Debug.Log($"[Wortal] Mock Context.ShareLinkAsync({payload})");
-            ContextShareLinkCallback();
+            Debug.LogWarning($"[Wortal] Context.ShareLink not supported on this platform.");
+            _shareLinkCallback?.Invoke();
 #endif
         }
 
@@ -260,12 +334,21 @@ namespace DigitalWill.WortalSDK
         {
             _updateCallback = callback;
             Wortal.WortalError = errorCallback;
+#if UNITY_WEBGL
             string payloadObj = JsonConvert.SerializeObject(payload);
-#if UNITY_WEBGL && !UNITY_EDITOR
             ContextUpdateJS(payloadObj, ContextUpdateCallback, Wortal.WortalErrorCallback);
+#elif UNITY_EDITOR
+            Debug.Log($"[Wortal] Mock Context.Update({JsonConvert.SerializeObject(payload)})");
+            _updateCallback?.Invoke();
+#elif UNITY_ANDROID
+            Debug.LogWarning($"[Wortal] Context.Update not supported on Android.");
+            _updateCallback?.Invoke();
+#elif UNITY_IOS
+            Debug.LogWarning($"[Wortal] Context.Update not supported on iOS.");
+            _updateCallback?.Invoke();
 #else
-            Debug.Log($"[Wortal] Mock Context.Update({payload})");
-            ContextUpdateCallback();
+            Debug.LogWarning($"[Wortal] Context.Update not supported on this platform.");
+            _updateCallback?.Invoke();
 #endif
         }
 
@@ -274,12 +357,21 @@ namespace DigitalWill.WortalSDK
         {
             _createCallback = callback;
             Wortal.WortalError = errorCallback;
+#if UNITY_WEBGL
             string idsStr = string.Join("|", playerIds);
-#if UNITY_WEBGL && !UNITY_EDITOR
             ContextCreateGroupJS(idsStr, ContextCreateCallback, Wortal.WortalErrorCallback);
-#else
+#elif UNITY_EDITOR
             Debug.Log($"[Wortal] Mock Context.CreateGroup({playerIds.Length})");
-            ContextCreateCallback();
+            _createCallback?.Invoke();
+#elif UNITY_ANDROID
+            Debug.LogWarning($"[Wortal] Context.Create (group) not supported on Android.");
+            _createCallback?.Invoke();
+#elif UNITY_IOS
+            Debug.LogWarning($"[Wortal] Context.Create (group) not supported on iOS.");
+            _createCallback?.Invoke();
+#else
+            Debug.LogWarning($"[Wortal] Context.Create (group) not supported on this platform.");
+            _createCallback?.Invoke();
 #endif
         }
 
@@ -314,11 +406,20 @@ namespace DigitalWill.WortalSDK
         {
             _createCallback = callback;
             Wortal.WortalError = errorCallback;
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             ContextCreateJS(playerId, ContextCreateCallback, Wortal.WortalErrorCallback);
-#else
+#elif UNITY_EDITOR
             Debug.Log($"[Wortal] Mock Context.Create({playerId})");
-            ContextCreateCallback();
+            _createCallback?.Invoke();
+#elif UNITY_ANDROID
+            Debug.LogWarning($"[Wortal] Context.Create (single) not supported on Android.");
+            _createCallback?.Invoke();
+#elif UNITY_IOS
+            Debug.LogWarning($"[Wortal] Context.Create (single) not supported on iOS.");
+            _createCallback?.Invoke();
+#else
+            Debug.LogWarning($"[Wortal] Context.Create (single) not supported on this platform.");
+            _createCallback?.Invoke();
 #endif
         }
 
@@ -327,12 +428,21 @@ namespace DigitalWill.WortalSDK
         {
             _switchCallback = callback;
             Wortal.WortalError = errorCallback;
+#if UNITY_WEBGL
             string payloadObj = JsonConvert.SerializeObject(payload);
-#if UNITY_WEBGL && !UNITY_EDITOR
             ContextSwitchWithPayloadJS(contextId, payloadObj, ContextSwitchCallback, Wortal.WortalErrorCallback);
+#elif UNITY_EDITOR
+            Debug.Log($"[Wortal] Mock Context.Switch({contextId}, {JsonConvert.SerializeObject(payload)})");
+            _switchCallback?.Invoke();
+#elif UNITY_ANDROID
+            Debug.LogWarning($"[Wortal] Context.Switch (with payload) not supported on Android.");
+            _switchCallback?.Invoke();
+#elif UNITY_IOS
+            Debug.LogWarning($"[Wortal] Context.Switch (with payload) not supported on iOS.");
+            _switchCallback?.Invoke();
 #else
-            Debug.Log($"[Wortal] Mock Context.Switch({contextId})");
-            ContextSwitchCallback();
+            Debug.LogWarning($"[Wortal] Context.Switch (with payload) not supported on this platform.");
+            _switchCallback?.Invoke();
 #endif
         }
 
@@ -362,11 +472,20 @@ namespace DigitalWill.WortalSDK
         {
             _switchCallback = callback;
             Wortal.WortalError = errorCallback;
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             ContextSwitchJS(contextId, ContextSwitchCallback, Wortal.WortalErrorCallback);
-#else
+#elif UNITY_EDITOR
             Debug.Log($"[Wortal] Mock Context.Switch({contextId})");
-            ContextSwitchCallback();
+            _switchCallback?.Invoke();
+#elif UNITY_ANDROID
+            Debug.LogWarning($"[Wortal] Context.Switch not supported on Android.");
+            _switchCallback?.Invoke();
+#elif UNITY_IOS
+            Debug.LogWarning($"[Wortal] Context.Switch not supported on iOS.");
+            _switchCallback?.Invoke();
+#else
+            Debug.LogWarning($"[Wortal] Context.Switch not supported on this platform.");
+            _switchCallback?.Invoke();
 #endif
         }
 
@@ -386,23 +505,33 @@ namespace DigitalWill.WortalSDK
         /// <returns>Object with the result of the check. Null if not supported.</returns>
         public ContextSizeResponse IsSizeBetween(int min = 0, int max = 0)
         {
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL
             string result = ContextIsSizeBetweenJS(min, max);
             return JsonConvert.DeserializeObject<ContextSizeResponse>(result);
-#else
+#elif UNITY_EDITOR
             Debug.Log($"[Wortal] Mock Context.IsSizeBetween({min}, {max})");
             return new ContextSizeResponse
             {
-                Answer = true,
+                Answer = true, // Mocking a positive response
                 MinSize = min,
                 MaxSize = max,
             };
+#elif UNITY_ANDROID
+            Debug.LogWarning($"[Wortal] Context.IsSizeBetween({min}, {max}) not supported on Android. Returning false.");
+            return new ContextSizeResponse { Answer = false, MinSize = min, MaxSize = max };
+#elif UNITY_IOS
+            Debug.LogWarning($"[Wortal] Context.IsSizeBetween({min}, {max}) not supported on iOS. Returning false.");
+            return new ContextSizeResponse { Answer = false, MinSize = min, MaxSize = max };
+#else
+            Debug.LogWarning($"[Wortal] Context.IsSizeBetween({min}, {max}) not supported on this platform. Returning false.");
+            return new ContextSizeResponse { Answer = false, MinSize = min, MaxSize = max };
 #endif
         }
 
 #endregion Public API
 #region JSlib Interface
 
+#if UNITY_WEBGL
         [DllImport("__Internal")]
         private static extern string ContextGetIdJS();
 
@@ -441,7 +570,9 @@ namespace DigitalWill.WortalSDK
 
         [DllImport("__Internal")]
         private static extern string ContextIsSizeBetweenJS(int min, int max);
+#endif
 
+#if UNITY_WEBGL
         [MonoPInvokeCallback(typeof(Action<string>))]
         private static void ContextGetPlayersCallback(string players)
         {
@@ -507,6 +638,7 @@ namespace DigitalWill.WortalSDK
         {
             _switchCallback?.Invoke();
         }
+#endif
 
 #endregion JSlib Interface
     }

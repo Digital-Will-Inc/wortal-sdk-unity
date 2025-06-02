@@ -5,7 +5,13 @@
         "DigitalWill.WortalSDK",
         "Unity.Localization"
     ],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Editor",
+        "Android",
+        "iOS",
+        "Standalone",
+        "WebGL"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
