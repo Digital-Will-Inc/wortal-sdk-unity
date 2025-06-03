@@ -2,7 +2,7 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-namespace DigitalWill.Wortal.Editor
+namespace DigitalWill.WortalEditor
 {
     [InitializeOnLoad]
     public class DependencyProcessor : AssetPostprocessor

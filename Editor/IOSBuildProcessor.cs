@@ -7,7 +7,7 @@ using UnityEditor.Callbacks;
 using UnityEditor.iOS.Xcode;
 #endif
 
-namespace DigitalWill.Wortal.Editor
+namespace DigitalWill.WortalEditor
 {
     public class IOSBuildProcessor
     {

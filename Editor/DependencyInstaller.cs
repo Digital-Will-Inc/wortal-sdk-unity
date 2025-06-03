@@ -6,7 +6,7 @@ using UnityEditor.PackageManager;
 using UnityEditor.PackageManager.Requests;
 using UnityEngine;
 
-namespace DigitalWill.Wortal.Editor
+namespace DigitalWill.WortalEditor
 {
     [InitializeOnLoad]
     public class DependencyInstaller : EditorWindow
