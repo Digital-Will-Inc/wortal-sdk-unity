@@ -41,5 +41,9 @@
         newgrounds,
         perpetuum,
         debug,
+        iOS,
+        Android,
+        WebGL,
+        Unknown
     }
 }

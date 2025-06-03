@@ -2,13 +2,14 @@
     "name": "DigitalWill.WortalSDK",
     "rootNamespace": "DigitalWill.WortalSDK",
     "references": [
-        "DigitalWill.WortalSDK.Core",
         "Unity.Addressables",
         "Unity.ResourceManager"
     ],
     "includePlatforms": [
         "Editor",
-        "WebGL"
+        "WebGL",
+        "Android",
+        "iOS"
     ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

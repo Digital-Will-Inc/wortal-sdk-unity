@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using DigitalWill.WortalSDK.Core;
 
 namespace DigitalWill.WortalSDK
 {
@@ -137,7 +136,7 @@ namespace DigitalWill.WortalSDK
             {
                 var error = new WortalError
                 {
-                    Code = WortalErrorCodes.INVALID_CONFIGURATION,
+                    Code = WortalErrorCodes.INVALID_CONFIGURATION.ToString(),
                     Message = "Invalid Wortal SDK configuration. Check console for details."
                 };
                 onError?.Invoke(error);
@@ -203,7 +202,7 @@ namespace DigitalWill.WortalSDK
             {
                 var error = new WortalError
                 {
-                    Code = WortalErrorCodes.INITIALIZATION_ERROR,
+                    Code = WortalErrorCodes.INITIALIZATION_ERROR.ToString(),
                     Message = "Wortal SDK must be initialized before starting the game"
                 };
                 onError?.Invoke(error);

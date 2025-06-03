@@ -16,6 +16,12 @@
         /// limitations, such as exceeding storage thresholds, or are not available in a certain state, such as making
         /// a context-specific request in a solo context.
         /// </summary>
+        INVALID_CONFIGURATION,
+        /// <summary>
+        /// The requested operation is invalid or the current game state. This may include requests that violate
+        /// limitations, such as exceeding storage thresholds, or are not available in a certain state, such as making
+        /// a context-specific request in a solo context.
+        /// </summary>
         INVALID_OPERATION,
         /// <summary>
         /// The parameter(s) passed to the API are invalid. Could indicate an incorrect type, invalid number of
