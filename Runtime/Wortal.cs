@@ -1,400 +1,478 @@
 using System;
-using System.Runtime.InteropServices;
-using AOT;
-using Newtonsoft.Json;
 using UnityEngine;
+using DigitalWill.WortalSDK.Core;
 
 namespace DigitalWill.WortalSDK
 {
     /// <summary>
-    /// Wortal API
+    /// Main entry point for the Wortal SDK
+    /// Provides unified API across all supported platforms (WebGL, Android with Google Play Games, iOS with Game Center)
     /// </summary>
     public static class Wortal
     {
-        private static Action _initializeCallback;
-        private static Action _startGameCallback;
-        private static Action<AuthResponse> _authenticateCallback;
-        private static Action<bool> _linkAccountCallback;
-        private static Action _performHapticFeedbackCallback;
-
-        #region Public API
-
-        public static Action<WortalError> WortalError;
-        public static Action OnPause;
-
-        public static Action OnResume;
+        private static bool _isInitialized = false;
+        private static IWortalPlatform _platform;
+        private static WortalSettings _settings;
 
         /// <summary>
-        /// Achievements API
+        /// Gets the current platform implementation
         /// </summary>
-        public static WortalAchievements Achievements { get; } = new();
-        /// <summary>
-        /// Ads API
-        /// </summary>
-        public static WortalAds Ads { get; } = new();
-        /// <summary>
-        /// Analytics API
-        /// </summary>
-        public static WortalAnalytics Analytics { get; } = new();
-        /// <summary>
-        /// Context API
-        /// </summary>
-        public static WortalContext Context { get; } = new();
-        /// <summary>
-        /// In-App Purchasing API
-        /// </summary>
-        public static WortalIAP IAP { get; } = new();
-        /// <summary>
-        /// Leaderboard API
-        /// </summary>
-        public static WortalLeaderboard Leaderboard { get; } = new();
-        /// <summary>
-        /// Notifications API
-        /// </summary>
-        public static WortalNotifications Notifications { get; } = new();
-        /// <summary>
-        /// Player API
-        /// </summary>
-        public static WortalPlayer Player { get; } = new();
-        /// <summary>
-        /// Session API
-        /// </summary>
-        public static WortalSession Session { get; } = new();
-        /// <summary>
-        /// Stats API
-        /// </summary>
-        public static WortalStats Stats { get; } = new();
-        /// <summary>
-        /// Tournament API
-        /// </summary>
-        public static WortalTournament Tournament { get; } = new();
-
-        /// <summary>
-        /// Returns true if the Wortal SDK has been initialized.
-        /// </summary>
-        public static bool IsInitialized
+        public static IWortalPlatform Platform
         {
             get
             {
-#if UNITY_WEBGL && !UNITY_EDITOR
-                return IsInitializedJS();
-#else
-                Debug.Log("[Wortal] Mock IsInitialized()");
-                return true;
-#endif
-            }
-        }
-
-        /// <summary>
-        /// Initializes the SDK. This should be called before any other SDK functions. It is recommended to call this
-        /// as soon as the script has been loaded to shorten the initialization time.
-        ///
-        /// NOTE: This is only available if the manual initialization option is set to true. Otherwise, the SDK will initialize automatically.
-        ///
-        /// PLATFORM NOTE: Only supported on Viber, Link and Facebook.
-        /// </summary>
-        /// <param name="callback">Void callback that is fired when the SDK has initialized successfully.</param>
-        /// <param name="errorCallback">Error callback event with <see cref="WortalError"/> describing the error.</param>
-        /// <example><code>
-        /// Wortal.Initialize(
-        ///     () => Debug.Log("SDK Initialized"),
-        ///     error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
-        /// </code></example>
-        /// <throws><ul>
-        /// <li>INITIALIZATION_ERROR</li>
-        /// <li>NOT_SUPPORTED</li>
-        /// </ul></throws>
-        public static void Initialize(Action callback, Action<WortalError> errorCallback)
-        {
-            _initializeCallback = callback;
-            WortalError = errorCallback;
-#if UNITY_WEBGL && !UNITY_EDITOR
-            InitializeJS(InitializeCallback, WortalErrorCallback);
-#else
-            Debug.Log("[Wortal] Mock Initialize()");
-            _initializeCallback?.Invoke();
-#endif
-        }
-
-        /// <summary>
-        /// This indicates that the game has finished initial loading and is ready to start. Context information will be
-        /// up-to-date when the returned promise resolves. The loading screen will be removed after this is called along with
-        /// the following conditions:
-        /// <ul>
-        /// <li>initializeAsync has been called and resolved</li>
-        /// <li>setLoadingProgress has been called with a value of 100</li>
-        /// </ul>
-        ///
-        /// NOTE: This is only available if the manual initialization option is set to true. Otherwise, the game will start automatically.
-        ///
-        /// PLATFORM NOTE: Only supported on Viber, Link and Facebook.
-        /// </summary>
-        /// <param name="callback">Void callback that is fired when the game has started.</param>
-        /// <param name="errorCallback">Error callback event with <see cref="WortalError"/> describing the error.</param>
-        /// <example><code>
-        /// Wortal.StartGame(
-        ///     () => Debug.Log("Game Started"),
-        ///     error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
-        /// </code></example>
-        /// <throws><ul>
-        /// <li>INITIALIZATION_ERROR</li>
-        /// <li>NOT_SUPPORTED</li>
-        /// </ul></throws>
-        public static void StartGame(Action callback, Action<WortalError> errorCallback)
-        {
-            _startGameCallback = callback;
-            WortalError = errorCallback;
-#if UNITY_WEBGL && !UNITY_EDITOR
-            StartGameJS(StartGameCallback, WortalErrorCallback);
-#else
-            Debug.Log("[Wortal] Mock StartGame()");
-            _startGameCallback?.Invoke();
-#endif
-        }
-
-        /// <summary>
-        /// Starts the authentication process for the player. If the current platform has its own authentication prompt then
-        /// this will be displayed.
-        /// </summary>
-        /// <param name="callback">Callback that is fired when the authentication process is complete. Contains the response
-        /// with the authentication status.</param>
-        /// <param name="errorCallback">Error callback event with <see cref="WortalError"/> describing the error.</param>
-        /// <example><code>
-        /// Wortal.Authenticate(
-        ///     response => Debug.Log("Authentication Complete. Status: " + response.Status),
-        ///     error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
-        /// </code></example>
-        /// <throws><ul>
-        /// <li>AUTH_IN_PROGRESS</li>
-        /// <li>USER_ALREADY_AUTHENTICATED</li>
-        /// <li>USER_INPUT</li>
-        /// <li>NOT_SUPPORTED</li>
-        /// </ul></throws>
-        public static void Authenticate(Action<AuthResponse> callback, Action<WortalError> errorCallback)
-        {
-            _authenticateCallback = callback;
-            WortalError = errorCallback;
-#if UNITY_WEBGL && !UNITY_EDITOR
-            AuthenticateJS(AuthenticateCallback, WortalErrorCallback);
-#else
-            Debug.Log("[Wortal] Mock AuthenticateAsync()");
-            var status = new AuthResponse
-            {
-                Status = AuthStatus.SUCCESS,
-            };
-            _authenticateCallback?.Invoke(status);
-#endif
-        }
-
-        /// <summary>
-        /// Starts the account linking process for the player. If the current platform has its own account linking prompt then
-        /// this will be displayed.
-        /// </summary>
-        /// <param name="callback">Callback that is fired when the account linking process is complete. Contains whether
-        /// the account was linked or not.</param>
-        /// <param name="errorCallback">Error callback event with <see cref="WortalError"/> describing the error.</param>
-        /// <example><code>
-        /// Wortal.LinkAccount(
-        ///     result => Debug.Log("Account Linking Complete. Linked: " + result),
-        ///     error => Debug.Log("Error Code: " + error.Code + "\nError: " + error.Message));
-        /// </code></example>
-        /// <throws><ul>
-        /// <li>LINK_IN_PROGRESS</li>
-        /// <li>USER_NOT_AUTHENTICATED</li>
-        /// <li>NOT_SUPPORTED</li>
-        /// </ul></throws>
-        public static void LinkAccount(Action<bool> callback, Action<WortalError> errorCallback)
-        {
-            _linkAccountCallback = callback;
-            WortalError = errorCallback;
-#if UNITY_WEBGL && !UNITY_EDITOR
-            LinkAccountJS(LinkAccountCallback, WortalErrorCallback);
-#else
-            Debug.Log("[Wortal] Mock LinkAccount()");
-            _linkAccountCallback?.Invoke(true);
-#endif
-        }
-
-        /// <summary>
-        /// Sets the loading progress value for the game. This is required for the game to start. Failure to call this with 100
-        /// once the game is fully loaded will prevent the game from starting.
-        /// </summary>
-        /// <param name="value">Percentage of loading complete. Range is 0 to 100.</param>
-        public static void SetLoadingProgress(int value)
-        {
-#if UNITY_WEBGL && !UNITY_EDITOR
-            SetLoadingProgressJS(value);
-#else
-            Debug.Log($"[Wortal] Mock SetLoadingProgress({value})");
-#endif
-        }
-
-        /// <summary>
-        /// Get the list of APIs supported by the current platform.
-        /// </summary>
-        /// <returns>String array containing all APIs supported.</returns>
-        /// <example><code>
-        /// string[] supportedAPIs = Wortal.GetSupportedAPIs();
-        /// int index = Array.IndexOf(supportedAPIs, "iap.makePurchaseAsync");
-        /// IAPShopButton.SetActive(index > -1);
-        /// </code></example>
-        public static string[] GetSupportedAPIs()
-        {
-#if UNITY_WEBGL && !UNITY_EDITOR
-            return JsonConvert.DeserializeObject<string[]>(GetSupportedAPIsJS());
-#else
-            Debug.Log("[Wortal] Mock GetSupportedAPIs()");
-            return new[]
-            {
-                "mock.API",
-                "mock.API2",
-            };
-#endif
-        }
-
-        /// <summary>
-        /// Perform a haptic feedback effect.
-        /// </summary>
-        /// <param name="callback">Callback for after the request was made. If the device is not supported then its
-        /// possible the underlying Promise is left pending and this callback is never reached. Do not depend on this callback.</param>
-        /// <param name="errorCallback">Error callback event with <see cref="WortalError"/> describing the error.</param>
-        public static void PerformHapticFeedback(Action callback, Action<WortalError> errorCallback)
-        {
-            _performHapticFeedbackCallback = callback;
-            WortalError = errorCallback;
-#if UNITY_WEBGL && !UNITY_EDITOR
-            PerformHapticFeedbackJS(PerformHapticFeedbackCallback, WortalErrorCallback);
-#else
-            Debug.Log("[Wortal] Mock PerformHapticFeedback()");
-#endif
-        }
-
-        #endregion Public API
-        #region Internal
-
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        private static void Init()
-        {
-            Debug.Log("[Wortal] Initializing Unity SDK..");
-#if UNITY_WEBGL && !UNITY_EDITOR
-            //registering callback
-            OnPauseJS(OnPauseCallback);
-            OnResumeJS(OnResumeCallback);
-#endif
-            Debug.Log("[Wortal] Unity SDK initialization complete.");
-        }
-
-        [DllImport("__Internal")]
-        private static extern bool IsInitializedJS();
-
-        [DllImport("__Internal")]
-        private static extern void InitializeJS(Action callback, Action<string> errorCallback);
-
-        [DllImport("__Internal")]
-        private static extern void StartGameJS(Action callback, Action<string> errorCallback);
-
-        [DllImport("__Internal")]
-        private static extern void AuthenticateJS(Action<string> callback, Action<string> errorCallback);
-
-        [DllImport("__Internal")]
-        private static extern void LinkAccountJS(Action<bool> callback, Action<string> errorCallback);
-
-        [DllImport("__Internal")]
-        private static extern void SetLoadingProgressJS(int value);
-
-        [DllImport("__Internal")]
-        private static extern void OnPauseJS(Action callback);
-
-        [DllImport("__Internal")]
-        private static extern void OnResumeJS(Action callback);
-
-        [DllImport("__Internal")]
-        private static extern string GetSupportedAPIsJS();
-
-        [DllImport("__Internal")]
-        private static extern void PerformHapticFeedbackJS(Action callback, Action<string> errorCallback);
-
-        [MonoPInvokeCallback(typeof(Action<string>))]
-        public static void WortalErrorCallback(string error)
-        {
-            WortalError wortalError;
-
-            try
-            {
-                wortalError = JsonConvert.DeserializeObject<WortalError>(error);
-            }
-            catch (Exception e)
-            {
-                wortalError = new WortalError
+                if (_platform == null)
                 {
-                    Code = WortalErrorCodes.SERIALIZATION_ERROR.ToString(),
-                    Message = e.Message
-                };
+                    _platform = WortalPlatformManager.CurrentPlatform;
+                }
+                return _platform;
             }
-
-            WortalError?.Invoke(wortalError);
         }
 
-        [MonoPInvokeCallback(typeof(Action))]
-        private static void InitializeCallback()
+        /// <summary>
+        /// Gets the Wortal SDK settings
+        /// </summary>
+        public static WortalSettings Settings
         {
-            _initializeCallback?.Invoke();
-        }
-
-        [MonoPInvokeCallback(typeof(Action))]
-        private static void StartGameCallback()
-        {
-            _startGameCallback?.Invoke();
-        }
-
-        [MonoPInvokeCallback(typeof(Action<string>))]
-        private static void AuthenticateCallback(string status)
-        {
-            AuthResponse authResponse;
-
-            try
+            get
             {
-                authResponse = JsonConvert.DeserializeObject<AuthResponse>(status);
-            }
-            catch (Exception e)
-            {
-                WortalError error = new()
+                if (_settings == null)
                 {
-                    Code = WortalErrorCodes.SERIALIZATION_ERROR.ToString(),
-                    Message = e.Message
-                };
+                    _settings = WortalSettings.Instance;
+                }
+                return _settings;
+            }
+        }
 
-                WortalError?.Invoke(error);
+        #region API Properties
+
+        /// <summary>
+        /// Authentication API - Unified authentication across Google Play Games, Apple Game Center, and WebGL
+        /// </summary>
+        public static IWortalAuthentication Authentication => Platform.Authentication;
+
+        /// <summary>
+        /// Achievements API - Unified achievements across all platforms
+        /// </summary>
+        public static IWortalAchievements Achievements => Platform.Achievements;
+
+        /// <summary>
+        /// Ads API - Unified advertising across all platforms
+        /// </summary>
+        public static IWortalAds Ads => Platform.Ads;
+
+        /// <summary>
+        /// Analytics API - Unified analytics tracking across all platforms
+        /// </summary>
+        public static IWortalAnalytics Analytics => Platform.Analytics;
+
+        /// <summary>
+        /// Context API - Social context and multiplayer features
+        /// </summary>
+        public static IWortalContext Context => Platform.Context;
+
+        /// <summary>
+        /// In-App Purchase API - Unified IAP across all platforms
+        /// </summary>
+        public static IWortalIAP IAP => Platform.IAP;
+
+        /// <summary>
+        /// Leaderboard API - Unified leaderboards across all platforms
+        /// </summary>
+        public static IWortalLeaderboard Leaderboard => Platform.Leaderboard;
+
+        /// <summary>
+        /// Notifications API - Unified notifications across all platforms
+        /// </summary>
+        public static IWortalNotifications Notifications => Platform.Notifications;
+
+        /// <summary>
+        /// Player API - Unified player data and social features
+        /// </summary>
+        public static IWortalPlayer Player => Platform.Player;
+
+        /// <summary>
+        /// Session API - Game session management and platform-specific features
+        /// </summary>
+        public static IWortalSession Session => Platform.Session;
+
+        /// <summary>
+        /// Stats API - Unified game statistics tracking across all platforms
+        /// </summary>
+        public static IWortalStats Stats => Platform.Stats;
+
+        /// <summary>
+        /// Tournament API - Unified tournament management across all platforms
+        /// </summary>
+        public static IWortalTournament Tournament => Platform.Tournament;
+
+        #endregion
+
+        #region Initialization
+
+        /// <summary>
+        /// Initializes the Wortal SDK with automatic platform detection
+        /// </summary>
+        /// <param name="onSuccess">Callback for successful initialization</param>
+        /// <param name="onError">Callback for initialization errors</param>
+        public static void Initialize(Action onSuccess = null, Action<WortalError> onError = null)
+        {
+            if (_isInitialized)
+            {
+                if (Settings.enableDebugLogging)
+                {
+                    Debug.Log("[Wortal] SDK already initialized");
+                }
+                onSuccess?.Invoke();
                 return;
             }
 
-            _authenticateCallback?.Invoke(authResponse);
+            if (Settings.enableDebugLogging)
+            {
+                Debug.Log($"[Wortal] Initializing SDK for platform: {Platform.PlatformType}");
+            }
+
+            // Validate configuration before initialization
+            if (!Settings.ValidateSettings())
+            {
+                var error = new WortalError
+                {
+                    Code = WortalErrorCodes.INVALID_CONFIGURATION,
+                    Message = "Invalid Wortal SDK configuration. Check console for details."
+                };
+                onError?.Invoke(error);
+                return;
+            }
+
+            Platform.Initialize(
+                () =>
+                {
+                    _isInitialized = true;
+                    if (Settings.enableDebugLogging)
+                    {
+                        Debug.Log($"[Wortal] SDK initialized successfully on {Platform.PlatformType}");
+                        LogSupportedAPIs();
+                    }
+                    onSuccess?.Invoke();
+                },
+                (error) =>
+                {
+                    Debug.LogError($"[Wortal] Failed to initialize SDK: {error.Message}");
+                    onError?.Invoke(error);
+                }
+            );
         }
 
-        [MonoPInvokeCallback(typeof(Action<bool>))]
-        private static void LinkAccountCallback(bool status)
+        /// <summary>
+        /// Auto-initializes the SDK if enabled in settings
+        /// Called by Unity's RuntimeInitializeOnLoadMethod
+        /// </summary>
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        private static void AutoInitialize()
         {
-            _linkAccountCallback?.Invoke(status);
+            if (Settings.autoInitialize)
+            {
+                Initialize(
+                    () =>
+                    {
+                        if (Settings.enableDebugLogging)
+                        {
+                            Debug.Log("[Wortal] Auto-initialization completed");
+                        }
+                    },
+                    (error) =>
+                    {
+                        Debug.LogError($"[Wortal] Auto-initialization failed: {error.Message}");
+                    }
+                );
+            }
         }
 
-        [MonoPInvokeCallback(typeof(Action))]
-        private static void OnPauseCallback()
+        #endregion
+
+        #region Game Lifecycle
+
+        /// <summary>
+        /// Starts the game (primarily for WebGL compatibility, but works on all platforms)
+        /// </summary>
+        /// <param name="onSuccess">Callback for successful game start</param>
+        /// <param name="onError">Callback for errors</param>
+        public static void StartGame(Action onSuccess = null, Action<WortalError> onError = null)
         {
-            OnPause?.Invoke();
+            if (!_isInitialized)
+            {
+                var error = new WortalError
+                {
+                    Code = WortalErrorCodes.INITIALIZATION_ERROR,
+                    Message = "Wortal SDK must be initialized before starting the game"
+                };
+                onError?.Invoke(error);
+                return;
+            }
+
+            if (Platform.PlatformType == WortalPlatformType.WebGL)
+            {
+                // WebGL-specific implementation handles platform requirements
+                Platform.Session.StartGame(onSuccess, onError);
+            }
+            else
+            {
+                // For native platforms (Android/iOS), game is already "started"
+                if (Settings.enableDebugLogging)
+                {
+                    Debug.Log($"[Wortal] Game started on {Platform.PlatformType}");
+                }
+                onSuccess?.Invoke();
+            }
         }
 
-        [MonoPInvokeCallback(typeof(Action))]
-        private static void OnResumeCallback()
+        /// <summary>
+        /// Sets the loading progress (useful for WebGL platforms)
+        /// </summary>
+        /// <param name="progress">Loading progress (0-100)</param>
+        public static void SetLoadingProgress(int progress)
         {
-            OnResume?.Invoke();
+            if (_isInitialized)
+            {
+                Platform.Session.SetLoadingProgress(progress);
+            }
         }
 
-        [MonoPInvokeCallback(typeof(Action))]
-        private static void PerformHapticFeedbackCallback()
+        /// <summary>
+        /// Notifies the platform that the game is ready
+        /// </summary>
+        public static void GameReady()
         {
-            _performHapticFeedbackCallback?.Invoke();
+            if (_isInitialized)
+            {
+                Platform.Session.GameReady();
+                if (Settings.enableDebugLogging)
+                {
+                    Debug.Log("[Wortal] Game ready signal sent");
+                }
+            }
         }
 
-        #endregion Internal
+        /// <summary>
+        /// Notifies the platform that gameplay has started
+        /// </summary>
+        public static void GameplayStart()
+        {
+            if (_isInitialized)
+            {
+                Platform.Session.GameplayStart();
+                if (Settings.enableDebugLogging)
+                {
+                    Debug.Log("[Wortal] Gameplay started");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Notifies the platform that gameplay has stopped
+        /// </summary>
+        public static void GameplayStop()
+        {
+            if (_isInitialized)
+            {
+                Platform.Session.GameplayStop();
+                if (Settings.enableDebugLogging)
+                {
+                    Debug.Log("[Wortal] Gameplay stopped");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Notifies the platform of a happy moment (good time for ads/prompts)
+        /// </summary>
+        public static void HappyTime()
+        {
+            if (_isInitialized)
+            {
+                Platform.Session.HappyTime();
+                if (Settings.enableDebugLogging)
+                {
+                    Debug.Log("[Wortal] Happy time signal sent");
+                }
+            }
+        }
+
+        #endregion
+
+        #region Platform Information
+
+        /// <summary>
+        /// Gets the supported APIs for the current platform
+        /// </summary>
+        /// <returns>Array of supported API names</returns>
+        public static string[] GetSupportedAPIs()
+        {
+            return Platform.GetSupportedAPIs();
+        }
+
+        /// <summary>
+        /// Checks if the SDK is initialized
+        /// </summary>
+        public static bool IsInitialized => _isInitialized && Platform.IsInitialized;
+
+        /// <summary>
+        /// Gets the current platform type
+        /// </summary>
+        public static WortalPlatformType PlatformType => Platform.PlatformType;
+
+        /// <summary>
+        /// Checks if a specific API is supported on the current platform
+        /// </summary>
+        /// <param name="apiName">Name of the API to check</param>
+        /// <returns>True if the API is supported</returns>
+        public static bool IsAPISupported(string apiName)
+        {
+            var supportedAPIs = GetSupportedAPIs();
+            return Array.IndexOf(supportedAPIs, apiName) > -1;
+        }
+
+        #endregion
+
+        #region Utility Methods
+
+        /// <summary>
+        /// Logs the supported APIs for debugging purposes
+        /// </summary>
+        private static void LogSupportedAPIs()
+        {
+            var supportedAPIs = GetSupportedAPIs();
+            if (supportedAPIs.Length > 0)
+            {
+                Debug.Log($"[Wortal] Supported APIs on {PlatformType}: {string.Join(", ", supportedAPIs)}");
+            }
+            else
+            {
+                Debug.Log($"[Wortal] No APIs reported as supported on {PlatformType}");
+            }
+        }
+
+        /// <summary>
+        /// Forces reinitialization of the platform (useful for testing)
+        /// </summary>
+        [System.Diagnostics.Conditional("UNITY_EDITOR")]
+        public static void ForceReinitialize()
+        {
+            _isInitialized = false;
+            _platform = null;
+            WortalPlatformManager.ForceReinitialize();
+
+            if (Settings.enableDebugLogging)
+            {
+                Debug.Log("[Wortal] Platform reinitialization forced");
+            }
+        }
+
+        #endregion
+
+        #region Legacy Compatibility Methods
+
+        /// <summary>
+        /// [DEPRECATED] Use Authentication.Authenticate() instead
+        /// Authenticates the player on the current platform
+        /// </summary>
+        [Obsolete("Use Authentication.Authenticate() instead", false)]
+        public static void Authenticate(Action<AuthResponse> onSuccess, Action<WortalError> onError)
+        {
+            if (Settings.enableDebugLogging)
+            {
+                Debug.LogWarning("[Wortal] Wortal.Authenticate() is deprecated. Use Wortal.Authentication.Authenticate() instead.");
+            }
+            Authentication.Authenticate(onSuccess, onError);
+        }
+
+        /// <summary>
+        /// [DEPRECATED] Use Authentication.LinkAccount() instead
+        /// Links the current account with platform-specific account
+        /// </summary>
+        [Obsolete("Use Authentication.LinkAccount() instead", false)]
+        public static void LinkAccount(Action<bool> onSuccess, Action<WortalError> onError)
+        {
+            if (Settings.enableDebugLogging)
+            {
+                Debug.LogWarning("[Wortal] Wortal.LinkAccount() is deprecated. Use Wortal.Authentication.LinkAccount() instead.");
+            }
+            Authentication.LinkAccount(onSuccess, onError);
+        }
+
+        /// <summary>
+        /// [DEPRECATED] Use Achievements.GetAchievements() instead
+        /// Gets all achievements for the game
+        /// </summary>
+        [Obsolete("Use Achievements.GetAchievements() instead", false)]
+        public static void GetAchievements(Action<Achievement[]> onSuccess, Action<WortalError> onError)
+        {
+            if (Settings.enableDebugLogging)
+            {
+                Debug.LogWarning("[Wortal] Wortal.GetAchievements() is deprecated. Use Wortal.Achievements.GetAchievements() instead.");
+            }
+            Achievements.GetAchievements(onSuccess, onError);
+        }
+
+        /// <summary>
+        /// [DEPRECATED] Use Achievements.UnlockAchievement() instead
+        /// Unlocks an achievement
+        /// </summary>
+        [Obsolete("Use Achievements.UnlockAchievement() instead", false)]
+        public static void UnlockAchievement(string achievementID, Action onSuccess, Action<WortalError> onError)
+        {
+            if (Settings.enableDebugLogging)
+            {
+                Debug.LogWarning("[Wortal] Wortal.UnlockAchievement() is deprecated. Use Wortal.Achievements.UnlockAchievement() instead.");
+            }
+            Achievements.UnlockAchievement(achievementID, onSuccess, onError);
+        }
+
+        #endregion
+
+        #region Debug Information
+
+        /// <summary>
+        /// Gets debug information about the current SDK state
+        /// </summary>
+        /// <returns>Debug information string</returns>
+        public static string GetDebugInfo()
+        {
+            var info = $"Wortal SDK Debug Info:\n";
+            info += $"- Platform: {PlatformType}\n";
+            info += $"- Initialized: {IsInitialized}\n";
+            info += $"- Auto Initialize: {Settings.autoInitialize}\n";
+            info += $"- Debug Logging: {Settings.enableDebugLogging}\n";
+            info += $"- Supported APIs: {string.Join(", ", GetSupportedAPIs())}\n";
+
+            // Platform-specific debug info
+            switch (PlatformType)
+            {
+                case WortalPlatformType.Android:
+                    info += $"- Google Play Games: {Settings.enableGooglePlayGames}\n";
+                    info += $"- GPG App ID: {(string.IsNullOrEmpty(Settings.googlePlayGamesAppId) ? "Not Set" : "Set")}\n";
+                    break;
+                case WortalPlatformType.iOS:
+                    info += $"- Apple Game Center: {Settings.enableAppleGameCenter}\n";
+                    info += $"- Bundle ID: {(string.IsNullOrEmpty(Settings.appleGameCenterBundleId) ? "Not Set" : "Set")}\n";
+                    break;
+                case WortalPlatformType.WebGL:
+                    info += $"- WebGL Game ID: {(string.IsNullOrEmpty(Settings.webglGameId) ? "Not Set" : "Set")}\n";
+                    break;
+            }
+
+            return info;
+        }
+
+        /// <summary>
+        /// Prints debug information to the console
+        /// </summary>
+        [System.Diagnostics.Conditional("UNITY_EDITOR")]
+        public static void PrintDebugInfo()
+        {
+            Debug.Log(GetDebugInfo());
+        }
+
+        #endregion
     }
 }
