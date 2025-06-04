@@ -1,49 +1,45 @@
-using System;
+﻿using System;
+using Newtonsoft.Json;
 
-namespace DigitalWill.WortalSDK.Core
+namespace DigitalWill.WortalSDK
 {
     /// <summary>
-    /// Represents an error in the Wortal SDK
+    /// Represents an error returned from the Wortal SDK. You can check the ErrorCode property to determine the type
+    /// of error, and the Message property for more details. The URL property will contain a link to the relevant API
+    /// docs for the error.
     /// </summary>
     [Serializable]
-    public class WortalError
+    public struct WortalError
     {
         /// <summary>
-        /// Error code
+        /// Error code. This can be compared to <see cref="WortalErrorCodes"/> for determining the type of error.
         /// </summary>
-        public string Code { get; set; }
+        [JsonProperty("code")]
+        public string Code;
+        /// <summary>
+        /// Details about the error.
+        /// </summary>
+        [JsonProperty("message")]
+        public string Message;
+        /// <summary>
+        /// Any context provided about the error, such as the calling method that caught the error.
+        /// </summary>
+        [JsonProperty("context")]
+        public string Context;
+        /// <summary>
+        /// URL to the relevant API docs for this error.
+        /// </summary>
+        [JsonProperty("url", NullValueHandling = NullValueHandling.Ignore, DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public string URL;
 
         /// <summary>
-        /// Error message
+        /// Returns the enum value of the parsed error code.
         /// </summary>
-        public string Message { get; set; }
-
-        /// <summary>
-        /// Additional error details
-        /// </summary>
-        public object Details { get; set; }
+        public WortalErrorCodes ErrorCode => (WortalErrorCodes)Enum.Parse(typeof(WortalErrorCodes), Code);
 
         public override string ToString()
         {
-            return $"WortalError: {Code} - {Message}";
+            return $"Code: {Code}, Message: {Message}, Context: {Context}";
         }
-    }
-
-    /// <summary>
-    /// Standard error codes used throughout the SDK
-    /// </summary>
-    public static class WortalErrorCodes
-    {
-        public const string INITIALIZATION_ERROR = "INITIALIZATION_ERROR";
-        public const string NOT_SUPPORTED = "NOT_SUPPORTED";
-        public const string INVALID_CONFIGURATION = "INVALID_CONFIGURATION";
-        public const string AUTHENTICATION_FAILED = "AUTHENTICATION_FAILED";
-        public const string NETWORK_ERROR = "NETWORK_ERROR";
-        public const string INVALID_PARAMETER = "INVALID_PARAMETER";
-        public const string OPERATION_CANCELLED = "OPERATION_CANCELLED";
-        public const string PERMISSION_DENIED = "PERMISSION_DENIED";
-        public const string RATE_LIMITED = "RATE_LIMITED";
-        public const string SERVICE_UNAVAILABLE = "SERVICE_UNAVAILABLE";
-        public const string UNKNOWN_ERROR = "UNKNOWN_ERROR";
     }
 }

@@ -1,11 +1,12 @@
-namespace DigitalWill.WortalSDK.Core
+﻿namespace DigitalWill.WortalSDK
 {
+    /// <summary>
+    /// Status types for the Wortal authentication API.
+    /// </summary>
     public enum AuthStatus
     {
-        Unknown,
-        Authenticated,
-        NotAuthenticated,
-        InProgress,
-        Failed
+        SUCCESS,
+        ERROR,
+        CANCEL,
     }
 }

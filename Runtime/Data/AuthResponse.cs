@@ -1,14 +1,17 @@
-using System;
+﻿using System;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
-namespace DigitalWill.WortalSDK.Core
+namespace DigitalWill.WortalSDK
 {
+    /// <summary>
+    /// Response from the Wortal authentication API.
+    /// </summary>
     [Serializable]
-    public class AuthResponse
+    public struct AuthResponse
     {
-        public string playerID;
-        public string playerName;
-        public string playerPhoto;
-        public bool isFirstTime;
-        public object platformData;
+        [JsonConverter(typeof(StringEnumConverter))]
+        [JsonProperty("status")]
+        public AuthStatus Status;
     }
 }
