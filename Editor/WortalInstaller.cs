@@ -15,7 +15,7 @@ namespace DigitalWill.WortalEditor
         private const string TEMPLATE_PATH = "Assets/WebGLTemplates/Wortal";
         private const string TEMPLATE_SOURCE = "Packages/jp.co.digitalwill.wortal/Assets/WebGLTemplates/Wortal";
 
-        [MenuItem("Wortal/WebGL/Install WebGL Template")]
+        // [MenuItem("Wortal/WebGL/Install WebGL Template")]
         internal static void InstallWebGLTemplate()
         {
             Debug.Log(LOG_PREFIX + "Installing Wortal WebGL template...");
@@ -59,7 +59,7 @@ namespace DigitalWill.WortalEditor
             Debug.Log(LOG_PREFIX + "Wortal WebGL template installed.");
         }
 
-        [MenuItem("Wortal/WebGL/Set Project Settings")]
+        // [MenuItem("Wortal/WebGL/Set Project Settings")]
         internal static void SetProjectSettings()
         {
             Debug.Log(LOG_PREFIX + "Starting Wortal SDK plugin configuration..");

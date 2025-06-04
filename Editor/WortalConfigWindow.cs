@@ -13,8 +13,11 @@ namespace DigitalWill.WortalEditor
 {
     public class WortalConfigWindow : EditorWindow
     {
-        private enum ConfigTab { General, WebGL, Android, iOS, Optimizations }
+        private enum ConfigTab { General, WebGL, Android, iOS }
+        private enum WebGLSubTab { Settings, LazyLoad, AssetStrip }
+
         private ConfigTab currentTab = ConfigTab.General;
+        private WebGLSubTab currentWebGLSubTab = WebGLSubTab.Settings;
 
         // General state
         private static AddRequest addRequest;
@@ -36,17 +39,20 @@ namespace DigitalWill.WortalEditor
         private LazyLoadSystem lazyLoadSystem;
         private UnusedAssetScanner unusedAssetScanner;
         private const string DefaultConfigPath = "Assets/Resources/LazyLoadConfig.asset";
+        private const string ConfigPathKey = "WortalSDK_LazyLoadConfigPath";
 
         // UI
         private Vector2 scrollPosition;
         private GUIStyle tabButtonStyle;
+        private GUIStyle subTabButtonStyle;
         private Color activeTabColor = new Color(0.4f, 0.6f, 1f, 0.3f);
+        private Color activeSubTabColor = new Color(0.6f, 0.8f, 1f, 0.4f);
 
-        [MenuItem("Wortal/Configuration", false, 0)]
+        [MenuItem("Window/Wortal/Configuration")]
         public static void ShowWindow()
         {
             var window = GetWindow<WortalConfigWindow>("Wortal Configuration");
-            window.minSize = new Vector2(500, 400);
+            window.minSize = new Vector2(600, 500);
         }
 
         private void OnEnable()
@@ -63,25 +69,61 @@ namespace DigitalWill.WortalEditor
         {
             try
             {
-                string configPath = EditorPrefs.GetString("WortalSDK_LazyLoadConfigPath", DefaultConfigPath);
+                string configPath = EditorPrefs.GetString(ConfigPathKey, DefaultConfigPath);
                 lazyConfig = AssetDatabase.LoadAssetAtPath<LazyLoadConfig>(configPath);
 
                 if (lazyConfig == null)
                 {
                     lazyConfig = ScriptableObject.CreateInstance<LazyLoadConfig>();
                     var dir = Path.GetDirectoryName(configPath);
-                    if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
+                    if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
+                        Directory.CreateDirectory(dir);
                     AssetDatabase.CreateAsset(lazyConfig, configPath);
                     AssetDatabase.SaveAssets();
+                    AssetDatabase.Refresh();
                 }
 
+                // Validate configuration
+                ValidateConfig();
+
                 lazyLoadSystem = new LazyLoadSystem();
-                lazyLoadSystem.Initialize(null, lazyConfig);
+                lazyLoadSystem.Initialize(this, lazyConfig);
                 unusedAssetScanner = new UnusedAssetScanner();
             }
             catch (Exception e)
             {
                 Debug.LogWarning($"Wortal SDK: Could not initialize optimizations: {e.Message}");
+            }
+        }
+
+        // Validate config to prevent null reference exceptions (copied from OptimizationsEditorWindow)
+        private void ValidateConfig()
+        {
+            if (lazyConfig.assetPriorityGroups == null)
+                lazyConfig.assetPriorityGroups = new System.Collections.Generic.List<DigitalWill.WortalSDK.AssetPriorityGroup>();
+
+            for (int i = 0; i < lazyConfig.assetPriorityGroups.Count; i++)
+            {
+                var group = lazyConfig.assetPriorityGroups[i];
+                if (group == null)
+                {
+                    lazyConfig.assetPriorityGroups.RemoveAt(i--);
+                    continue;
+                }
+
+                group.RebuildDictionary(); // Rebuild the dictionary from the serialized list
+
+                if (group.assetsByType == null)
+                    group.assetsByType = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<string>>();
+
+                // Remove any null entries in asset lists
+                foreach (var key in group.assetsByType.Keys.ToList())
+                {
+                    if (group.assetsByType[key] == null)
+                        group.assetsByType[key] = new System.Collections.Generic.List<string>();
+                    else
+                        group.assetsByType[key] = group.assetsByType[key].Where(p => !string.IsNullOrEmpty(p)).ToList();
+                }
             }
         }
 
@@ -99,7 +141,6 @@ namespace DigitalWill.WortalEditor
                 case ConfigTab.WebGL: DrawWebGLTab(); break;
                 case ConfigTab.Android: DrawAndroidTab(); break;
                 case ConfigTab.iOS: DrawIOSTab(); break;
-                case ConfigTab.Optimizations: DrawOptimizationsTab(); break;
             }
 
             EditorGUILayout.EndScrollView();
@@ -128,7 +169,6 @@ namespace DigitalWill.WortalEditor
             DrawTab("WebGL", ConfigTab.WebGL);
             DrawTab("Android", ConfigTab.Android);
             DrawTab("iOS", ConfigTab.iOS);
-            DrawTab("Optimizations", ConfigTab.Optimizations);
 
             EditorGUILayout.EndHorizontal();
         }
@@ -142,6 +182,45 @@ namespace DigitalWill.WortalEditor
 
             if (GUILayout.Button(label, tabButtonStyle))
                 currentTab = tab;
+
+            GUI.backgroundColor = originalColor;
+        }
+
+        private void DrawWebGLSubTabs()
+        {
+            if (subTabButtonStyle == null)
+            {
+                subTabButtonStyle = new GUIStyle(EditorStyles.toolbarButton);
+                subTabButtonStyle.fixedHeight = 22;
+                subTabButtonStyle.fontSize = 11;
+            }
+
+            EditorGUILayout.Space(5);
+            EditorGUILayout.BeginHorizontal();
+
+            DrawSubTab("Settings", WebGLSubTab.Settings);
+
+            // Only show optimization tabs if lazy loading is enabled
+            if (lazyConfig != null && lazyConfig.enableLazyLoad)
+            {
+                DrawSubTab("Lazy Load", WebGLSubTab.LazyLoad);
+            }
+
+            DrawSubTab("Asset Strip", WebGLSubTab.AssetStrip);
+
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.Space(5);
+        }
+
+        private void DrawSubTab(string label, WebGLSubTab subTab)
+        {
+            var isActive = currentWebGLSubTab == subTab;
+            var originalColor = GUI.backgroundColor;
+
+            if (isActive) GUI.backgroundColor = activeSubTabColor;
+
+            if (GUILayout.Button(label, subTabButtonStyle))
+                currentWebGLSubTab = subTab;
 
             GUI.backgroundColor = originalColor;
         }
@@ -188,6 +267,24 @@ namespace DigitalWill.WortalEditor
         {
             EditorGUILayout.LabelField("WebGL Configuration", EditorStyles.boldLabel);
 
+            DrawWebGLSubTabs();
+
+            switch (currentWebGLSubTab)
+            {
+                case WebGLSubTab.Settings:
+                    DrawWebGLSettingsSubTab();
+                    break;
+                case WebGLSubTab.LazyLoad:
+                    DrawWebGLLazyLoadSubTab();
+                    break;
+                case WebGLSubTab.AssetStrip:
+                    DrawWebGLAssetStripSubTab();
+                    break;
+            }
+        }
+
+        private void DrawWebGLSettingsSubTab()
+        {
             DrawSection("Template & Settings", () =>
             {
                 EditorGUILayout.HelpBox("Wortal WebGL template is required for proper integration.", MessageType.Info);
@@ -231,6 +328,86 @@ namespace DigitalWill.WortalEditor
                 if (decompressionFallback != PlayerSettings.WebGL.decompressionFallback)
                     PlayerSettings.WebGL.decompressionFallback = decompressionFallback;
             });
+
+            // General optimizations section (moved from separate tab)
+            DrawSection("General Optimizations", () =>
+            {
+                if (lazyConfig == null)
+                {
+                    EditorGUILayout.HelpBox("Optimization config not loaded. Try reopening the window.", MessageType.Warning);
+                    return;
+                }
+
+                // Lazy Loading toggle
+                EditorGUI.BeginChangeCheck();
+                bool newEnableLazy = EditorGUILayout.Toggle(
+                    new GUIContent("Enable Lazy Loading", "Toggle this ON to enable LazyLoadManager, which loads assets dynamically based on scene, type, and priority."),
+                    lazyConfig.enableLazyLoad);
+
+                if (EditorGUI.EndChangeCheck())
+                {
+                    Undo.RecordObject(lazyConfig, "Toggled Lazy Load Enabled");
+                    lazyConfig.enableLazyLoad = newEnableLazy;
+                    EditorUtility.SetDirty(lazyConfig);
+
+                    // Auto switch to Lazy Load sub-tab
+                    if (newEnableLazy)
+                        currentWebGLSubTab = WebGLSubTab.LazyLoad;
+                }
+
+                EditorGUILayout.HelpBox("When enabled, Lazy Load will load only essential assets at startup. The rest are loaded on demand to reduce memory usage and improve load times.", MessageType.Info);
+
+                // Strip Engine Code info
+                EditorGUILayout.HelpBox(
+                    "To strip unused engine code in WebGL builds:\n" +
+                    "1. Open File → Build Settings → WebGL\n" +
+                    "2. Click 'Player Settings' → 'Publishing Settings'\n" +
+                    "3. Enable 'Strip Engine Code'\n" +
+                    "Use the 'Asset Strip' tab to preview what will be stripped.",
+                    MessageType.Info);
+            });
+        }
+
+        private void DrawWebGLLazyLoadSubTab()
+        {
+            if (lazyConfig == null || !lazyConfig.enableLazyLoad)
+            {
+                EditorGUILayout.HelpBox("Lazy Loading is not enabled. Enable it in the Settings tab first.", MessageType.Info);
+                if (GUILayout.Button("Go to Settings"))
+                {
+                    currentWebGLSubTab = WebGLSubTab.Settings;
+                }
+                return;
+            }
+
+            EditorGUILayout.LabelField("Lazy Load Configuration", EditorStyles.boldLabel);
+            EditorGUILayout.Space(5);
+
+            if (lazyLoadSystem != null)
+            {
+                lazyLoadSystem.OnGUI();
+            }
+            else
+            {
+                EditorGUILayout.HelpBox("Lazy Load system not initialized. Try reopening the window.", MessageType.Warning);
+            }
+        }
+
+        private void DrawWebGLAssetStripSubTab()
+        {
+            EditorGUILayout.LabelField("Asset Strip Preview", EditorStyles.boldLabel);
+            EditorGUILayout.Space(5);
+
+            EditorGUILayout.HelpBox("Analyze which assets might be stripped from builds to optimize size.", MessageType.Info);
+
+            if (unusedAssetScanner != null)
+            {
+                unusedAssetScanner.OnGUI();
+            }
+            else
+            {
+                EditorGUILayout.HelpBox("Asset scanner not initialized. Try reopening the window.", MessageType.Warning);
+            }
         }
 
         private void DrawAndroidTab()
@@ -316,46 +493,6 @@ namespace DigitalWill.WortalEditor
                 if (GUILayout.Button("Open Manual Instructions"))
                 {
                     Application.OpenURL("https://github.com/Digital-Will-Inc/wortal-sdk-unity#ios-setup");
-                }
-            });
-        }
-
-        private void DrawOptimizationsTab()
-        {
-            EditorGUILayout.LabelField("Build Optimizations", EditorStyles.boldLabel);
-
-            if (lazyConfig == null)
-            {
-                EditorGUILayout.HelpBox("Optimization config not loaded. Try reopening the window.", MessageType.Warning);
-                return;
-            }
-
-            DrawSection("Lazy Loading", () =>
-            {
-                var enableLazy = EditorGUILayout.Toggle("Enable Lazy Loading", lazyConfig.enableLazyLoad);
-                if (enableLazy != lazyConfig.enableLazyLoad)
-                {
-                    Undo.RecordObject(lazyConfig, "Toggle Lazy Loading");
-                    lazyConfig.enableLazyLoad = enableLazy;
-                    EditorUtility.SetDirty(lazyConfig);
-                }
-
-                EditorGUILayout.HelpBox("Lazy loading reduces initial bundle size by loading assets on demand.", MessageType.Info);
-
-                if (lazyConfig.enableLazyLoad && lazyLoadSystem != null)
-                {
-                    EditorGUILayout.Space(5);
-                    lazyLoadSystem.OnGUI();
-                }
-            });
-
-            DrawSection("Asset Analysis", () =>
-            {
-                EditorGUILayout.HelpBox("Analyze which assets might be stripped from builds to optimize size.", MessageType.Info);
-
-                if (unusedAssetScanner != null)
-                {
-                    unusedAssetScanner.OnGUI();
                 }
             });
         }

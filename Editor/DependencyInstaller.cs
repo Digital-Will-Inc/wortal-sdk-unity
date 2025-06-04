@@ -35,20 +35,20 @@ namespace DigitalWill.WortalEditor
             }
         }
 
-        [MenuItem("Wortal/Install Dependencies", false, 1)]
+        // [MenuItem("Wortal/Install Dependencies", false, 1)]
         public static void InstallDependenciesManual()
         {
             CheckAndInstallDependencies();
         }
 
-        [MenuItem("Wortal/Check Dependencies Status", false, 2)]
+        // [MenuItem("Wortal/Check Dependencies Status", false, 2)]
         public static void CheckDependenciesStatus()
         {
             Debug.Log("Checking Wortal SDK dependencies...");
             CheckInstalledPackages();
         }
 
-        [MenuItem("Wortal/About", false, 100)]
+        // [MenuItem("Wortal/About", false, 100)]
         public static void ShowAbout()
         {
             EditorUtility.DisplayDialog(
@@ -181,7 +181,7 @@ namespace DigitalWill.WortalEditor
         }
 
         // Menu validation - disable if installation is in progress
-        [MenuItem("Wortal/Install Dependencies", true)]
+        // [MenuItem("Wortal/Install Dependencies", true)]
         private static bool ValidateInstallDependencies()
         {
             return !isInstalling;

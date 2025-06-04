@@ -40,14 +40,14 @@ namespace DigitalWill.WortalEditor
             EditorPrefs.SetBool(DEPENDENCIES_COPIED_KEY, true);
         }
 
-        [MenuItem("Wortal/Refresh Dependencies", false, 10)]
+        // [MenuItem("Wortal/Refresh Dependencies", false, 10)]
         public static void RefreshDependencies()
         {
             CopyDependencyFiles();
             Debug.Log("Wortal SDK: Dependencies refreshed!");
         }
 
-        [MenuItem("Wortal/Reset Dependencies", false, 11)]
+        // [MenuItem("Wortal/Reset Dependencies", false, 11)]
         public static void ResetDependencies()
         {
             EditorPrefs.DeleteKey(DEPENDENCIES_COPIED_KEY);
@@ -56,7 +56,7 @@ namespace DigitalWill.WortalEditor
             Debug.Log("Wortal SDK: Dependencies reset and refreshed!");
         }
 
-        [MenuItem("Wortal/Resolve Android Dependencies", false, 12)]
+        // [MenuItem("Wortal/Resolve Android Dependencies", false, 12)]
         public static void ResolveAndroidDependencies()
         {
             if (EditorUserBuildSettings.activeBuildTarget != BuildTarget.Android)
@@ -76,7 +76,7 @@ namespace DigitalWill.WortalEditor
             TriggerAndroidDependencyResolution();
         }
 
-        [MenuItem("Wortal/Resolve iOS Dependencies", false, 13)]
+        // [MenuItem("Wortal/Resolve iOS Dependencies", false, 13)]
         public static void ResolveIOSDependencies()
         {
             if (EditorUserBuildSettings.activeBuildTarget != BuildTarget.iOS)
@@ -375,7 +375,7 @@ namespace DigitalWill.WortalEditor
         }
 
         // Debug method to check paths
-        [MenuItem("Wortal/Debug Package Path", false, 50)]
+        // [MenuItem("Wortal/Debug Package Path", false, 50)]
         public static void DebugPackagePath()
         {
             string packagePath = GetWortalPackagePath();
@@ -397,13 +397,13 @@ namespace DigitalWill.WortalEditor
         }
 
         // Menu validation - only show resolve options when appropriate
-        [MenuItem("Wortal/Resolve Android Dependencies", true)]
+        // [MenuItem("Wortal/Resolve Android Dependencies", true)]
         private static bool ValidateResolveAndroidDependencies()
         {
             return EditorPrefs.GetBool(DEPENDENCIES_COPIED_KEY, false);
         }
 
-        [MenuItem("Wortal/Resolve iOS Dependencies", true)]
+        // [MenuItem("Wortal/Resolve iOS Dependencies", true)]
         private static bool ValidateResolveIOSDependencies()
         {
             return EditorPrefs.GetBool(DEPENDENCIES_COPIED_KEY, false);

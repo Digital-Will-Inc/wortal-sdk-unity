@@ -37,9 +37,9 @@ namespace DigitalWill.WortalEditor.Optimizations
         // UI colors for highlighting
         private readonly Color highlightColor = new Color(0.6f, 0.9f, 0.6f, 0.5f);
 
-        private OptimizationsEditorWindow parentWindow;
+        private WortalConfigWindow parentWindow;
 
-        public void Initialize(OptimizationsEditorWindow _window, LazyLoadConfig _config)
+        public void Initialize(WortalConfigWindow _window, LazyLoadConfig _config)
         {
             this.parentWindow = _window;
             this.config = _config;
