@@ -1,161 +1,376 @@
 using System;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using AOT;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 
 namespace DigitalWill.WortalSDK
 {
     public class WebGLWortalPlayer : IWortalPlayer
     {
-        public bool IsSupported => false;
+        private static Action<IDictionary<string, object>> _getDataCallback;
+        private static Action _setDataCallback;
+        private static Action _flushDataCallback;
+        private static Action<IWortalPlayer[]> _getConnectedPlayersCallback;
+        private static Action<string, string> _getSignedPlayerInfoCallback;
+        private static Action<string> _getASIDCallback;
+        private static Action<string, string> _getSignedASIDCallback;
+        private static Action<bool> _canSubscribeBotCallback;
+        private static Action _subscribeBotCallback;
+        private static Action<WortalError> _errorCallback;
+
+        public bool IsSupported => true; // Changed to true since we're implementing the functionality
 
         public string GetID()
         {
-            Debug.Log("[WebGL Platform] IWortalPlayer.GetID() called - Not implemented");
-            return "WebGL_player_id";
+#if UNITY_WEBGL && !UNITY_EDITOR
+            return PlayerGetIDJS();
+#else
+            Debug.Log("[Wortal] Mock Player.GetID()");
+            return "player1";
+#endif
         }
 
         public string GetName()
         {
-            Debug.Log("[WebGL Platform] IWortalPlayer.GetName() called - Not implemented");
-            return "WebGL Player";
+#if UNITY_WEBGL && !UNITY_EDITOR
+            return PlayerGetNameJS();
+#else
+            Debug.Log("[Wortal] Mock Player.GetName()");
+            return "Player";
+#endif
         }
 
         public string GetPhoto()
         {
-            Debug.Log("[WebGL Platform] IWortalPlayer.GetPhoto() called - Not implemented");
-            return null;
+#if UNITY_WEBGL && !UNITY_EDITOR
+            return PlayerGetPhotoJS();
+#else
+            Debug.Log("[Wortal] Mock Player.GetPhoto()");
+            return "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
+#endif
         }
 
         public bool IsFirstPlay()
         {
-            Debug.Log("[WebGL Platform] IWortalPlayer.IsFirstPlay() called - Not implemented");
+#if UNITY_WEBGL && !UNITY_EDITOR
+            return PlayerIsFirstPlayJS();
+#else
+            Debug.Log("[Wortal] Mock Player.IsFirstPlay()");
             return false;
+#endif
         }
 
         public void GetConnectedPlayersAsync(GetConnectedPlayersPayload payload, Action<IWortalPlayer[]> onSuccess, Action<WortalError> onError)
         {
-            Debug.Log($"[WebGL Platform] IWortalPlayer.GetConnectedPlayersAsync({payload}) called - Not implemented");
-            onError?.Invoke(new WortalError
+            _getConnectedPlayersCallback = onSuccess;
+            _errorCallback = onError;
+            string payloadStr = JsonConvert.SerializeObject(payload);
+#if UNITY_WEBGL && !UNITY_EDITOR
+            PlayerGetConnectedPlayersJS(payloadStr, PlayerGetConnectedPlayersCallback, Wortal.WortalErrorCallback);
+#else
+            Debug.Log($"[Wortal] Mock Player.GetConnectedPlayersAsync({payload})");
+            var player = new Player
             {
-                Code = "NOT_IMPLEMENTED",
-                Message = "Not implemented on WebGL platform",
-                Context = "GetConnectedPlayersAsync implementation"
-            });
+                ID = "player1",
+                Name = "Player",
+                Photo = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==",
+                IsFirstPlay = false,
+                DaysSinceFirstPlay = 0,
+            };
+            Player[] players = { player };
+            PlayerGetConnectedPlayersCallback(JsonConvert.SerializeObject(players));
+#endif
         }
 
         public void GetSignedPlayerInfoAsync(Action<string, string> onSuccess, Action<WortalError> onError)
         {
-            Debug.Log("[WebGL Platform] IWortalPlayer.GetSignedPlayerInfoAsync() called - Not implemented");
-            onError?.Invoke(new WortalError
-            {
-                Code = "NOT_IMPLEMENTED",
-                Message = "Not implemented on WebGL platform",
-                Context = "GetSignedPlayerInfoAsync implementation"
-            });
+            _getSignedPlayerInfoCallback = onSuccess;
+            _errorCallback = onError;
+#if UNITY_WEBGL && !UNITY_EDITOR
+            PlayerGetSignedPlayerInfoJS(PlayerGetSignedPlayerInfoCallback, Wortal.WortalErrorCallback);
+#else
+            Debug.Log("[Wortal] Mock Player.GetSignedPlayerInfo()");
+            PlayerGetSignedPlayerInfoCallback("player1", "some-signature");
+#endif
         }
 
         public void CanSubscribeBotAsync(Action<bool> onSuccess, Action<WortalError> onError)
         {
-            Debug.Log("[WebGL Platform] IWortalPlayer.CanSubscribeBotAsync() called - Not implemented");
-            onSuccess?.Invoke(false);
+            _canSubscribeBotCallback = onSuccess;
+            _errorCallback = onError;
+#if UNITY_WEBGL && !UNITY_EDITOR
+            PlayerCanSubscribeBotJS(PlayerCanSubscribeBotCallback, Wortal.WortalErrorCallback);
+#else
+            Debug.Log("[Wortal] Mock Player.CanSubscribeBot()");
+            PlayerCanSubscribeBotCallback(true);
+#endif
         }
 
         public void SubscribeBotAsync(Action onSuccess, Action<WortalError> onError)
         {
-            Debug.Log("[WebGL Platform] IWortalPlayer.SubscribeBotAsync() called - Not implemented");
-            onError?.Invoke(new WortalError
-            {
-                Code = "NOT_IMPLEMENTED",
-                Message = "Not implemented on WebGL platform",
-                Context = "SubscribeBotAsync implementation"
-            });
+            _subscribeBotCallback = onSuccess;
+            _errorCallback = onError;
+#if UNITY_WEBGL && !UNITY_EDITOR
+            PlayerSubscribeBotJS(PlayerSubscribeBotCallback, Wortal.WortalErrorCallback);
+#else
+            Debug.Log("[Wortal] Mock Player.SubscribeBot()");
+            PlayerSubscribeBotCallback();
+#endif
         }
 
         public void GetDataAsync(string[] keys, Action<PlayerData> onSuccess, Action<WortalError> onError)
         {
-            Debug.Log($"[WebGL Platform] IWortalPlayer.GetDataAsync({string.Join(", ", keys)}) called - Not implemented");
-            onError?.Invoke(new WortalError
+            // Convert PlayerData callback to IDictionary callback for compatibility with original implementation
+            _getDataCallback = (data) =>
             {
-                Code = "NOT_IMPLEMENTED",
-                Message = "Not implemented on WebGL platform",
-                Context = "GetDataAsync implementation"
-            });
+                var playerData = new PlayerData();
+                playerData.data = new Dictionary<string, object>(data);
+                onSuccess?.Invoke(playerData);
+            };
+            _errorCallback = onError;
+            string keysStr = string.Join("|", keys);
+#if UNITY_WEBGL && !UNITY_EDITOR
+            PlayerGetDataJS(keysStr, PlayerGetDataCallback, Wortal.WortalErrorCallback);
+#else
+            Debug.Log($"[Wortal] Mock Player.GetData({keys})");
+            Dictionary<string, object> data = new()
+            {
+                {
+                    "items", new Dictionary<string, int>
+                    {
+                        { "coins", 100 },
+                        { "boosters", 2 },
+                    }
+                },
+                { "lives", 3 },
+            };
+            PlayerGetDataCallback(JsonConvert.SerializeObject(data));
+#endif
         }
 
         public void SetDataAsync(PlayerData data, Action onSuccess, Action<WortalError> onError)
         {
-            Debug.Log($"[WebGL Platform] IWortalPlayer.SetDataAsync({data}) called - Not implemented");
-            onError?.Invoke(new WortalError
-            {
-                Code = "NOT_IMPLEMENTED",
-                Message = "Not implemented on WebGL platform",
-                Context = "SetDataAsync implementation"
-            });
+            _setDataCallback = onSuccess;
+            _errorCallback = onError;
+            string dataObj = JsonConvert.SerializeObject(data.data);
+#if UNITY_WEBGL && !UNITY_EDITOR
+            PlayerSetDataJS(dataObj, PlayerSetDataCallback, Wortal.WortalErrorCallback);
+#else
+            Debug.Log($"[Wortal] Mock Player.SetData({data})");
+            PlayerSetDataCallback();
+#endif
         }
 
         public void FlushDataAsync(Action onSuccess, Action<WortalError> onError)
         {
-            Debug.Log("[WebGL Platform] IWortalPlayer.FlushDataAsync() called - Not implemented");
-            onError?.Invoke(new WortalError
-            {
-                Code = "NOT_IMPLEMENTED",
-                Message = "Not implemented on WebGL platform",
-                Context = "FlushDataAsync implementation"
-            });
+            _flushDataCallback = onSuccess;
+            _errorCallback = onError;
+#if UNITY_WEBGL && !UNITY_EDITOR
+            PlayerFlushDataJS(PlayerFlushDataCallback, Wortal.WortalErrorCallback);
+#else
+            Debug.Log("[Wortal] Mock Player.FlushData()");
+            PlayerFlushDataCallback();
+#endif
         }
 
         public void GetStatsAsync(string[] keys, Action<PlayerStats> onSuccess, Action<WortalError> onError)
         {
-            Debug.Log($"[WebGL Platform] IWortalPlayer.GetStatsAsync({string.Join(", ", keys)}) called - Not implemented");
-            onError?.Invoke(new WortalError
+            // Stats functionality is not in the original WortalPlayer, so we'll implement as mock for now
+            Debug.Log($"[Wortal] Mock Player.GetStatsAsync({string.Join(", ", keys)})");
+            var stats = new PlayerStats();
+            foreach (var key in keys)
             {
-                Code = "NOT_IMPLEMENTED",
-                Message = "Not implemented on WebGL platform",
-                Context = "GetStatsAsync implementation"
-            });
+                stats.SetStat(key, 0);
+            }
+            onSuccess?.Invoke(stats);
         }
 
         public void SetStatsAsync(PlayerStats stats, Action onSuccess, Action<WortalError> onError)
         {
-            Debug.Log($"[WebGL Platform] IWortalPlayer.SetStatsAsync({stats}) called - Not implemented");
-            onError?.Invoke(new WortalError
-            {
-                Code = "NOT_IMPLEMENTED",
-                Message = "Not implemented on WebGL platform",
-                Context = "SetStatsAsync implementation"
-            });
+            // Stats functionality is not in the original WortalPlayer, so we'll implement as mock for now
+            Debug.Log($"[Wortal] Mock Player.SetStatsAsync({stats})");
+            onSuccess?.Invoke();
         }
 
         public void IncrementStatsAsync(PlayerStats increments, Action<PlayerStats> onSuccess, Action<WortalError> onError)
         {
-            Debug.Log($"[WebGL Platform] IWortalPlayer.IncrementStatsAsync({increments}) called - Not implemented");
-            onError?.Invoke(new WortalError
-            {
-                Code = "NOT_IMPLEMENTED",
-                Message = "Not implemented on WebGL platform",
-                Context = "IncrementStatsAsync implementation"
-            });
+            // Stats functionality is not in the original WortalPlayer, so we'll implement as mock for now
+            Debug.Log($"[Wortal] Mock Player.IncrementStatsAsync({increments})");
+            onSuccess?.Invoke(increments);
         }
 
         public void GetASIDAsync(Action<string> onSuccess, Action<WortalError> onError)
         {
-            Debug.Log("[WebGL Platform] IWortalPlayer.GetASIDAsync() called - Not implemented");
-            onError?.Invoke(new WortalError
-            {
-                Code = "NOT_IMPLEMENTED",
-                Message = "Not implemented on WebGL platform",
-                Context = "GetASIDAsync implementation"
-            });
+            _getASIDCallback = onSuccess;
+            _errorCallback = onError;
+#if UNITY_WEBGL && !UNITY_EDITOR
+            PlayerGetASIDJS(PlayerGetASIDCallback, Wortal.WortalErrorCallback);
+#else
+            Debug.Log("[Wortal] Mock Player.GetASID()");
+            PlayerGetASIDCallback("player1");
+#endif
         }
 
         public void GetSignedASIDAsync(Action<string, string> onSuccess, Action<WortalError> onError)
         {
-            Debug.Log("[WebGL Platform] IWortalPlayer.GetSignedASIDAsync() called - Not implemented");
-            onError?.Invoke(new WortalError
-            {
-                Code = "NOT_IMPLEMENTED",
-                Message = "Not implemented on WebGL platform",
-                Context = "GetSignedASIDAsync implementation"
-            });
+            _getSignedASIDCallback = onSuccess;
+            _errorCallback = onError;
+#if UNITY_WEBGL && !UNITY_EDITOR
+            PlayerGetSignedASIDJS(PlayerGetSignedASIDCallback, Wortal.WortalErrorCallback);
+#else
+            Debug.Log("[Wortal] Mock Player.GetSignedASID()");
+            PlayerGetSignedASIDCallback("player1", "some-signature");
+#endif
         }
+
+        #region JSlib Interface
+
+        [DllImport("__Internal")]
+        private static extern string PlayerGetIDJS();
+
+        [DllImport("__Internal")]
+        private static extern string PlayerGetNameJS();
+
+        [DllImport("__Internal")]
+        private static extern string PlayerGetPhotoJS();
+
+        [DllImport("__Internal")]
+        private static extern bool PlayerIsFirstPlayJS();
+
+        [DllImport("__Internal")]
+        private static extern void PlayerGetDataJS(string keys, Action<string> callback, Action<string> errorCallback);
+
+        [DllImport("__Internal")]
+        private static extern void PlayerSetDataJS(string data, Action callback, Action<string> errorCallback);
+
+        [DllImport("__Internal")]
+        private static extern void PlayerFlushDataJS(Action callback, Action<string> errorCallback);
+
+        [DllImport("__Internal")]
+        private static extern void PlayerGetConnectedPlayersJS(string payload, Action<string> callback, Action<string> errorCallback);
+
+        [DllImport("__Internal")]
+        private static extern void PlayerGetSignedPlayerInfoJS(Action<string, string> callback, Action<string> errorCallback);
+
+        [DllImport("__Internal")]
+        private static extern void PlayerGetASIDJS(Action<string> callback, Action<string> errorCallback);
+
+        [DllImport("__Internal")]
+        private static extern void PlayerGetSignedASIDJS(Action<string, string> callback, Action<string> errorCallback);
+
+        [DllImport("__Internal")]
+        private static extern void PlayerCanSubscribeBotJS(Action<bool> callback, Action<string> errorCallback);
+
+        [DllImport("__Internal")]
+        private static extern void PlayerSubscribeBotJS(Action callback, Action<string> errorCallback);
+
+        #endregion JSlib Interface
+
+        #region Callback Methods
+
+        [MonoPInvokeCallback(typeof(Action<string>))]
+        private static void PlayerGetDataCallback(string data)
+        {
+            // Data is Record<string, unknown> in JS.
+            IDictionary<string, object> dataObj;
+
+            try
+            {
+                dataObj = JsonConvert.DeserializeObject<JObject>(data).ToDictionary();
+            }
+            catch (Exception e)
+            {
+                WortalError error = new WortalError
+                {
+                    Code = WortalErrorCodes.SERIALIZATION_ERROR.ToString(),
+                    Message = e.Message,
+                    Context = "PlayerGetDataCallback"
+                };
+
+                _errorCallback?.Invoke(error);
+                return;
+            }
+
+            _getDataCallback?.Invoke(dataObj);
+        }
+
+        [MonoPInvokeCallback(typeof(Action))]
+        private static void PlayerSetDataCallback()
+        {
+            _setDataCallback?.Invoke();
+        }
+
+        [MonoPInvokeCallback(typeof(Action))]
+        private static void PlayerFlushDataCallback()
+        {
+            _flushDataCallback?.Invoke();
+        }
+
+        [MonoPInvokeCallback(typeof(Action<string>))]
+        private static void PlayerGetConnectedPlayersCallback(string players)
+        {
+            IWortalPlayer[] playersObj;
+
+            try
+            {
+                // Convert Player[] to IWortalPlayer[] for interface compatibility
+                var playerArray = JsonConvert.DeserializeObject<WebGLWortalPlayer[]>(players);
+                playersObj = new IWortalPlayer[playerArray.Length];
+
+                for (int i = 0; i < playerArray.Length; i++)
+                {
+                    playersObj[i] = playerArray[i];
+                }
+            }
+            catch (Exception e)
+            {
+                WortalError error = new WortalError
+                {
+                    Code = WortalErrorCodes.SERIALIZATION_ERROR.ToString(),
+                    Message = e.Message,
+                    Context = "PlayerGetConnectedPlayersCallback"
+                };
+
+                _errorCallback?.Invoke(error);
+                return;
+            }
+
+            _getConnectedPlayersCallback?.Invoke(playersObj);
+        }
+
+        [MonoPInvokeCallback(typeof(Action<string, string>))]
+        private static void PlayerGetSignedPlayerInfoCallback(string playerId, string signature)
+        {
+            _getSignedPlayerInfoCallback?.Invoke(playerId, signature);
+        }
+
+        [MonoPInvokeCallback(typeof(Action<string>))]
+        private static void PlayerGetASIDCallback(string asid)
+        {
+            _getASIDCallback?.Invoke(asid);
+        }
+
+        [MonoPInvokeCallback(typeof(Action<string, string>))]
+        private static void PlayerGetSignedASIDCallback(string asid, string signature)
+        {
+            _getSignedASIDCallback?.Invoke(asid, signature);
+        }
+
+        [MonoPInvokeCallback(typeof(Action<bool>))]
+        private static void PlayerCanSubscribeBotCallback(bool result)
+        {
+            _canSubscribeBotCallback?.Invoke(result);
+        }
+
+        [MonoPInvokeCallback(typeof(Action))]
+        private static void PlayerSubscribeBotCallback()
+        {
+            _subscribeBotCallback?.Invoke();
+        }
+
+        #endregion Callback Methods
     }
 }

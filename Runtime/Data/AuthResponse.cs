@@ -13,5 +13,17 @@ namespace DigitalWill.WortalSDK
         [JsonConverter(typeof(StringEnumConverter))]
         [JsonProperty("status")]
         public AuthStatus Status;
+
+        [JsonProperty("userID")]
+        public string UserID;
+
+        [JsonProperty("userName")]
+        public string UserName;
+
+        [JsonProperty("token")]
+        public string Token;
+
+        [JsonProperty("provider")]
+        public string Provider;
     }
 }

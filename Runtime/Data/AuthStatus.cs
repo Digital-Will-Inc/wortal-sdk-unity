@@ -8,5 +8,8 @@
         SUCCESS,
         ERROR,
         CANCEL,
+        NOT_AUTHENTICATED,
+        NOT_SUPPORTED,
+
     }
 }

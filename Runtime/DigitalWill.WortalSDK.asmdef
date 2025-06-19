@@ -3,7 +3,8 @@
     "rootNamespace": "DigitalWill.WortalSDK",
     "references": [
         "Unity.Addressables",
-        "Unity.ResourceManager"
+        "Unity.ResourceManager",
+        "GooglePlayGames"
     ],
     "includePlatforms": [
         "Editor",
