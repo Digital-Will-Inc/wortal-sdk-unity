@@ -1,4 +1,7 @@
 using System;
+using System.Runtime.InteropServices;
+using AOT;
+using Newtonsoft.Json;
 using UnityEngine;
 
 namespace DigitalWill.WortalSDK
@@ -9,9 +12,19 @@ namespace DigitalWill.WortalSDK
     /// </summary>
     public static class Wortal
     {
+        private static Action _initializeCallback;
+        private static Action _startGameCallback;
+        private static Action<AuthResponse> _authenticateCallback;
+        private static Action<bool> _linkAccountCallback;
+        private static Action _performHapticFeedbackCallback;
         private static bool _isInitialized = false;
         private static IWortalPlatform _platform;
         private static WortalSettings _settings;
+
+        public static Action<WortalError> WortalError;
+        public static Action OnPause;
+
+        public static Action OnResume;
 
         /// <summary>
         /// Gets the current platform implementation
@@ -473,5 +486,132 @@ namespace DigitalWill.WortalSDK
         }
 
         #endregion
+
+        #region Internal
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        private static void Init()
+        {
+            Debug.Log("[Wortal] Initializing Unity SDK..");
+#if UNITY_WEBGL && !UNITY_EDITOR
+            //registering callback
+            OnPauseJS(OnPauseCallback);
+            OnResumeJS(OnResumeCallback);
+#endif
+            Debug.Log("[Wortal] Unity SDK initialization complete.");
+        }
+
+        [DllImport("__Internal")]
+        private static extern bool IsInitializedJS();
+
+        [DllImport("__Internal")]
+        private static extern void InitializeJS(Action callback, Action<string> errorCallback);
+
+        [DllImport("__Internal")]
+        private static extern void StartGameJS(Action callback, Action<string> errorCallback);
+
+        [DllImport("__Internal")]
+        private static extern void AuthenticateJS(Action<string> callback, Action<string> errorCallback);
+
+        [DllImport("__Internal")]
+        private static extern void LinkAccountJS(Action<bool> callback, Action<string> errorCallback);
+
+        [DllImport("__Internal")]
+        private static extern void SetLoadingProgressJS(int value);
+
+        [DllImport("__Internal")]
+        private static extern void OnPauseJS(Action callback);
+
+        [DllImport("__Internal")]
+        private static extern void OnResumeJS(Action callback);
+
+        [DllImport("__Internal")]
+        private static extern string GetSupportedAPIsJS();
+
+        [DllImport("__Internal")]
+        private static extern void PerformHapticFeedbackJS(Action callback, Action<string> errorCallback);
+
+        [MonoPInvokeCallback(typeof(Action<string>))]
+        public static void WortalErrorCallback(string error)
+        {
+            WortalError wortalError;
+
+            try
+            {
+                wortalError = JsonConvert.DeserializeObject<WortalError>(error);
+            }
+            catch (Exception e)
+            {
+                wortalError = new WortalError
+                {
+                    Code = WortalErrorCodes.SERIALIZATION_ERROR.ToString(),
+                    Message = e.Message
+                };
+            }
+
+            WortalError?.Invoke(wortalError);
+        }
+
+        [MonoPInvokeCallback(typeof(Action))]
+        private static void InitializeCallback()
+        {
+            _initializeCallback?.Invoke();
+        }
+
+        [MonoPInvokeCallback(typeof(Action))]
+        private static void StartGameCallback()
+        {
+            _startGameCallback?.Invoke();
+        }
+
+        [MonoPInvokeCallback(typeof(Action<string>))]
+        private static void AuthenticateCallback(string status)
+        {
+            AuthResponse authResponse;
+
+            try
+            {
+                authResponse = JsonConvert.DeserializeObject<AuthResponse>(status);
+            }
+            catch (Exception e)
+            {
+                WortalError error = new()
+                {
+                    Code = WortalErrorCodes.SERIALIZATION_ERROR.ToString(),
+                    Message = e.Message
+                };
+
+                WortalError?.Invoke(error);
+                return;
+            }
+
+            _authenticateCallback?.Invoke(authResponse);
+        }
+
+        [MonoPInvokeCallback(typeof(Action<bool>))]
+        private static void LinkAccountCallback(bool status)
+        {
+            _linkAccountCallback?.Invoke(status);
+        }
+
+        [MonoPInvokeCallback(typeof(Action))]
+        private static void OnPauseCallback()
+        {
+            OnPause?.Invoke();
+        }
+
+        [MonoPInvokeCallback(typeof(Action))]
+        private static void OnResumeCallback()
+        {
+            OnResume?.Invoke();
+        }
+
+        [MonoPInvokeCallback(typeof(Action))]
+        private static void PerformHapticFeedbackCallback()
+        {
+            _performHapticFeedbackCallback?.Invoke();
+        }
+
+        #endregion Internal
     }
 }

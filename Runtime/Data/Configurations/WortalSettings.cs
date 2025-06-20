@@ -84,17 +84,22 @@ namespace DigitalWill.WortalSDK
         {
             bool isValid = true;
 
+#if UNITY_ANDROID
+
             if (enableGooglePlayGames && string.IsNullOrEmpty(googlePlayGamesAppId))
             {
                 Debug.LogError("[Wortal] Google Play Games is enabled but App ID is not set");
                 isValid = false;
             }
 
+#elif UNITY_IOS
+
             if (enableAppleGameCenter && string.IsNullOrEmpty(appleGameCenterBundleId))
             {
                 Debug.LogError("[Wortal] Apple Game Center is enabled but Bundle ID is not set");
                 isValid = false;
             }
+#endif
 
             return isValid;
         }

@@ -24,7 +24,7 @@ namespace DigitalWill.WortalSDK
             _errorCallback = onError;
 
 #if UNITY_WEBGL && !UNITY_EDITOR
-            AchievementsGetAchievementsJS(AchievementsGetAchievementsCallback, WortalErrorCallback);
+            AchievementsGetAchievementsJS(AchievementsGetAchievementsCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log("[WebGL Platform] Mock Achievements.GetAchievements()");
             onSuccess?.Invoke(new Achievement[]
@@ -58,7 +58,7 @@ namespace DigitalWill.WortalSDK
             _errorCallback = onError;
 
 #if UNITY_WEBGL && !UNITY_EDITOR
-            AchievementsUnlockAchievementJS(achievementID, AchievementsUnlockAchievementCallback, WortalErrorCallback);
+            AchievementsUnlockAchievementJS(achievementID, AchievementsUnlockAchievementCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log($"[WebGL Platform] Mock Achievements.UnlockAchievement({achievementID})");
             onSuccess?.Invoke();
@@ -127,27 +127,6 @@ namespace DigitalWill.WortalSDK
                     Context = "UnlockAchievement operation"
                 });
             }
-        }
-
-        [MonoPInvokeCallback(typeof(Action<string>))]
-        private static void WortalErrorCallback(string errorJson)
-        {
-            WortalError error;
-
-            try
-            {
-                error = JsonConvert.DeserializeObject<WortalError>(errorJson);
-            }
-            catch (Exception e)
-            {
-                error = new WortalError
-                {
-                    Code = WortalErrorCodes.SERIALIZATION_ERROR.ToString(),
-                    Message = e.Message,
-                };
-            }
-
-            _errorCallback?.Invoke(error);
         }
 
         #endregion JSlib Interface
