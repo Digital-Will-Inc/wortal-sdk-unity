@@ -13,7 +13,7 @@ namespace DigitalWill.WortalEditor
 {
     public class WortalConfigWindow : EditorWindow
     {
-        private enum ConfigTab { General, WebGL, Android, iOS }
+        private enum ConfigTab { General, Settings, WebGL, Android, iOS }
         private enum WebGLSubTab { Settings, LazyLoad, AssetStrip }
 
         private ConfigTab currentTab = ConfigTab.General;
@@ -23,6 +23,11 @@ namespace DigitalWill.WortalEditor
         private static AddRequest addRequest;
         private static ListRequest listRequest;
         private static bool isInstalling = false;
+
+        // Settings state
+        private WortalSettings wortalSettings;
+        private SerializedObject serializedSettings;
+        private bool settingsExpanded = true;
 
         // WebGL state
         private const string TEMPLATE_NAME = "PROJECT:Wortal";
@@ -45,6 +50,9 @@ namespace DigitalWill.WortalEditor
         private Vector2 scrollPosition;
         private GUIStyle tabButtonStyle;
         private GUIStyle subTabButtonStyle;
+        private GUIStyle sectionHeaderStyle;
+        private GUIStyle warningBoxStyle;
+        private GUIStyle successBoxStyle;
         private Color activeTabColor = new Color(0.4f, 0.6f, 1f, 0.3f);
         private Color activeSubTabColor = new Color(0.6f, 0.8f, 1f, 0.4f);
 
@@ -52,17 +60,47 @@ namespace DigitalWill.WortalEditor
         public static void ShowWindow()
         {
             var window = GetWindow<WortalConfigWindow>("Wortal Configuration");
-            window.minSize = new Vector2(600, 500);
+            window.minSize = new Vector2(700, 600);
         }
 
         private void OnEnable()
         {
+            InitializeSettings();
             InitializeOptimizations();
+            // InitializeStyles(); // Moved to OnGUI to avoid EditorStyles null reference
         }
 
         private void OnDisable()
         {
             lazyLoadSystem?.Cleanup();
+        }
+
+        private void InitializeSettings()
+        {
+            wortalSettings = WortalSettings.Instance;
+            if (wortalSettings != null)
+            {
+                serializedSettings = new SerializedObject(wortalSettings);
+            }
+        }
+
+        private void InitializeStyles()
+        {
+            sectionHeaderStyle = new GUIStyle(EditorStyles.boldLabel)
+            {
+                fontSize = 12,
+                normal = { textColor = new Color(0.2f, 0.4f, 0.8f) }
+            };
+
+            warningBoxStyle = new GUIStyle(EditorStyles.helpBox)
+            {
+                normal = { textColor = new Color(0.8f, 0.4f, 0.2f) }
+            };
+
+            successBoxStyle = new GUIStyle(EditorStyles.helpBox)
+            {
+                normal = { textColor = new Color(0.2f, 0.6f, 0.2f) }
+            };
         }
 
         private void InitializeOptimizations()
@@ -83,9 +121,7 @@ namespace DigitalWill.WortalEditor
                     AssetDatabase.Refresh();
                 }
 
-                // Validate configuration
                 ValidateConfig();
-
                 lazyLoadSystem = new LazyLoadSystem();
                 lazyLoadSystem.Initialize(this, lazyConfig);
                 unusedAssetScanner = new UnusedAssetScanner();
@@ -96,7 +132,6 @@ namespace DigitalWill.WortalEditor
             }
         }
 
-        // Validate config to prevent null reference exceptions (copied from OptimizationsEditorWindow)
         private void ValidateConfig()
         {
             if (lazyConfig.assetPriorityGroups == null)
@@ -111,12 +146,11 @@ namespace DigitalWill.WortalEditor
                     continue;
                 }
 
-                group.RebuildDictionary(); // Rebuild the dictionary from the serialized list
+                group.RebuildDictionary();
 
                 if (group.assetsByType == null)
                     group.assetsByType = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<string>>();
 
-                // Remove any null entries in asset lists
                 foreach (var key in group.assetsByType.Keys.ToList())
                 {
                     if (group.assetsByType[key] == null)
@@ -129,6 +163,11 @@ namespace DigitalWill.WortalEditor
 
         private void OnGUI()
         {
+            if (sectionHeaderStyle == null || warningBoxStyle == null || successBoxStyle == null)
+            {
+                InitializeStyles();
+            }
+
             DrawHeader();
             DrawTabs();
 
@@ -138,6 +177,7 @@ namespace DigitalWill.WortalEditor
             switch (currentTab)
             {
                 case ConfigTab.General: DrawGeneralTab(); break;
+                case ConfigTab.Settings: DrawSettingsTab(); break;
                 case ConfigTab.WebGL: DrawWebGLTab(); break;
                 case ConfigTab.Android: DrawAndroidTab(); break;
                 case ConfigTab.iOS: DrawIOSTab(); break;
@@ -152,6 +192,27 @@ namespace DigitalWill.WortalEditor
             var titleStyle = new GUIStyle(EditorStyles.boldLabel) { fontSize = 16 };
             EditorGUILayout.LabelField("Wortal SDK Configuration", titleStyle);
             EditorGUILayout.LabelField("Version 6.2.2 - Unified SDK for WebGL, Android, and iOS", EditorStyles.miniLabel);
+
+            // Quick status indicator
+            var status = WortalDependencyChecker.GetDependencyStatus();
+            var statusText = "Status: ";
+            var statusColor = Color.green;
+
+            if (!status.AndroidReady || !status.iOSReady)
+            {
+                statusText += "⚠️ Configuration needed";
+                statusColor = Color.yellow;
+            }
+            else
+            {
+                statusText += "✅ Ready";
+            }
+
+            var originalColor = GUI.color;
+            GUI.color = statusColor;
+            EditorGUILayout.LabelField(statusText, EditorStyles.miniLabel);
+            GUI.color = originalColor;
+
             EditorGUILayout.EndVertical();
         }
 
@@ -166,6 +227,7 @@ namespace DigitalWill.WortalEditor
             EditorGUILayout.BeginHorizontal();
 
             DrawTab("General", ConfigTab.General);
+            DrawTab("Settings", ConfigTab.Settings);
             DrawTab("WebGL", ConfigTab.WebGL);
             DrawTab("Android", ConfigTab.Android);
             DrawTab("iOS", ConfigTab.iOS);
@@ -186,6 +248,291 @@ namespace DigitalWill.WortalEditor
             GUI.backgroundColor = originalColor;
         }
 
+        private void DrawSettingsTab()
+        {
+            if (wortalSettings == null || serializedSettings == null)
+            {
+                EditorGUILayout.HelpBox("WortalSettings not found. Creating default settings...", MessageType.Warning);
+                if (GUILayout.Button("Create Settings"))
+                {
+                    CreateWortalSettings();
+                }
+                return;
+            }
+
+            EditorGUILayout.LabelField("Wortal SDK Settings", EditorStyles.boldLabel);
+            EditorGUILayout.Space(5);
+
+            serializedSettings.Update();
+
+            // General Settings Section
+            DrawSettingsSection("General Settings", () =>
+            {
+                EditorGUILayout.PropertyField(serializedSettings.FindProperty("enableDebugLogging"),
+                    new GUIContent("Enable Debug Logging", "Show detailed logs in console"));
+                EditorGUILayout.PropertyField(serializedSettings.FindProperty("autoInitialize"),
+                    new GUIContent("Auto Initialize", "Automatically initialize SDK on game start"));
+            });
+
+            // WebGL Settings Section
+            DrawSettingsSection("WebGL Settings", () =>
+            {
+                EditorGUI.BeginDisabledGroup(true);
+                EditorGUILayout.PropertyField(serializedSettings.FindProperty("webglGameId"),
+                    new GUIContent("WebGL Game ID", "Your Wortal game ID for WebGL platform"));
+                EditorGUI.EndDisabledGroup();
+
+                EditorGUILayout.HelpBox("Game ID for WebGL will be automatically assigned when you upload your build to the Wortal Dashboard. No manual input required.", MessageType.Info);
+            });
+
+            // Google Play Games Settings Section
+            DrawSettingsSection("Google Play Games Settings", () =>
+            {
+                EditorGUILayout.PropertyField(serializedSettings.FindProperty("enableGooglePlayGames"),
+                    new GUIContent("Enable Google Play Games", "Enable Google Play Games services for Android"));
+
+                if (wortalSettings.enableGooglePlayGames)
+                {
+                    EditorGUI.indentLevel++;
+
+                    EditorGUILayout.PropertyField(serializedSettings.FindProperty("googlePlayGamesAppId"),
+                        new GUIContent("App ID", "Google Play Games application ID"));
+
+                    if (string.IsNullOrEmpty(wortalSettings.googlePlayGamesAppId))
+                    {
+                        EditorGUILayout.HelpBox("Google Play Games App ID is required when GPG is enabled", MessageType.Error);
+
+                        if (GUILayout.Button("How to get App ID?"))
+                        {
+                            Application.OpenURL("https://developers.google.com/games/services/console/enabling");
+                        }
+                    }
+
+                    EditorGUILayout.PropertyField(serializedSettings.FindProperty("requestServerAuthCode"),
+                        new GUIContent("Request Server Auth Code", "Request server authentication code"));
+                    EditorGUILayout.PropertyField(serializedSettings.FindProperty("forceResolve"),
+                        new GUIContent("Force Resolve", "Force resolve Google Play Games conflicts"));
+
+                    EditorGUI.indentLevel--;
+                }
+
+                // Show dependency status
+                var status = WortalDependencyChecker.GetDependencyStatus();
+                if (wortalSettings.enableGooglePlayGames)
+                {
+                    if (status.HasGooglePlayGames)
+                    {
+                        EditorGUILayout.HelpBox("✅ Google Play Games SDK detected", MessageType.Info);
+                    }
+                    else
+                    {
+                        EditorGUILayout.HelpBox("⚠️ Google Play Games SDK not found. Install it from Package Manager.", MessageType.Warning);
+                        if (GUILayout.Button("Open Package Manager"))
+                        {
+                            UnityEditor.PackageManager.UI.Window.Open("com.google.play.games");
+                        }
+                    }
+                }
+            });
+
+            // Apple Game Center Settings Section
+            DrawSettingsSection("Apple Game Center Settings", () =>
+            {
+                EditorGUILayout.PropertyField(serializedSettings.FindProperty("enableAppleGameCenter"),
+                    new GUIContent("Enable Apple Game Center", "Enable Apple Game Center for iOS"));
+
+                if (wortalSettings.enableAppleGameCenter)
+                {
+                    EditorGUI.indentLevel++;
+
+                    EditorGUILayout.PropertyField(serializedSettings.FindProperty("appleGameCenterBundleId"),
+                        new GUIContent("Bundle ID", "Apple Game Center bundle identifier"));
+
+                    if (string.IsNullOrEmpty(wortalSettings.appleGameCenterBundleId))
+                    {
+                        EditorGUILayout.HelpBox("Bundle ID should match your iOS app bundle identifier", MessageType.Info);
+                    }
+
+                    EditorGUI.indentLevel--;
+                }
+
+                // Show dependency status
+                var status = WortalDependencyChecker.GetDependencyStatus();
+                if (wortalSettings.enableAppleGameCenter)
+                {
+                    if (status.HasAppleGameKit)
+                    {
+                        EditorGUILayout.HelpBox("✅ Apple Game Center available", MessageType.Info);
+                    }
+                    else
+                    {
+                        EditorGUILayout.HelpBox("⚠️ Apple Game Center not available in current environment", MessageType.Warning);
+                    }
+                }
+            });
+
+            // Feature Toggles Section
+            DrawSettingsSection("Feature Toggles", () =>
+            {
+                EditorGUILayout.LabelField("Enable/disable specific SDK features:", EditorStyles.miniLabel);
+                EditorGUILayout.Space(3);
+
+                var features = new[]
+                {
+                    ("enableAchievements", "Achievements", "Enable achievements system"),
+                    ("enableLeaderboards", "Leaderboards", "Enable leaderboards system"),
+                    ("enableCloudSave", "Cloud Save", "Enable cloud save functionality"),
+                    ("enableAnalytics", "Analytics", "Enable analytics tracking"),
+                    ("enableAds", "Advertisements", "Enable ad system"),
+                    ("enableIAP", "In-App Purchases", "Enable in-app purchase system")
+                };
+
+                EditorGUILayout.BeginVertical();
+                for (int i = 0; i < features.Length; i += 2)
+                {
+                    EditorGUILayout.BeginHorizontal();
+
+                    // First feature in row
+                    var (prop1, label1, tooltip1) = features[i];
+                    EditorGUILayout.PropertyField(serializedSettings.FindProperty(prop1),
+                        new GUIContent(label1, tooltip1), GUILayout.Width(200));
+
+                    // Second feature in row (if exists)
+                    if (i + 1 < features.Length)
+                    {
+                        var (prop2, label2, tooltip2) = features[i + 1];
+                        EditorGUILayout.PropertyField(serializedSettings.FindProperty(prop2),
+                            new GUIContent(label2, tooltip2), GUILayout.Width(200));
+                    }
+
+                    EditorGUILayout.EndHorizontal();
+                }
+                EditorGUILayout.EndVertical();
+            });
+
+            // Debug Settings Section
+            DrawSettingsSection("Debug Settings", () =>
+            {
+                EditorGUILayout.PropertyField(serializedSettings.FindProperty("forceGooglePlayGamesDetection"),
+                    new GUIContent("Force GPG Detection", "Override Google Play Games detection for testing"));
+                EditorGUILayout.PropertyField(serializedSettings.FindProperty("forceAppleGameCenterDetection"),
+                    new GUIContent("Force Game Center Detection", "Override Apple Game Center detection for testing"));
+
+                EditorGUILayout.Space(5);
+                if (GUILayout.Button("Debug Dependency Detection"))
+                {
+                    WortalDependencyChecker.DebugDependencyDetection();
+                }
+            });
+
+            // Validation Section
+            DrawSettingsSection("Validation", () =>
+            {
+                EditorGUILayout.BeginHorizontal();
+                if (GUILayout.Button("Validate Settings"))
+                {
+                    ValidateAllSettings();
+                }
+                if (GUILayout.Button("Reset to Defaults"))
+                {
+                    if (EditorUtility.DisplayDialog("Reset Settings",
+                        "Are you sure you want to reset all settings to defaults?", "Reset", "Cancel"))
+                    {
+                        ResetToDefaults();
+                    }
+                }
+                EditorGUILayout.EndHorizontal();
+            });
+
+            serializedSettings.ApplyModifiedProperties();
+
+            // Auto-save when settings change
+            if (GUI.changed)
+            {
+                EditorUtility.SetDirty(wortalSettings);
+                AssetDatabase.SaveAssets();
+            }
+        }
+
+        private void DrawSettingsSection(string title, System.Action content)
+        {
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField(title, sectionHeaderStyle);
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.Space(3);
+            content();
+            EditorGUILayout.EndVertical();
+            EditorGUILayout.Space(5);
+        }
+
+        private void CreateWortalSettings()
+        {
+            // Create Resources folder if it doesn't exist
+            if (!AssetDatabase.IsValidFolder("Assets/Resources"))
+            {
+                AssetDatabase.CreateFolder("Assets", "Resources");
+            }
+
+            // Create WortalSettings asset
+            var settings = ScriptableObject.CreateInstance<WortalSettings>();
+            AssetDatabase.CreateAsset(settings, "Assets/Resources/WortalSettings.asset");
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+
+            // Reinitialize
+            InitializeSettings();
+
+            Debug.Log("WortalSettings created at Assets/Resources/WortalSettings.asset");
+        }
+
+        private void ValidateAllSettings()
+        {
+            if (wortalSettings == null) return;
+
+            bool isValid = wortalSettings.ValidateAll();
+
+            if (isValid)
+            {
+                EditorUtility.DisplayDialog("Validation Result", "✅ All settings are valid!", "OK");
+            }
+            else
+            {
+                EditorUtility.DisplayDialog("Validation Result",
+                    "⚠️ Some settings need attention. Check the console for details.", "OK");
+            }
+        }
+
+        private void ResetToDefaults()
+        {
+            if (wortalSettings == null) return;
+
+            // Reset to default values
+            wortalSettings.enableDebugLogging = true;
+            wortalSettings.autoInitialize = true;
+            wortalSettings.webglGameId = "";
+            wortalSettings.enableGooglePlayGames = true;
+            wortalSettings.googlePlayGamesAppId = "351781968191";
+            wortalSettings.requestServerAuthCode = false;
+            wortalSettings.forceResolve = true;
+            wortalSettings.enableAppleGameCenter = true;
+            wortalSettings.appleGameCenterBundleId = "";
+            wortalSettings.enableAchievements = true;
+            wortalSettings.enableLeaderboards = true;
+            wortalSettings.enableCloudSave = true;
+            wortalSettings.enableAnalytics = true;
+            wortalSettings.enableAds = true;
+            wortalSettings.enableIAP = true;
+
+            EditorUtility.SetDirty(wortalSettings);
+            AssetDatabase.SaveAssets();
+
+            // Refresh serialized object
+            serializedSettings = new SerializedObject(wortalSettings);
+        }
+
         private void DrawWebGLSubTabs()
         {
             if (subTabButtonStyle == null)
@@ -200,7 +547,6 @@ namespace DigitalWill.WortalEditor
 
             DrawSubTab("Settings", WebGLSubTab.Settings);
 
-            // Only show optimization tabs if lazy loading is enabled
             if (lazyConfig != null && lazyConfig.enableLazyLoad)
             {
                 DrawSubTab("Lazy Load", WebGLSubTab.LazyLoad);
@@ -227,11 +573,21 @@ namespace DigitalWill.WortalEditor
 
         private void DrawGeneralTab()
         {
-            EditorGUILayout.LabelField("General Settings", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("General Overview", EditorStyles.boldLabel);
+
+            // Quick Setup Guide
+            DrawSection("Quick Setup Guide", () =>
+            {
+                EditorGUILayout.LabelField("1. Configure your settings in the 'Settings' tab", EditorStyles.miniLabel);
+                EditorGUILayout.LabelField("2. Install platform dependencies below", EditorStyles.miniLabel);
+                EditorGUILayout.LabelField("3. Configure platform-specific settings in respective tabs", EditorStyles.miniLabel);
+                EditorGUILayout.LabelField("4. Build and deploy!", EditorStyles.miniLabel);
+            });
 
             // Dependencies section
             DrawSection("Dependencies", () =>
             {
+                DrawDependencyStatus();
                 EditorGUILayout.HelpBox("External Dependency Manager is required for Android and iOS builds.", MessageType.Info);
 
                 EditorGUILayout.BeginHorizontal();
@@ -247,6 +603,32 @@ namespace DigitalWill.WortalEditor
                     CheckDependenciesStatus();
                 }
                 EditorGUILayout.EndHorizontal();
+            });
+
+            // Current Configuration Status
+            DrawSection("Configuration Status", () =>
+            {
+                if (wortalSettings != null)
+                {
+                    var isValid = wortalSettings.ValidateAll();
+                    var statusText = isValid ? "✅ Configuration Valid" : "⚠️ Configuration Issues";
+                    var messageType = isValid ? MessageType.Info : MessageType.Warning;
+
+                    EditorGUILayout.HelpBox(statusText, messageType);
+
+                    if (!isValid && GUILayout.Button("Go to Settings"))
+                    {
+                        currentTab = ConfigTab.Settings;
+                    }
+                }
+                else
+                {
+                    EditorGUILayout.HelpBox("⚠️ WortalSettings not found", MessageType.Warning);
+                    if (GUILayout.Button("Create Settings"))
+                    {
+                        CreateWortalSettings();
+                    }
+                }
             });
 
             // About section
@@ -329,7 +711,6 @@ namespace DigitalWill.WortalEditor
                     PlayerSettings.WebGL.decompressionFallback = decompressionFallback;
             });
 
-            // General optimizations section (moved from separate tab)
             DrawSection("General Optimizations", () =>
             {
                 if (lazyConfig == null)
@@ -338,7 +719,6 @@ namespace DigitalWill.WortalEditor
                     return;
                 }
 
-                // Lazy Loading toggle
                 EditorGUI.BeginChangeCheck();
                 bool newEnableLazy = EditorGUILayout.Toggle(
                     new GUIContent("Enable Lazy Loading", "Toggle this ON to enable LazyLoadManager, which loads assets dynamically based on scene, type, and priority."),
@@ -350,14 +730,12 @@ namespace DigitalWill.WortalEditor
                     lazyConfig.enableLazyLoad = newEnableLazy;
                     EditorUtility.SetDirty(lazyConfig);
 
-                    // Auto switch to Lazy Load sub-tab
                     if (newEnableLazy)
                         currentWebGLSubTab = WebGLSubTab.LazyLoad;
                 }
 
                 EditorGUILayout.HelpBox("When enabled, Lazy Load will load only essential assets at startup. The rest are loaded on demand to reduce memory usage and improve load times.", MessageType.Info);
 
-                // Strip Engine Code info
                 EditorGUILayout.HelpBox(
                     "To strip unused engine code in WebGL builds:\n" +
                     "1. Open File → Build Settings → WebGL\n" +
@@ -414,6 +792,24 @@ namespace DigitalWill.WortalEditor
         {
             EditorGUILayout.LabelField("Android Configuration", EditorStyles.boldLabel);
 
+            // Settings Summary
+            DrawSection("Current Settings", () =>
+            {
+                if (wortalSettings != null)
+                {
+                    EditorGUILayout.LabelField($"Google Play Games: {(wortalSettings.enableGooglePlayGames ? "Enabled" : "Disabled")}");
+                    if (wortalSettings.enableGooglePlayGames)
+                    {
+                        EditorGUILayout.LabelField($"App ID: {(string.IsNullOrEmpty(wortalSettings.googlePlayGamesAppId) ? "Not Set ⚠️" : wortalSettings.googlePlayGamesAppId)}");
+                    }
+
+                    if (GUILayout.Button("Edit Settings"))
+                    {
+                        currentTab = ConfigTab.Settings;
+                    }
+                }
+            });
+
             DrawSection("Dependencies", () =>
             {
                 var hasDependencies = EditorPrefs.GetBool(DEPENDENCIES_COPIED_KEY, false);
@@ -456,6 +852,24 @@ namespace DigitalWill.WortalEditor
         private void DrawIOSTab()
         {
             EditorGUILayout.LabelField("iOS Configuration", EditorStyles.boldLabel);
+
+            // Settings Summary
+            DrawSection("Current Settings", () =>
+            {
+                if (wortalSettings != null)
+                {
+                    EditorGUILayout.LabelField($"Apple Game Center: {(wortalSettings.enableAppleGameCenter ? "Enabled" : "Disabled")}");
+                    if (wortalSettings.enableAppleGameCenter)
+                    {
+                        EditorGUILayout.LabelField($"Bundle ID: {(string.IsNullOrEmpty(wortalSettings.appleGameCenterBundleId) ? "Not Set" : wortalSettings.appleGameCenterBundleId)}");
+                    }
+
+                    if (GUILayout.Button("Edit Settings"))
+                    {
+                        currentTab = ConfigTab.Settings;
+                    }
+                }
+            });
 
             DrawSection("Dependencies", () =>
             {
@@ -611,7 +1025,7 @@ namespace DigitalWill.WortalEditor
             Debug.Log("Wortal SDK: WebGL settings applied!");
         }
 
-        // Platform dependency methods (simplified versions)
+        // Platform dependency methods
         private void RefreshDependencies()
         {
             try
@@ -669,6 +1083,40 @@ namespace DigitalWill.WortalEditor
             {
                 EditorUtility.DisplayDialog("Manual Resolution Required",
                     "Please resolve manually via:\nAssets > External Dependency Manager > iOS Resolver > Install Cocoapods", "OK");
+            }
+        }
+
+        private void DrawDependencyStatus()
+        {
+            EditorGUILayout.Space();
+            var status = WortalDependencyChecker.GetDependencyStatus();
+
+            // Google Play Games
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("Google Play Games:");
+            var gpgColor = status.HasGooglePlayGames ? Color.green : Color.red;
+            var gpgText = status.HasGooglePlayGames ? "✓ Available" : "✗ Missing";
+
+            var originalColor = GUI.color;
+            GUI.color = gpgColor;
+            EditorGUILayout.LabelField(gpgText);
+            GUI.color = originalColor;
+            EditorGUILayout.EndHorizontal();
+
+            // Apple Game Center
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("Apple Game Center:");
+            var agcColor = status.HasAppleGameKit ? Color.green : Color.red;
+            var agcText = status.HasAppleGameKit ? "✓ Available" : "✗ Missing";
+
+            GUI.color = agcColor;
+            EditorGUILayout.LabelField(agcText);
+            GUI.color = originalColor;
+            EditorGUILayout.EndHorizontal();
+
+            if (!status.HasGooglePlayGames)
+            {
+                EditorGUILayout.HelpBox("Install Google Play Games from Package Manager for Android features", MessageType.Warning);
             }
         }
     }

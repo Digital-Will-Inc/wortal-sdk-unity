@@ -142,7 +142,15 @@ namespace DigitalWill.WortalSDK
             if (Settings.enableDebugLogging)
             {
                 Debug.Log($"[Wortal] Initializing SDK for platform: {Platform.PlatformType}");
+                WortalDependencyChecker.CheckAllDependencies();
             }
+
+            if (!Settings.ValidateAll())
+            {
+                Debug.LogWarning("[Wortal] SDK initialized with configuration warnings. Check console for details.");
+            }
+
+
 
             // Validate configuration before initialization
             if (!Settings.ValidateSettings())
@@ -347,6 +355,30 @@ namespace DigitalWill.WortalSDK
         #endregion
 
         #region Utility Methods
+
+        /// <summary>
+        /// Get current dependency status
+        /// </summary>
+        public static DependencyStatus GetDependencyStatus()
+        {
+            return WortalDependencyChecker.GetDependencyStatus();
+        }
+
+        /// <summary>
+        /// Check if platform features are available
+        /// </summary>
+        public static bool IsPlatformReady()
+        {
+            var status = GetDependencyStatus();
+
+#if UNITY_ANDROID
+            return status.AndroidReady;
+#elif UNITY_IOS
+            return status.iOSReady;
+#else
+            return true; // WebGL and other platforms
+#endif
+        }
 
         /// <summary>
         /// Logs the supported APIs for debugging purposes

@@ -1,136 +1,173 @@
 using System;
+using System.Reflection;
 using UnityEngine;
-
-#if UNITY_ANDROID && !UNITY_EDITOR
-using GooglePlayGames;
-using GooglePlayGames.BasicApi;
-#endif
 
 namespace DigitalWill.WortalSDK
 {
     public class AndroidWortalAuthentication : IWortalAuthentication
     {
-        public bool IsSupported =>
-#if UNITY_ANDROID && !UNITY_EDITOR
-            true;
-#else
-            false;
-#endif
+        private static Type _playGamesPlatformType;
+        private static object _playGamesInstance;
+        private static Type _signInStatusType;
+
+        static AndroidWortalAuthentication()
+        {
+            InitializeGooglePlayGamesReflection();
+        }
+
+        public bool IsSupported => _playGamesPlatformType != null;
+
+        private static void InitializeGooglePlayGamesReflection()
+        {
+            try
+            {
+                _playGamesPlatformType = Type.GetType("GooglePlayGames.PlayGamesPlatform, GooglePlayGames");
+                _signInStatusType = Type.GetType("GooglePlayGames.BasicApi.SignInStatus, GooglePlayGames.BasicApi");
+
+                if (_playGamesPlatformType != null)
+                {
+                    var instanceProperty = _playGamesPlatformType.GetProperty("Instance", BindingFlags.Public | BindingFlags.Static);
+                    _playGamesInstance = instanceProperty?.GetValue(null);
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"[Android] Google Play Games not available: {e.Message}");
+            }
+        }
 
         public void Authenticate(Action<AuthResponse> onSuccess, Action<WortalError> onError)
         {
-#if UNITY_ANDROID && !UNITY_EDITOR
-            Debug.Log("[Android] Authenticating with Google Play Games...");
-
-            if (!PlayGamesPlatform.Instance.IsAuthenticated())
+            if (!IsSupported)
             {
-                PlayGamesPlatform.Activate();
+                onError?.Invoke(new WortalError
+                {
+                    Code = "DEPENDENCY_MISSING",
+                    Message = "Google Play Games SDK not found. Please import Google Play Games to use authentication.",
+                    Context = "AndroidWortalAuthentication.Authenticate"
+                });
+                return;
             }
 
-            PlayGamesPlatform.Instance.Authenticate((success) =>
+            try
             {
-                if (success == SignInStatus.Success)
+                // Check if already authenticated
+                var isAuthenticatedMethod = _playGamesPlatformType.GetMethod("IsAuthenticated");
+                var isAuthenticated = (bool)isAuthenticatedMethod.Invoke(_playGamesInstance, null);
+
+                if (!isAuthenticated)
                 {
-                    Debug.Log("[Android] Google Play Games authentication successful");
-                    
-                    var authResponse = new AuthResponse
-                    {
-                        Status = AuthStatus.SUCCESS,
-                        UserID = Social.localUser.id,
-                        UserName = Social.localUser.userName,
-                        Token = GetGooglePlayToken(),
-                        Provider = "GooglePlayGames"
-                    };
-                    
-                    onSuccess?.Invoke(authResponse);
+                    // Activate platform
+                    var activateMethod = _playGamesPlatformType.GetMethod("Activate", BindingFlags.Public | BindingFlags.Static);
+                    activateMethod?.Invoke(null, null);
                 }
-                else
+
+                // Authenticate
+                var authenticateMethod = _playGamesPlatformType.GetMethod("Authenticate", new[] { typeof(Action<>).MakeGenericType(_signInStatusType) });
+
+                Action<object> authCallback = (signInStatus) =>
                 {
-                    Debug.LogWarning($"[Android] Google Play Games authentication failed: {success}");
-                    
-                    var error = new WortalError
+                    // Get SUCCESS enum value
+                    var successValue = Enum.Parse(_signInStatusType, "Success");
+
+                    if (signInStatus.Equals(successValue))
                     {
-                        Code = "AUTHENTICATION_FAILED",
-                        Message = $"Google Play Games authentication failed: {success}",
-                        Context = "AndroidWortalAuthentication.Authenticate"
-                    };
-                    
-                    onError?.Invoke(error);
-                }
-            });
-#else
-            Debug.Log("[Android] Google Play Games not available on this platform");
-            onError?.Invoke(new WortalError
+                        var authResponse = new AuthResponse
+                        {
+                            Status = AuthStatus.SUCCESS,
+                            UserID = Social.localUser.id,
+                            UserName = Social.localUser.userName,
+                            Token = GenerateGooglePlayToken(),
+                            Provider = "GooglePlayGames"
+                        };
+
+                        onSuccess?.Invoke(authResponse);
+                    }
+                    else
+                    {
+                        onError?.Invoke(new WortalError
+                        {
+                            Code = "AUTHENTICATION_FAILED",
+                            Message = $"Google Play Games authentication failed: {signInStatus}",
+                            Context = "AndroidWortalAuthentication.Authenticate"
+                        });
+                    }
+                };
+
+                authenticateMethod.Invoke(_playGamesInstance, new object[] { authCallback });
+            }
+            catch (Exception e)
             {
-                Code = "NOT_SUPPORTED",
-                Message = "Google Play Games not supported on this platform",
-                Context = "AndroidWortalAuthentication.Authenticate"
-            });
-#endif
+                onError?.Invoke(new WortalError
+                {
+                    Code = "AUTHENTICATION_ERROR",
+                    Message = $"Authentication failed: {e.Message}",
+                    Context = "AndroidWortalAuthentication.Authenticate"
+                });
+            }
         }
 
         public void LinkAccount(Action<bool> onSuccess, Action<WortalError> onError)
         {
-#if UNITY_ANDROID && !UNITY_EDITOR
-            Debug.Log("[Android] Linking Google Play Games account...");
+            if (!IsSupported)
+            {
+                onError?.Invoke(new WortalError
+                {
+                    Code = "DEPENDENCY_MISSING",
+                    Message = "Google Play Games SDK not found",
+                    Context = "AndroidWortalAuthentication.LinkAccount"
+                });
+                return;
+            }
 
-            if (PlayGamesPlatform.Instance.IsAuthenticated())
+            try
             {
-                Debug.Log("[Android] Google Play Games account already linked");
-                onSuccess?.Invoke(true);
+                var isAuthenticatedMethod = _playGamesPlatformType.GetMethod("IsAuthenticated");
+                var isAuthenticated = (bool)isAuthenticatedMethod.Invoke(_playGamesInstance, null);
+
+                if (isAuthenticated)
+                {
+                    onSuccess?.Invoke(true);
+                }
+                else
+                {
+                    Authenticate(
+                        (authResponse) => onSuccess?.Invoke(true),
+                        (error) => onError?.Invoke(error)
+                    );
+                }
             }
-            else
+            catch (Exception e)
             {
-                Authenticate(
-                    (authResponse) =>
-                    {
-                        Debug.Log("[Android] Google Play Games account linked successfully");
-                        onSuccess?.Invoke(true);
-                    },
-                    (error) =>
-                    {
-                        Debug.LogError($"[Android] Failed to link Google Play Games account: {error.Message}");
-                        onError?.Invoke(error);
-                    }
-                );
+                onError?.Invoke(new WortalError
+                {
+                    Code = "LINK_ACCOUNT_ERROR",
+                    Message = e.Message,
+                    Context = "AndroidWortalAuthentication.LinkAccount"
+                });
             }
-#else
-            onError?.Invoke(new WortalError
-            {
-                Code = "NOT_SUPPORTED",
-                Message = "Google Play Games not supported on this platform",
-                Context = "AndroidWortalAuthentication.LinkAccount"
-            });
-#endif
         }
 
         public AuthStatus GetAuthStatus()
         {
-#if UNITY_ANDROID && !UNITY_EDITOR
-            if (PlayGamesPlatform.Instance.IsAuthenticated())
+            if (!IsSupported)
+                return AuthStatus.NOT_SUPPORTED;
+
+            try
             {
-                Debug.Log("[Android] Google Play Games authentication status: SUCCESS");
-                return AuthStatus.SUCCESS;
+                var isAuthenticatedMethod = _playGamesPlatformType.GetMethod("IsAuthenticated");
+                var isAuthenticated = (bool)isAuthenticatedMethod.Invoke(_playGamesInstance, null);
+                return isAuthenticated ? AuthStatus.SUCCESS : AuthStatus.NOT_AUTHENTICATED;
             }
-            else
+            catch
             {
-                Debug.Log("[Android] Google Play Games authentication status: NOT_AUTHENTICATED");
-                return AuthStatus.NOT_AUTHENTICATED;
+                return AuthStatus.NOT_SUPPORTED;
             }
-#else
-            return AuthStatus.NOT_SUPPORTED;
-#endif
         }
 
-#if UNITY_ANDROID && !UNITY_EDITOR
-        private string GetGooglePlayToken()
+        private string GenerateGooglePlayToken()
         {
-            if (PlayGamesPlatform.Instance.IsAuthenticated())
-            {
-                return $"gpg_token_{Social.localUser.id}_{DateTime.UtcNow.Ticks}";
-            }
-            return null;
+            return $"gpg_token_{Social.localUser.id}_{DateTime.UtcNow.Ticks}";
         }
-#endif
     }
 }

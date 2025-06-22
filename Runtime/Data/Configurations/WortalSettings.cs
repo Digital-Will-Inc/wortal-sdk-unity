@@ -8,6 +8,12 @@ namespace DigitalWill.WortalSDK
     [CreateAssetMenu(fileName = "WortalSettings", menuName = "Wortal/Settings", order = 1)]
     public class WortalSettings : ScriptableObject
     {
+        [Header("Debug Settings")]
+        [Tooltip("Force Google Play Games detection (for testing)")]
+        public bool forceGooglePlayGamesDetection = false;
+
+        [Tooltip("Force Apple Game Center detection (for testing)")]
+        public bool forceAppleGameCenterDetection = false;
         private static WortalSettings _instance;
 
         public static WortalSettings Instance
@@ -85,15 +91,12 @@ namespace DigitalWill.WortalSDK
             bool isValid = true;
 
 #if UNITY_ANDROID
-
             if (enableGooglePlayGames && string.IsNullOrEmpty(googlePlayGamesAppId))
             {
                 Debug.LogError("[Wortal] Google Play Games is enabled but App ID is not set");
                 isValid = false;
             }
-
 #elif UNITY_IOS
-
             if (enableAppleGameCenter && string.IsNullOrEmpty(appleGameCenterBundleId))
             {
                 Debug.LogError("[Wortal] Apple Game Center is enabled but Bundle ID is not set");
@@ -102,6 +105,41 @@ namespace DigitalWill.WortalSDK
 #endif
 
             return isValid;
+        }
+
+        /// <summary>
+        /// Check and validate platform dependencies
+        /// </summary>
+        public bool ValidateDependencies()
+        {
+            bool isValid = true;
+
+            // Check platform-specific dependencies
+            var dependencyStatus = WortalDependencyChecker.GetDependencyStatus();
+
+#if UNITY_ANDROID
+            if (enableGooglePlayGames && !dependencyStatus.AndroidReady)
+            {
+                Debug.LogError("[Wortal] Google Play Games is enabled but SDK is not available");
+                isValid = false;
+            }
+#elif UNITY_IOS
+            if (enableAppleGameCenter && !dependencyStatus.iOSReady)
+            {
+                Debug.LogError("[Wortal] Apple Game Center is enabled but not available");
+                isValid = false;
+            }
+#endif
+
+            return isValid;
+        }
+
+        /// <summary>
+        /// Get comprehensive validation including dependencies
+        /// </summary>
+        public bool ValidateAll()
+        {
+            return ValidateSettings() && ValidateDependencies();
         }
     }
 }
