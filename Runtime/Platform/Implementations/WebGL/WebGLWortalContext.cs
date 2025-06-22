@@ -23,7 +23,7 @@ namespace DigitalWill.WortalSDK
         public string GetID()
         {
 #if UNITY_WEBGL && !UNITY_EDITOR
-            return ContextGetIdJS();
+            return PluginManager.ContextGetIdJS();
 #else
             Debug.Log("[Wortal] Mock Context.GetID");
             return "mock-context-id";
@@ -33,7 +33,7 @@ namespace DigitalWill.WortalSDK
         public ContextType GetType()
         {
 #if UNITY_WEBGL && !UNITY_EDITOR
-            string typeString = ContextGetTypeJS();
+            string typeString = PluginManager.ContextGetTypeJS();
             if (Enum.TryParse<ContextType>(typeString, true, out ContextType contextType))
             {
                 return contextType;
@@ -50,7 +50,7 @@ namespace DigitalWill.WortalSDK
             _getPlayersCallback = onSuccess;
             _errorCallback = onError;
 #if UNITY_WEBGL && !UNITY_EDITOR
-            ContextGetPlayersJS(ContextGetPlayersCallback, Wortal.WortalErrorCallback);
+            PluginManager.ContextGetPlayersJS(ContextGetPlayersCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log("[Wortal] Mock Context.GetPlayersAsync()");
             var player = new ContextPlayer
@@ -70,7 +70,7 @@ namespace DigitalWill.WortalSDK
             _errorCallback = onError;
             string payloadObj = JsonConvert.SerializeObject(payload);
 #if UNITY_WEBGL && !UNITY_EDITOR
-            ContextInviteJS(payloadObj, ContextInviteCallback, Wortal.WortalErrorCallback);
+            PluginManager.ContextInviteJS(payloadObj, ContextInviteCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log($"[Wortal] Mock Context.InviteAsync({payload})");
             onSuccess?.Invoke();
@@ -83,7 +83,7 @@ namespace DigitalWill.WortalSDK
             _errorCallback = onError;
             string payloadObj = JsonConvert.SerializeObject(payload);
 #if UNITY_WEBGL && !UNITY_EDITOR
-            ContextShareJS(payloadObj, ContextShareCallback, Wortal.WortalErrorCallback);
+            PluginManager.ContextShareJS(payloadObj, ContextShareCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log($"[Wortal] Mock Context.ShareAsync({payload})");
             onSuccess?.Invoke(true);
@@ -96,7 +96,7 @@ namespace DigitalWill.WortalSDK
             _errorCallback = onError;
             string payloadObj = JsonConvert.SerializeObject(payload);
 #if UNITY_WEBGL && !UNITY_EDITOR
-            ContextShareLinkJS(payloadObj, ContextShareLinkCallback, Wortal.WortalErrorCallback);
+            PluginManager.ContextShareLinkJS(payloadObj, ContextShareLinkCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log($"[Wortal] Mock Context.ShareLinkAsync({payload})");
             onSuccess?.Invoke(true);
@@ -109,7 +109,7 @@ namespace DigitalWill.WortalSDK
             _errorCallback = onError;
             string payloadObj = JsonConvert.SerializeObject(payload);
 #if UNITY_WEBGL && !UNITY_EDITOR
-            ContextUpdateJS(payloadObj, ContextUpdateCallback, Wortal.WortalErrorCallback);
+            PluginManager.ContextUpdateJS(payloadObj, ContextUpdateCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log($"[Wortal] Mock Context.UpdateAsync({payload})");
             onSuccess?.Invoke();
@@ -121,7 +121,7 @@ namespace DigitalWill.WortalSDK
             _switchCallback = onSuccess;
             _errorCallback = onError;
 #if UNITY_WEBGL && !UNITY_EDITOR
-            ContextSwitchJS(contextID, ContextSwitchCallback, Wortal.WortalErrorCallback);
+            PluginManager.ContextSwitchJS(contextID, ContextSwitchCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log($"[Wortal] Mock Context.SwitchAsync({contextID})");
             onSuccess?.Invoke();
@@ -134,7 +134,7 @@ namespace DigitalWill.WortalSDK
             _errorCallback = onError;
             string payloadObj = JsonConvert.SerializeObject(options);
 #if UNITY_WEBGL && !UNITY_EDITOR
-            ContextChooseJS(payloadObj, ContextChooseCallback, Wortal.WortalErrorCallback);
+            PluginManager.ContextChooseJS(payloadObj, ContextChooseCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log($"[Wortal] Mock Context.ChooseAsync({options})");
             onSuccess?.Invoke();
@@ -146,46 +146,12 @@ namespace DigitalWill.WortalSDK
             _createCallback = onSuccess;
             _errorCallback = onError;
 #if UNITY_WEBGL && !UNITY_EDITOR
-            ContextCreateJS(playerID, ContextCreateCallback, Wortal.WortalErrorCallback);
+            PluginManager.ContextCreateJS(playerID, ContextCreateCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log($"[Wortal] Mock Context.CreateAsync({playerID})");
             onSuccess?.Invoke();
 #endif
         }
-
-        #region JSlib Interface
-
-        [DllImport("__Internal")]
-        private static extern string ContextGetIdJS();
-
-        [DllImport("__Internal")]
-        private static extern string ContextGetTypeJS();
-
-        [DllImport("__Internal")]
-        private static extern void ContextGetPlayersJS(Action<string> callback, Action<string> errorCallback);
-
-        [DllImport("__Internal")]
-        private static extern void ContextChooseJS(string payload, Action callback, Action<string> errorCallback);
-
-        [DllImport("__Internal")]
-        private static extern void ContextInviteJS(string payload, Action callback, Action<string> errorCallback);
-
-        [DllImport("__Internal")]
-        private static extern void ContextShareJS(string payload, Action<int> callback, Action<string> errorCallback);
-
-        [DllImport("__Internal")]
-        private static extern void ContextShareLinkJS(string payload, Action callback, Action<string> errorCallback);
-
-        [DllImport("__Internal")]
-        private static extern void ContextUpdateJS(string payload, Action callback, Action<string> errorCallback);
-
-        [DllImport("__Internal")]
-        private static extern void ContextCreateJS(string playerId, Action callback, Action<string> errorCallback);
-
-        [DllImport("__Internal")]
-        private static extern void ContextSwitchJS(string contextId, Action callback, Action<string> errorCallback);
-
-        #endregion JSlib Interface
 
         #region Callback Methods
 

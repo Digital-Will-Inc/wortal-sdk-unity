@@ -25,7 +25,7 @@ namespace DigitalWill.WortalSDK
             _getCurrentCallback = callback;
             _errorCallback = errorCallback;
 #if UNITY_WEBGL && !UNITY_EDITOR
-            TournamentGetCurrentJS(TournamentGetCurrentCallback, Wortal.WortalErrorCallback);
+            PluginManager.TournamentGetCurrentJS(TournamentGetCurrentCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log("[Wortal] Mock Tournament.GetCurrent()");
             TournamentGetCurrentCallback(JsonConvert.SerializeObject(GetMockTournament()));
@@ -37,7 +37,7 @@ namespace DigitalWill.WortalSDK
             _getAllCallback = callback;
             _errorCallback = errorCallback;
 #if UNITY_WEBGL && !UNITY_EDITOR
-            TournamentGetAllJS(TournamentGetAllCallback, Wortal.WortalErrorCallback);
+            PluginManager.TournamentGetAllJS(TournamentGetAllCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log("[Wortal] Mock Tournament.GetAll()");
             Tournament[] tournaments = new Tournament[Random.Range(1, 5)];
@@ -54,7 +54,7 @@ namespace DigitalWill.WortalSDK
             _postScoreCallback = callback;
             _errorCallback = errorCallback;
 #if UNITY_WEBGL && !UNITY_EDITOR
-            TournamentPostScoreJS(score, TournamentPostScoreCallback, Wortal.WortalErrorCallback);
+            PluginManager.TournamentPostScoreJS(score, TournamentPostScoreCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log($"[Wortal] Mock Tournament.PostScore({score})");
             TournamentPostScoreCallback();
@@ -67,7 +67,7 @@ namespace DigitalWill.WortalSDK
             _errorCallback = errorCallback;
             string payloadJson = JsonConvert.SerializeObject(payload);
 #if UNITY_WEBGL && !UNITY_EDITOR
-            TournamentCreateJS(payloadJson, TournamentCreateCallback, Wortal.WortalErrorCallback);
+            PluginManager.TournamentCreateJS(payloadJson, TournamentCreateCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log($"[Wortal] Mock Tournament.Create({payload})");
             var tournament = new Tournament(payload);
@@ -81,7 +81,7 @@ namespace DigitalWill.WortalSDK
             _errorCallback = errorCallback;
             string payloadJson = JsonConvert.SerializeObject(payload);
 #if UNITY_WEBGL && !UNITY_EDITOR
-            TournamentShareJS(payloadJson, TournamentShareCallback, Wortal.WortalErrorCallback);
+            PluginManager.TournamentShareJS(payloadJson, TournamentShareCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log($"[Wortal] Mock Tournament.Share({payload})");
             TournamentShareCallback();
@@ -93,34 +93,12 @@ namespace DigitalWill.WortalSDK
             _joinCallback = callback;
             _errorCallback = errorCallback;
 #if UNITY_WEBGL && !UNITY_EDITOR
-            TournamentJoinJS(tournamentID, TournamentJoinCallback, Wortal.WortalErrorCallback);
+            PluginManager.TournamentJoinJS(tournamentID, TournamentJoinCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log($"[Wortal] Mock Tournament.Join({tournamentID})");
             TournamentJoinCallback();
 #endif
         }
-
-        #region JSlib Interface
-
-        [DllImport("__Internal")]
-        private static extern void TournamentGetCurrentJS(Action<string> callback, Action<string> errorCallback);
-
-        [DllImport("__Internal")]
-        private static extern void TournamentGetAllJS(Action<string> callback, Action<string> errorCallback);
-
-        [DllImport("__Internal")]
-        private static extern void TournamentPostScoreJS(int score, Action callback, Action<string> errorCallback);
-
-        [DllImport("__Internal")]
-        private static extern void TournamentCreateJS(string payload, Action<string> callback, Action<string> errorCallback);
-
-        [DllImport("__Internal")]
-        private static extern void TournamentShareJS(string payload, Action callback, Action<string> errorCallback);
-
-        [DllImport("__Internal")]
-        private static extern void TournamentJoinJS(string tournamentID, Action callback, Action<string> errorCallback);
-
-        #endregion JSlib Interface
 
         #region Callback Methods
 

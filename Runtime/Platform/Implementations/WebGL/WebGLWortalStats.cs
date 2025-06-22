@@ -20,7 +20,7 @@ namespace DigitalWill.WortalSDK
             _errorCallback = errorCallback;
             string payloadJson = JsonConvert.SerializeObject(payload);
 #if UNITY_WEBGL && !UNITY_EDITOR
-            StatsGetStatsJS(level, payloadJson, StatsGetStatsCallback, Wortal.WortalErrorCallback);
+            PluginManager.StatsGetStatsJS(level, payloadJson, StatsGetStatsCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log($"[Wortal] Mock Stats.GetStats({level}, {payloadJson})");
             var stats = new Stats[]
@@ -48,22 +48,12 @@ namespace DigitalWill.WortalSDK
             _errorCallback = errorCallback;
             string payloadJson = JsonConvert.SerializeObject(payload);
 #if UNITY_WEBGL && !UNITY_EDITOR
-            StatsPostStatsJS(level, value, payloadJson, StatsPostStatsCallback, Wortal.WortalErrorCallback);
+            PluginManager.StatsPostStatsJS(level, value, payloadJson, StatsPostStatsCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log($"[Wortal] Mock Stats.PostStats({level}, {value}, {payloadJson})");
             StatsPostStatsCallback();
 #endif
         }
-
-        #region JSlib Interface
-
-        [DllImport("__Internal")]
-        private static extern void StatsGetStatsJS(string level, string payload, Action<string> callback, Action<string> errorCallback);
-
-        [DllImport("__Internal")]
-        private static extern void StatsPostStatsJS(string level, int value, string payload, Action callback, Action<string> errorCallback);
-
-        #endregion JSlib Interface
 
         #region Callback Methods
 

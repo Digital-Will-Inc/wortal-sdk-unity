@@ -20,7 +20,7 @@ namespace DigitalWill.WortalSDK
 
         public bool IsAudioEnabled =>
 #if UNITY_WEBGL && !UNITY_EDITOR
-            SessionIsAudioEnabledJS();
+            PluginManager.SessionIsAudioEnabledJS();
 #else
             true;
 #endif
@@ -35,7 +35,7 @@ namespace DigitalWill.WortalSDK
         public Platform GetPlatform()
         {
 #if UNITY_WEBGL && !UNITY_EDITOR
-            return (Platform)Enum.Parse(typeof(Platform), SessionGetPlatformJS());
+            return (Platform)Enum.Parse(typeof(Platform), PluginManager.SessionGetPlatformJS());
 #else
             Debug.Log("[Wortal] Mock Session.GetPlatform()");
             return Platform.debug;
@@ -45,7 +45,7 @@ namespace DigitalWill.WortalSDK
         public Device GetDevice()
         {
 #if UNITY_WEBGL && !UNITY_EDITOR
-            return (Device)Enum.Parse(typeof(Device), SessionGetDeviceJS());
+            return (Device)Enum.Parse(typeof(Device), PluginManager.SessionGetDeviceJS());
 #else
             Debug.Log("[Wortal] Mock Session.GetDevice()");
             int random = UnityEngine.Random.Range(0, 3);
@@ -56,7 +56,7 @@ namespace DigitalWill.WortalSDK
         public Orientation GetOrientation()
         {
 #if UNITY_WEBGL && !UNITY_EDITOR
-            return (Orientation)Enum.Parse(typeof(Orientation), SessionGetOrientationJS());
+            return (Orientation)Enum.Parse(typeof(Orientation), PluginManager.SessionGetOrientationJS());
 #else
             Debug.Log("[Wortal] Mock Session.GetOrientation()");
             return Screen.width > Screen.height ? Orientation.LANDSCAPE : Orientation.PORTRAIT;
@@ -66,7 +66,7 @@ namespace DigitalWill.WortalSDK
         public string GetLocale()
         {
 #if UNITY_WEBGL && !UNITY_EDITOR
-            return SessionGetLocaleJS();
+            return PluginManager.SessionGetLocaleJS();
 #else
             Debug.Log("[Wortal] Mock Session.GetLocale()");
             return "en-US";
@@ -76,7 +76,7 @@ namespace DigitalWill.WortalSDK
         public TrafficSource GetTrafficSource()
         {
 #if UNITY_WEBGL && !UNITY_EDITOR
-            string source = SessionGetTrafficSourceJS();
+            string source = PluginManager.SessionGetTrafficSourceJS();
             return JsonConvert.DeserializeObject<TrafficSource>(source);
 #else
             Debug.Log("[Wortal] Mock Session.GetTrafficSource()");
@@ -94,7 +94,7 @@ namespace DigitalWill.WortalSDK
             _getEntryPointCallback = onSuccess;
             _errorCallback = onError;
 #if UNITY_WEBGL && !UNITY_EDITOR
-            SessionGetEntryPointJS(SessionGetEntryPointCallback, Wortal.WortalErrorCallback);
+            PluginManager.SessionGetEntryPointJS(SessionGetEntryPointCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log("[Wortal] Mock Session.GetEntryPoint()");
             SessionGetEntryPointCallback("social-share");
@@ -104,7 +104,7 @@ namespace DigitalWill.WortalSDK
         public object GetEntryPointData()
         {
 #if UNITY_WEBGL && !UNITY_EDITOR
-            string data = SessionGetEntryPointDataJS();
+            string data = PluginManager.SessionGetEntryPointDataJS();
             return JsonConvert.DeserializeObject<JObject>(data).ToDictionary();
 #else
             Debug.Log("[Wortal] Mock Session.GetEntryPointData()");
@@ -150,7 +150,7 @@ namespace DigitalWill.WortalSDK
 
             string dataJson = JsonConvert.SerializeObject(dataDict);
 #if UNITY_WEBGL && !UNITY_EDITOR
-            SessionSetSessionDataJS(dataJson);
+            PluginManager.SessionSetSessionDataJS(dataJson);
 #else
             Debug.Log($"[Wortal] Mock Session.SetSessionData({data})");
 #endif
@@ -172,7 +172,7 @@ namespace DigitalWill.WortalSDK
         public void GameplayStart()
         {
 #if UNITY_WEBGL && !UNITY_EDITOR
-            SessionGameplayStartJS();
+            PluginManager.SessionGameplayStartJS();
 #else
             Debug.Log("[Wortal] Mock Session.GameplayStart()");
 #endif
@@ -181,7 +181,7 @@ namespace DigitalWill.WortalSDK
         public void GameplayStop()
         {
 #if UNITY_WEBGL && !UNITY_EDITOR
-            SessionGameplayStopJS();
+            PluginManager.SessionGameplayStopJS();
 #else
             Debug.Log("[Wortal] Mock Session.GameplayStop()");
 #endif
@@ -190,7 +190,7 @@ namespace DigitalWill.WortalSDK
         public void HappyTime()
         {
 #if UNITY_WEBGL && !UNITY_EDITOR
-            SessionHappyTimeJS();
+            PluginManager.SessionHappyTimeJS();
 #else
             Debug.Log("[Wortal] Mock Session.HappyTime()");
 #endif
@@ -200,7 +200,7 @@ namespace DigitalWill.WortalSDK
         {
             _onAudioStatusChangeCallback = onAudioEnabled;
 #if UNITY_WEBGL && !UNITY_EDITOR
-            SessionOnAudioStatusChangeJS(SessionOnAudioStatusChangeCallback);
+            PluginManager.SessionOnAudioStatusChangeJS(SessionOnAudioStatusChangeCallback);
 #else
             Debug.Log("[Wortal] Mock Session.OnAudioStatusChange()");
             int random = UnityEngine.Random.Range(0, 2);
@@ -216,7 +216,7 @@ namespace DigitalWill.WortalSDK
         {
             _onOrientationChangeCallback = callback;
 #if UNITY_WEBGL && !UNITY_EDITOR
-            SessionOnOrientationChangeJS(SessionOnOrientationChangeCallback);
+            PluginManager.SessionOnOrientationChangeJS(SessionOnOrientationChangeCallback);
 #else
             Debug.Log("[Wortal] Mock Session.OnOrientationChange()");
             int random = UnityEngine.Random.Range(0, 2);
@@ -234,61 +234,12 @@ namespace DigitalWill.WortalSDK
             _switchGameCallback = callback;
             _errorCallback = errorCallback;
 #if UNITY_WEBGL && !UNITY_EDITOR
-            SessionSwitchGameJS(SessionSwitchGameCallback, Wortal.WortalErrorCallback);
+            PluginManager.SessionSwitchGameJS(SessionSwitchGameCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log("[Wortal] Mock Session.SwitchGame()");
             SessionSwitchGameCallback();
 #endif
         }
-
-        #region JSlib Interface
-
-        [DllImport("__Internal")]
-        private static extern string SessionGetEntryPointDataJS();
-
-        [DllImport("__Internal")]
-        private static extern void SessionGetEntryPointJS(Action<string> callback, Action<string> errorCallback);
-
-        [DllImport("__Internal")]
-        private static extern void SessionSetSessionDataJS(string data);
-
-        [DllImport("__Internal")]
-        private static extern string SessionGetLocaleJS();
-
-        [DllImport("__Internal")]
-        private static extern string SessionGetTrafficSourceJS();
-
-        [DllImport("__Internal")]
-        private static extern string SessionGetPlatformJS();
-
-        [DllImport("__Internal")]
-        private static extern string SessionGetDeviceJS();
-
-        [DllImport("__Internal")]
-        private static extern string SessionGetOrientationJS();
-
-        [DllImport("__Internal")]
-        private static extern void SessionOnOrientationChangeJS(Action<string> callback);
-
-        [DllImport("__Internal")]
-        private static extern void SessionSwitchGameJS(Action callback, Action<string> errorCallback);
-
-        [DllImport("__Internal")]
-        private static extern void SessionHappyTimeJS();
-
-        [DllImport("__Internal")]
-        private static extern void SessionGameplayStartJS();
-
-        [DllImport("__Internal")]
-        private static extern void SessionGameplayStopJS();
-
-        [DllImport("__Internal")]
-        private static extern bool SessionIsAudioEnabledJS();
-
-        [DllImport("__Internal")]
-        private static extern void SessionOnAudioStatusChangeJS(Action<int> callback);
-
-        #endregion JSlib Interface
 
         #region Callback Methods
 

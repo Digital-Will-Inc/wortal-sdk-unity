@@ -1,5 +1,4 @@
 using System;
-using System.Runtime.InteropServices;
 using AOT;
 using Newtonsoft.Json;
 using UnityEngine;
@@ -24,7 +23,8 @@ namespace DigitalWill.WortalSDK
             _errorCallback = onError;
 
 #if UNITY_WEBGL && !UNITY_EDITOR
-            AchievementsGetAchievementsJS(AchievementsGetAchievementsCallback, Wortal.WortalErrorCallback);
+            // Use PluginManager instead of direct DllImport
+            PluginManager.AchievementsGetAchievements(AchievementsGetAchievementsCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log("[WebGL Platform] Mock Achievements.GetAchievements()");
             onSuccess?.Invoke(new Achievement[]
@@ -58,7 +58,8 @@ namespace DigitalWill.WortalSDK
             _errorCallback = onError;
 
 #if UNITY_WEBGL && !UNITY_EDITOR
-            AchievementsUnlockAchievementJS(achievementID, AchievementsUnlockAchievementCallback, Wortal.WortalErrorCallback);
+            // Use PluginManager instead of direct DllImport
+            PluginManager.AchievementsUnlockAchievement(achievementID, AchievementsUnlockAchievementCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log($"[WebGL Platform] Mock Achievements.UnlockAchievement({achievementID})");
             onSuccess?.Invoke();
@@ -78,14 +79,7 @@ namespace DigitalWill.WortalSDK
 #endif
         }
 
-        #region JSlib Interface
-
-        [DllImport("__Internal")]
-        private static extern void AchievementsGetAchievementsJS(Action<string> callback, Action<string> errorCallback);
-
-        [DllImport("__Internal")]
-        private static extern void AchievementsUnlockAchievementJS(string achievementID, Action<bool> callback, Action<string> errorCallback);
-
+        #region Callbacks - NO MORE DllImport HERE
 
         [MonoPInvokeCallback(typeof(Action<string>))]
         private static void AchievementsGetAchievementsCallback(string achievementsJson)
@@ -129,6 +123,6 @@ namespace DigitalWill.WortalSDK
             }
         }
 
-        #endregion JSlib Interface
+        #endregion
     }
 }

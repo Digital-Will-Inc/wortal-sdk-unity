@@ -21,7 +21,7 @@ namespace DigitalWill.WortalSDK
             _getCatalogCallback = onSuccess;
             _errorCallback = onError;
 #if UNITY_WEBGL && !UNITY_EDITOR
-            IAPGetCatalogJS(IAPGetCatalogCallback, Wortal.WortalErrorCallback);
+            PluginManager.IAPGetCatalogJS(IAPGetCatalogCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log("[Wortal] Mock IAP.GetCatalogAsync()");
             var product = new Product
@@ -43,7 +43,7 @@ namespace DigitalWill.WortalSDK
             _getPurchasesCallback = onSuccess;
             _errorCallback = onError;
 #if UNITY_WEBGL && !UNITY_EDITOR
-            IAPGetPurchasesJS(IAPGetPurchasesCallback, Wortal.WortalErrorCallback);
+            PluginManager.IAPGetPurchasesJS(IAPGetPurchasesCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log("[Wortal] Mock IAP.GetPurchasesAsync()");
             var purchase = new Purchase
@@ -66,7 +66,7 @@ namespace DigitalWill.WortalSDK
             _errorCallback = onError;
             string purchaseObj = JsonConvert.SerializeObject(purchaseConfig);
 #if UNITY_WEBGL && !UNITY_EDITOR
-            IAPMakePurchaseJS(purchaseObj, IAPMakePurchaseCallback, Wortal.WortalErrorCallback);
+            PluginManager.IAPMakePurchaseJS(purchaseObj, IAPMakePurchaseCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log($"[Wortal] Mock IAP.MakePurchaseAsync({purchaseConfig})");
             var purchaseReceipt = new Purchase
@@ -87,7 +87,7 @@ namespace DigitalWill.WortalSDK
             _consumePurchaseCallback = onSuccess;
             _errorCallback = onError;
 #if UNITY_WEBGL && !UNITY_EDITOR
-            IAPConsumePurchaseJS(token, IAPConsumePurchaseCallback, Wortal.WortalErrorCallback);
+            PluginManager.IAPConsumePurchaseJS(token, IAPConsumePurchaseCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log($"[Wortal] Mock IAP.ConsumePurchaseAsync({token})");
             IAPConsumePurchaseCallback();
@@ -102,31 +102,12 @@ namespace DigitalWill.WortalSDK
         public bool IsEnabled()
         {
 #if UNITY_WEBGL && !UNITY_EDITOR
-            return IAPIsEnabledJS();
+            return PluginManager.IAPIsEnabledJS();
 #else
             Debug.Log("[Wortal] Mock IAP.IsEnabled()");
             return true;
 #endif
         }
-
-        #region JSlib Interface
-
-        [DllImport("__Internal")]
-        private static extern bool IAPIsEnabledJS();
-
-        [DllImport("__Internal")]
-        private static extern void IAPGetCatalogJS(Action<string> callback, Action<string> errorCallback);
-
-        [DllImport("__Internal")]
-        private static extern void IAPGetPurchasesJS(Action<string> callback, Action<string> errorCallback);
-
-        [DllImport("__Internal")]
-        private static extern void IAPMakePurchaseJS(string purchase, Action<string> callback, Action<string> errorCallback);
-
-        [DllImport("__Internal")]
-        private static extern void IAPConsumePurchaseJS(string token, Action callback, Action<string> errorCallback);
-
-        #endregion JSlib Interface
 
         #region Callback Methods
 

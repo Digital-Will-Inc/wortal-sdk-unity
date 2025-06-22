@@ -23,7 +23,7 @@ namespace DigitalWill.WortalSDK
             string payloadObj = JsonConvert.SerializeObject(payload);
 #if UNITY_WEBGL && !UNITY_EDITOR
             Debug.Log($"[Wortal] Notifications.Schedule({payloadObj})");
-            NotificationsScheduleJS(payloadObj, NotificationsScheduleCallback, Wortal.WortalErrorCallback);
+            PluginManager.NotificationsScheduleJS(payloadObj, NotificationsScheduleCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log($"[Wortal] Mock Notifications.Schedule({payload})");
             var result = new NotificationScheduleResult
@@ -40,7 +40,7 @@ namespace DigitalWill.WortalSDK
             _getHistoryCallback = callback;
             _errorCallback = errorCallback;
 #if UNITY_WEBGL && !UNITY_EDITOR
-            NotificationsGetHistoryJS(NotificationsGetHistoryCallback, Wortal.WortalErrorCallback);
+            PluginManager.NotificationsGetHistoryJS(NotificationsGetHistoryCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log("[Wortal] Mock Notifications.GetHistory()");
             ScheduledNotification[] result = {
@@ -60,7 +60,7 @@ namespace DigitalWill.WortalSDK
             _cancelCallback = callback;
             _errorCallback = errorCallback;
 #if UNITY_WEBGL && !UNITY_EDITOR
-            NotificationsCancelJS(id, NotificationsCancelCallback, Wortal.WortalErrorCallback);
+            PluginManager.NotificationsCancelJS(id, NotificationsCancelCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log("[Wortal] Mock Notifications.Cancel()");
             NotificationsCancelCallback(true);
@@ -72,7 +72,7 @@ namespace DigitalWill.WortalSDK
             _cancelAllCallback = callback;
             _errorCallback = errorCallback;
 #if UNITY_WEBGL && !UNITY_EDITOR
-            NotificationsCancelAllJS(NotificationsCancelAllCallback, Wortal.WortalErrorCallback);
+            PluginManager.NotificationsCancelAllJS(NotificationsCancelAllCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log("[Wortal] Mock Notifications.CancelAll()");
             NotificationsCancelAllCallback(true);
@@ -84,31 +84,12 @@ namespace DigitalWill.WortalSDK
             _cancelAllCallback = callback;
             _errorCallback = errorCallback;
 #if UNITY_WEBGL && !UNITY_EDITOR
-            NotificationsCancelAllLabelJS(label, NotificationsCancelAllCallback, Wortal.WortalErrorCallback);
+            PluginManager.NotificationsCancelAllLabelJS(label, NotificationsCancelAllCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log("[Wortal] Mock Notifications.CancelAll()");
             NotificationsCancelAllCallback(true);
 #endif
         }
-
-        #region JSlib Interface
-
-        [DllImport("__Internal")]
-        private static extern void NotificationsScheduleJS(string payload, Action<string> callback, Action<string> errorCallback);
-
-        [DllImport("__Internal")]
-        private static extern void NotificationsGetHistoryJS(Action<string> callback, Action<string> errorCallback);
-
-        [DllImport("__Internal")]
-        private static extern void NotificationsCancelJS(string id, Action<bool> callback, Action<string> errorCallback);
-
-        [DllImport("__Internal")]
-        private static extern void NotificationsCancelAllJS(Action<bool> callback, Action<string> errorCallback);
-
-        [DllImport("__Internal")]
-        private static extern void NotificationsCancelAllLabelJS(string label, Action<bool> callback, Action<string> errorCallback);
-
-        #endregion JSlib Interface
 
         #region Callback Methods
 

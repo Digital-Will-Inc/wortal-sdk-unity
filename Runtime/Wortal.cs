@@ -527,41 +527,12 @@ namespace DigitalWill.WortalSDK
             Debug.Log("[Wortal] Initializing Unity SDK..");
 #if UNITY_WEBGL && !UNITY_EDITOR
             //registering callback
-            OnPauseJS(OnPauseCallback);
-            OnResumeJS(OnResumeCallback);
+            PluginManager.OnPauseJS(OnPauseCallback);
+            PluginManager.OnResumeJS(OnResumeCallback);
 #endif
             Debug.Log("[Wortal] Unity SDK initialization complete.");
         }
 
-        [DllImport("__Internal")]
-        private static extern bool IsInitializedJS();
-
-        [DllImport("__Internal")]
-        private static extern void InitializeJS(Action callback, Action<string> errorCallback);
-
-        [DllImport("__Internal")]
-        private static extern void StartGameJS(Action callback, Action<string> errorCallback);
-
-        [DllImport("__Internal")]
-        private static extern void AuthenticateJS(Action<string> callback, Action<string> errorCallback);
-
-        [DllImport("__Internal")]
-        private static extern void LinkAccountJS(Action<bool> callback, Action<string> errorCallback);
-
-        [DllImport("__Internal")]
-        private static extern void SetLoadingProgressJS(int value);
-
-        [DllImport("__Internal")]
-        private static extern void OnPauseJS(Action callback);
-
-        [DllImport("__Internal")]
-        private static extern void OnResumeJS(Action callback);
-
-        [DllImport("__Internal")]
-        private static extern string GetSupportedAPIsJS();
-
-        [DllImport("__Internal")]
-        private static extern void PerformHapticFeedbackJS(Action callback, Action<string> errorCallback);
 
         [MonoPInvokeCallback(typeof(Action<string>))]
         public static void WortalErrorCallback(string error)

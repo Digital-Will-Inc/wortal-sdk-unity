@@ -23,7 +23,7 @@ namespace DigitalWill.WortalSDK
             _getLeaderboardCallback = onSuccess;
             _errorCallback = onError;
 #if UNITY_WEBGL && !UNITY_EDITOR
-            LeaderboardGetJS(name, LeaderboardGetCallback, Wortal.WortalErrorCallback);
+            PluginManager.LeaderboardGetJS(name, LeaderboardGetCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log($"[Wortal] Mock Leaderboard.GetLeaderboardAsync({name})");
             var leaderboard = new Leaderboard
@@ -45,7 +45,7 @@ namespace DigitalWill.WortalSDK
             _sendScoreCallback = onSuccess;
             _errorCallback = onError;
 #if UNITY_WEBGL && !UNITY_EDITOR
-            LeaderboardSendEntryJS(name, score, details, LeaderboardSendEntryCallback, Wortal.WortalErrorCallback);
+            PluginManager.LeaderboardSendEntryJS(name, score, details, LeaderboardSendEntryCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log($"[Wortal] Mock Leaderboard.SendScoreAsync({name}, {score}, {details})");
             var entry = new LeaderboardEntry
@@ -73,7 +73,7 @@ namespace DigitalWill.WortalSDK
             _getEntriesCallback = onSuccess;
             _errorCallback = onError;
 #if UNITY_WEBGL && !UNITY_EDITOR
-            LeaderboardGetEntriesJS(name, count, offset, LeaderboardGetEntriesCallback, Wortal.WortalErrorCallback);
+            PluginManager.LeaderboardGetEntriesJS(name, count, offset, LeaderboardGetEntriesCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log($"[Wortal] Mock Leaderboard.GetEntriesAsync({name}, {count}, {offset})");
             var entry = new LeaderboardEntry
@@ -102,7 +102,7 @@ namespace DigitalWill.WortalSDK
             _getPlayerEntryCallback = onSuccess;
             _errorCallback = onError;
 #if UNITY_WEBGL && !UNITY_EDITOR
-            LeaderboardGetPlayerEntryJS(name, LeaderboardGetPlayerEntryCallback, Wortal.WortalErrorCallback);
+            PluginManager.LeaderboardGetPlayerEntryJS(name, LeaderboardGetPlayerEntryCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log($"[Wortal] Mock Leaderboard.GetPlayerEntryAsync({name})");
             var entry = new LeaderboardEntry
@@ -133,7 +133,7 @@ namespace DigitalWill.WortalSDK
             _getEntriesCallback = onSuccess;
             _errorCallback = onError;
 #if UNITY_WEBGL && !UNITY_EDITOR
-            LeaderboardGetEntriesJS(name, count, 0, LeaderboardGetEntriesCallback, Wortal.WortalErrorCallback);
+            PluginManager.LeaderboardGetEntriesJS(name, count, 0, LeaderboardGetEntriesCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log($"[Wortal] Mock Leaderboard.GetEntryCountAsync({name}, {count})");
             var entry = new LeaderboardEntry
@@ -162,7 +162,7 @@ namespace DigitalWill.WortalSDK
             _getConnectedPlayerEntriesCallback = onSuccess;
             _errorCallback = onError;
 #if UNITY_WEBGL && !UNITY_EDITOR
-            LeaderboardGetConnectedPlayersEntriesJS(name, count, offset, LeaderboardGetConnectedPlayersEntriesCallback, Wortal.WortalErrorCallback);
+            PluginManager.LeaderboardGetConnectedPlayersEntriesJS(name, count, offset, LeaderboardGetConnectedPlayersEntriesCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log($"[Wortal] Mock Leaderboard.GetConnectedPlayerEntriesAsync({name}, {count}, {offset})");
             var entry = new LeaderboardEntry
@@ -198,34 +198,12 @@ namespace DigitalWill.WortalSDK
             _getEntryCountCallback = callback;
             _errorCallback = errorCallback;
 #if UNITY_WEBGL && !UNITY_EDITOR
-            LeaderboardGetEntryCountJS(name, LeaderboardGetEntryCountCallback, Wortal.WortalErrorCallback);
+            PluginManager.LeaderboardGetEntryCountJS(name, LeaderboardGetEntryCountCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log($"[Wortal] Mock Leaderboard.GetEntryCount({name})");
             LeaderboardGetEntryCountCallback(1);
 #endif
         }
-
-        #region JSlib Interface
-
-        [DllImport("__Internal")]
-        private static extern void LeaderboardGetJS(string name, Action<string> callback, Action<string> errorCallback);
-
-        [DllImport("__Internal")]
-        private static extern void LeaderboardSendEntryJS(string name, int score, string details, Action<string> callback, Action<string> errorCallback);
-
-        [DllImport("__Internal")]
-        private static extern void LeaderboardGetEntriesJS(string name, int count, int offset, Action<string> callback, Action<string> errorCallback);
-
-        [DllImport("__Internal")]
-        private static extern void LeaderboardGetPlayerEntryJS(string name, Action<string> callback, Action<string> errorCallback);
-
-        [DllImport("__Internal")]
-        private static extern void LeaderboardGetEntryCountJS(string name, Action<int> callback, Action<string> errorCallback);
-
-        [DllImport("__Internal")]
-        private static extern void LeaderboardGetConnectedPlayersEntriesJS(string name, int count, int offset, Action<string> callback, Action<string> errorCallback);
-
-        #endregion JSlib Interface
 
         #region Callback Methods
 

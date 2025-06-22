@@ -26,7 +26,7 @@ namespace DigitalWill.WortalSDK
         public string GetID()
         {
 #if UNITY_WEBGL && !UNITY_EDITOR
-            return PlayerGetIDJS();
+            return PluginManager.PlayerGetIDJS();
 #else
             Debug.Log("[Wortal] Mock Player.GetID()");
             return "player1";
@@ -36,7 +36,7 @@ namespace DigitalWill.WortalSDK
         public string GetName()
         {
 #if UNITY_WEBGL && !UNITY_EDITOR
-            return PlayerGetNameJS();
+            return PluginManager.PlayerGetNameJS();
 #else
             Debug.Log("[Wortal] Mock Player.GetName()");
             return "Player";
@@ -46,7 +46,7 @@ namespace DigitalWill.WortalSDK
         public string GetPhoto()
         {
 #if UNITY_WEBGL && !UNITY_EDITOR
-            return PlayerGetPhotoJS();
+            return PluginManager.PlayerGetPhotoJS();
 #else
             Debug.Log("[Wortal] Mock Player.GetPhoto()");
             return "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
@@ -56,7 +56,7 @@ namespace DigitalWill.WortalSDK
         public bool IsFirstPlay()
         {
 #if UNITY_WEBGL && !UNITY_EDITOR
-            return PlayerIsFirstPlayJS();
+            return PluginManager.PlayerIsFirstPlayJS();
 #else
             Debug.Log("[Wortal] Mock Player.IsFirstPlay()");
             return false;
@@ -69,7 +69,7 @@ namespace DigitalWill.WortalSDK
             _errorCallback = onError;
             string payloadStr = JsonConvert.SerializeObject(payload);
 #if UNITY_WEBGL && !UNITY_EDITOR
-            PlayerGetConnectedPlayersJS(payloadStr, PlayerGetConnectedPlayersCallback, Wortal.WortalErrorCallback);
+            PluginManager.PlayerGetConnectedPlayersJS(payloadStr, PlayerGetConnectedPlayersCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log($"[Wortal] Mock Player.GetConnectedPlayersAsync({payload})");
             var player = new Player
@@ -90,7 +90,7 @@ namespace DigitalWill.WortalSDK
             _getSignedPlayerInfoCallback = onSuccess;
             _errorCallback = onError;
 #if UNITY_WEBGL && !UNITY_EDITOR
-            PlayerGetSignedPlayerInfoJS(PlayerGetSignedPlayerInfoCallback, Wortal.WortalErrorCallback);
+            PluginManager.PlayerGetSignedPlayerInfoJS(PlayerGetSignedPlayerInfoCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log("[Wortal] Mock Player.GetSignedPlayerInfo()");
             PlayerGetSignedPlayerInfoCallback("player1", "some-signature");
@@ -102,7 +102,7 @@ namespace DigitalWill.WortalSDK
             _canSubscribeBotCallback = onSuccess;
             _errorCallback = onError;
 #if UNITY_WEBGL && !UNITY_EDITOR
-            PlayerCanSubscribeBotJS(PlayerCanSubscribeBotCallback, Wortal.WortalErrorCallback);
+            PluginManager.PlayerCanSubscribeBotJS(PlayerCanSubscribeBotCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log("[Wortal] Mock Player.CanSubscribeBot()");
             PlayerCanSubscribeBotCallback(true);
@@ -114,7 +114,7 @@ namespace DigitalWill.WortalSDK
             _subscribeBotCallback = onSuccess;
             _errorCallback = onError;
 #if UNITY_WEBGL && !UNITY_EDITOR
-            PlayerSubscribeBotJS(PlayerSubscribeBotCallback, Wortal.WortalErrorCallback);
+            PluginManager.PlayerSubscribeBotJS(PlayerSubscribeBotCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log("[Wortal] Mock Player.SubscribeBot()");
             PlayerSubscribeBotCallback();
@@ -133,7 +133,7 @@ namespace DigitalWill.WortalSDK
             _errorCallback = onError;
             string keysStr = string.Join("|", keys);
 #if UNITY_WEBGL && !UNITY_EDITOR
-            PlayerGetDataJS(keysStr, PlayerGetDataCallback, Wortal.WortalErrorCallback);
+            PluginManager.PlayerGetDataJS(keysStr, PlayerGetDataCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log($"[Wortal] Mock Player.GetData({keys})");
             Dictionary<string, object> data = new()
@@ -157,7 +157,7 @@ namespace DigitalWill.WortalSDK
             _errorCallback = onError;
             string dataObj = JsonConvert.SerializeObject(data.data);
 #if UNITY_WEBGL && !UNITY_EDITOR
-            PlayerSetDataJS(dataObj, PlayerSetDataCallback, Wortal.WortalErrorCallback);
+            PluginManager.PlayerSetDataJS(dataObj, PlayerSetDataCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log($"[Wortal] Mock Player.SetData({data})");
             PlayerSetDataCallback();
@@ -169,7 +169,7 @@ namespace DigitalWill.WortalSDK
             _flushDataCallback = onSuccess;
             _errorCallback = onError;
 #if UNITY_WEBGL && !UNITY_EDITOR
-            PlayerFlushDataJS(PlayerFlushDataCallback, Wortal.WortalErrorCallback);
+            PluginManager.PlayerFlushDataJS(PlayerFlushDataCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log("[Wortal] Mock Player.FlushData()");
             PlayerFlushDataCallback();
@@ -207,7 +207,7 @@ namespace DigitalWill.WortalSDK
             _getASIDCallback = onSuccess;
             _errorCallback = onError;
 #if UNITY_WEBGL && !UNITY_EDITOR
-            PlayerGetASIDJS(PlayerGetASIDCallback, Wortal.WortalErrorCallback);
+            PluginManager.PlayerGetASIDJS(PlayerGetASIDCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log("[Wortal] Mock Player.GetASID()");
             PlayerGetASIDCallback("player1");
@@ -219,55 +219,12 @@ namespace DigitalWill.WortalSDK
             _getSignedASIDCallback = onSuccess;
             _errorCallback = onError;
 #if UNITY_WEBGL && !UNITY_EDITOR
-            PlayerGetSignedASIDJS(PlayerGetSignedASIDCallback, Wortal.WortalErrorCallback);
+            PluginManager.PlayerGetSignedASIDJS(PlayerGetSignedASIDCallback, Wortal.WortalErrorCallback);
 #else
             Debug.Log("[Wortal] Mock Player.GetSignedASID()");
             PlayerGetSignedASIDCallback("player1", "some-signature");
 #endif
         }
-
-        #region JSlib Interface
-
-        [DllImport("__Internal")]
-        private static extern string PlayerGetIDJS();
-
-        [DllImport("__Internal")]
-        private static extern string PlayerGetNameJS();
-
-        [DllImport("__Internal")]
-        private static extern string PlayerGetPhotoJS();
-
-        [DllImport("__Internal")]
-        private static extern bool PlayerIsFirstPlayJS();
-
-        [DllImport("__Internal")]
-        private static extern void PlayerGetDataJS(string keys, Action<string> callback, Action<string> errorCallback);
-
-        [DllImport("__Internal")]
-        private static extern void PlayerSetDataJS(string data, Action callback, Action<string> errorCallback);
-
-        [DllImport("__Internal")]
-        private static extern void PlayerFlushDataJS(Action callback, Action<string> errorCallback);
-
-        [DllImport("__Internal")]
-        private static extern void PlayerGetConnectedPlayersJS(string payload, Action<string> callback, Action<string> errorCallback);
-
-        [DllImport("__Internal")]
-        private static extern void PlayerGetSignedPlayerInfoJS(Action<string, string> callback, Action<string> errorCallback);
-
-        [DllImport("__Internal")]
-        private static extern void PlayerGetASIDJS(Action<string> callback, Action<string> errorCallback);
-
-        [DllImport("__Internal")]
-        private static extern void PlayerGetSignedASIDJS(Action<string, string> callback, Action<string> errorCallback);
-
-        [DllImport("__Internal")]
-        private static extern void PlayerCanSubscribeBotJS(Action<bool> callback, Action<string> errorCallback);
-
-        [DllImport("__Internal")]
-        private static extern void PlayerSubscribeBotJS(Action callback, Action<string> errorCallback);
-
-        #endregion JSlib Interface
 
         #region Callback Methods
 

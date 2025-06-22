@@ -28,7 +28,7 @@ namespace DigitalWill.WortalSDK
             _noFillCallback = () => _successCallback?.Invoke(); // Treat no fill as success
 
 #if UNITY_WEBGL && !UNITY_EDITOR
-            ShowInterstitialJS(
+            PluginManager.ShowInterstitialJS(
                 placement.ToString().ToLower(),
                 placement.ToString(), // Use placement as description
                 BeforeAdCallback,
@@ -71,7 +71,7 @@ namespace DigitalWill.WortalSDK
             };
 
 #if UNITY_WEBGL && !UNITY_EDITOR
-            ShowRewardedJS(
+            PluginManager.ShowRewardedJS(
                 placement.ToString(), // Use placement as description
                 BeforeAdCallback,
                 AfterAdCallback,
@@ -93,7 +93,7 @@ namespace DigitalWill.WortalSDK
             _errorCallback = onError;
 
 #if UNITY_WEBGL && !UNITY_EDITOR
-            ShowBannerJS(shouldShow, position.ToString().ToLower());
+            PluginManager.ShowBannerJS(shouldShow, position.ToString().ToLower());
             // Banner operations are typically fire-and-forget, so we call success immediately
             _successCallback?.Invoke();
 #else
@@ -105,7 +105,7 @@ namespace DigitalWill.WortalSDK
         public bool IsAdBlocked()
         {
 #if UNITY_WEBGL && !UNITY_EDITOR
-            return IsAdBlockedJS();
+            return PluginManager.IsAdBlockedJS();
 #else
             Debug.Log("[WebGL Platform] Mock Ads.IsAdBlocked()");
             return false; // Return false for mock to allow testing
@@ -115,7 +115,7 @@ namespace DigitalWill.WortalSDK
         public bool IsEnabled()
         {
 #if UNITY_WEBGL && !UNITY_EDITOR
-            return IsEnabledJS();
+            return PluginManager.IsEnabledJS();
 #else
             Debug.Log("[WebGL Platform] Mock Ads.IsEnabled()");
             return true; // Return true for mock to allow testing
@@ -123,30 +123,6 @@ namespace DigitalWill.WortalSDK
         }
 
         #region JSlib Interface
-
-        [DllImport("__Internal")]
-        private static extern bool IsAdBlockedJS();
-
-        [DllImport("__Internal")]
-        private static extern bool IsEnabledJS();
-
-        [DllImport("__Internal")]
-        private static extern void ShowInterstitialJS(string type,
-                                                      string description,
-                                                      Action beforeAdCallback,
-                                                      Action afterAdCallback,
-                                                      Action noFillCallback);
-
-        [DllImport("__Internal")]
-        private static extern void ShowRewardedJS(string description,
-                                                  Action beforeAdCallback,
-                                                  Action afterAdCallback,
-                                                  Action adDismissedCallback,
-                                                  Action adViewedCallback,
-                                                  Action noFillCallback);
-
-        [DllImport("__Internal")]
-        private static extern void ShowBannerJS(bool shouldShow, string position);
 
         [MonoPInvokeCallback(typeof(Action))]
         private static void BeforeAdCallback()
