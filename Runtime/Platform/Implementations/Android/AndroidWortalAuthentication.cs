@@ -36,6 +36,21 @@ namespace DigitalWill.WortalSDK
             }
         }
 
+        public bool IsAlreadyAuthenticated()
+        {
+            if (!IsSupported) return false;
+
+            try
+            {
+                var isAuthenticatedMethod = _playGamesPlatformType.GetMethod("IsAuthenticated");
+                return (bool)isAuthenticatedMethod.Invoke(_playGamesInstance, null);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public void Authenticate(Action<AuthResponse> onSuccess, Action<WortalError> onError)
         {
             if (!IsSupported)
@@ -46,6 +61,22 @@ namespace DigitalWill.WortalSDK
                     Message = "Google Play Games SDK not found. Please import Google Play Games to use authentication.",
                     Context = "AndroidWortalAuthentication.Authenticate"
                 });
+                return;
+            }
+
+            // Check if already authenticated from silent login
+            if (IsAlreadyAuthenticated())
+            {
+                Debug.Log("[Android] Using existing Google Play Games authentication");
+                var authResponse = new AuthResponse
+                {
+                    Status = AuthStatus.SUCCESS,
+                    UserID = Social.localUser.id,
+                    UserName = Social.localUser.userName,
+                    Token = GenerateGooglePlayToken(),
+                    Provider = "GooglePlayGames"
+                };
+                onSuccess?.Invoke(authResponse);
                 return;
             }
 

@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 using UnityEngine;
 
 namespace DigitalWill.WortalSDK
@@ -39,40 +40,152 @@ namespace DigitalWill.WortalSDK
 
         protected override void InitializePlatformSpecific(Action onSuccess, Action<WortalError> onError)
         {
-#if WORTAL_GOOGLE_PLAY_GAMES && UNITY_ANDROID
-            // Initialize Google Play Games Services
-            InitializeGooglePlayGames(onSuccess, onError);
+#if UNITY_ANDROID && !UNITY_EDITOR
+            // Initialize Google Play Games Services with silent login
+            InitializeGooglePlayGamesWithSilentLogin(onSuccess, onError);
 #else
             Debug.LogWarning("[Wortal] Google Play Games Services not available. Some features may be limited.");
             onSuccess?.Invoke();
 #endif
         }
 
-#if WORTAL_GOOGLE_PLAY_GAMES && UNITY_ANDROID
-        private void InitializeGooglePlayGames(Action onSuccess, Action<WortalError> onError)
+#if UNITY_ANDROID && !UNITY_EDITOR
+        private void InitializeGooglePlayGamesWithSilentLogin(Action onSuccess, Action<WortalError> onError)
         {
             try
             {
-                var config = new GooglePlayGames.BasicApi.PlayGamesClientConfiguration.Builder()
-                    .RequestServerAuthCode(_settings.requestServerAuthCode)
-                    .RequestEmail()
-                    .RequestIdToken()
-                    .Build();
-
-                GooglePlayGames.PlayGamesPlatform.InitializeInstance(config);
-                GooglePlayGames.PlayGamesPlatform.DebugLogEnabled = _settings.enableDebugLogging;
-                GooglePlayGames.PlayGamesPlatform.Activate();
-
-                onSuccess?.Invoke();
+                // Initialize using reflection to avoid compile-time dependencies
+                InitializeGooglePlayGamesReflection();
+                
+                // Attempt silent login after initialization
+                AttemptSilentLogin(onSuccess, onError);
             }
             catch (Exception e)
             {
-                var error = new WortalError
+                Debug.LogWarning($"[Android] Google Play Games initialization failed: {e.Message}");
+                // Don't fail completely - continue without GPG
+                onSuccess?.Invoke();
+            }
+        }
+
+        private void InitializeGooglePlayGamesReflection()
+        {
+            try
+            {
+                var playGamesPlatformType = Type.GetType("GooglePlayGames.PlayGamesPlatform, GooglePlayGames");
+                var configBuilderType = Type.GetType("GooglePlayGames.BasicApi.PlayGamesClientConfiguration+Builder, GooglePlayGames.BasicApi");
+                
+                if (playGamesPlatformType == null || configBuilderType == null)
                 {
-                    Code = WortalErrorCodes.INITIALIZATION_ERROR.ToString(),
-                    Message = $"Failed to initialize Google Play Games: {e.Message}"
+                    Debug.LogWarning("[Android] Google Play Games types not found");
+                    return;
+                }
+
+                // Create configuration
+                var builderInstance = Activator.CreateInstance(configBuilderType);
+                
+                // Call RequestServerAuthCode if needed
+                if (_settings.requestServerAuthCode)
+                {
+                    var requestServerAuthCodeMethod = configBuilderType.GetMethod("RequestServerAuthCode", new[] { typeof(bool) });
+                    requestServerAuthCodeMethod?.Invoke(builderInstance, new object[] { true });
+                }
+
+                // Call RequestEmail and RequestIdToken
+                var requestEmailMethod = configBuilderType.GetMethod("RequestEmail");
+                requestEmailMethod?.Invoke(builderInstance, null);
+                
+                var requestIdTokenMethod = configBuilderType.GetMethod("RequestIdToken");
+                requestIdTokenMethod?.Invoke(builderInstance, null);
+
+                // Build configuration
+                var buildMethod = configBuilderType.GetMethod("Build");
+                var config = buildMethod?.Invoke(builderInstance, null);
+
+                // Initialize instance
+                var initializeInstanceMethod = playGamesPlatformType.GetMethod("InitializeInstance", BindingFlags.Public | BindingFlags.Static);
+                initializeInstanceMethod?.Invoke(null, new[] { config });
+
+                // Set debug logging
+                var debugLogEnabledProperty = playGamesPlatformType.GetProperty("DebugLogEnabled", BindingFlags.Public | BindingFlags.Static);
+                debugLogEnabledProperty?.SetValue(null, _settings.enableDebugLogging);
+
+                // Activate platform
+                var activateMethod = playGamesPlatformType.GetMethod("Activate", BindingFlags.Public | BindingFlags.Static);
+                activateMethod?.Invoke(null, null);
+
+                Debug.Log("[Android] Google Play Games initialized successfully");
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"[Android] Google Play Games reflection initialization failed: {e.Message}");
+            }
+        }
+
+        private void AttemptSilentLogin(Action onSuccess, Action<WortalError> onError)
+        {
+            try
+            {
+                var playGamesPlatformType = Type.GetType("GooglePlayGames.PlayGamesPlatform, GooglePlayGames");
+                var signInStatusType = Type.GetType("GooglePlayGames.BasicApi.SignInStatus, GooglePlayGames.BasicApi");
+                
+                if (playGamesPlatformType == null || signInStatusType == null)
+                {
+                    Debug.LogWarning("[Android] Cannot perform silent login - types not found");
+                    onSuccess?.Invoke();
+                    return;
+                }
+
+                var instanceProperty = playGamesPlatformType.GetProperty("Instance", BindingFlags.Public | BindingFlags.Static);
+                var playGamesInstance = instanceProperty?.GetValue(null);
+
+                if (playGamesInstance == null)
+                {
+                    Debug.LogWarning("[Android] PlayGamesPlatform instance not available");
+                    onSuccess?.Invoke();
+                    return;
+                }
+
+                // Check if already authenticated
+                var isAuthenticatedMethod = playGamesPlatformType.GetMethod("IsAuthenticated");
+                var isAuthenticated = (bool)isAuthenticatedMethod.Invoke(playGamesInstance, null);
+
+                if (isAuthenticated)
+                {
+                    Debug.Log("[Android] Already authenticated with Google Play Games");
+                    onSuccess?.Invoke();
+                    return;
+                }
+
+                // Attempt silent authentication
+                Debug.Log("[Android] Attempting silent login with Google Play Games...");
+                
+                var authenticateMethod = playGamesPlatformType.GetMethod("Authenticate", new[] { typeof(Action<>).MakeGenericType(signInStatusType) });
+
+                Action<object> silentAuthCallback = (signInStatus) =>
+                {
+                    var successValue = Enum.Parse(signInStatusType, "Success");
+                    
+                    if (signInStatus.Equals(successValue))
+                    {
+                        Debug.Log("[Android] Silent login successful!");
+                        onSuccess?.Invoke();
+                    }
+                    else
+                    {
+                        Debug.Log($"[Android] Silent login failed: {signInStatus}. User can still authenticate manually.");
+                        // Don't treat this as an error - just continue without authentication
+                        onSuccess?.Invoke();
+                    }
                 };
-                onError?.Invoke(error);
+
+                authenticateMethod?.Invoke(playGamesInstance, new object[] { silentAuthCallback });
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"[Android] Silent login attempt failed: {e.Message}");
+                // Continue without failing the entire initialization
+                onSuccess?.Invoke();
             }
         }
 #endif
