@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace DigitalWill.WortalSDK
@@ -8,12 +9,6 @@ namespace DigitalWill.WortalSDK
     [CreateAssetMenu(fileName = "WortalSettings", menuName = "Wortal/Settings", order = 1)]
     public class WortalSettings : ScriptableObject
     {
-        [Header("Debug Settings")]
-        [Tooltip("Force Google Play Games detection (for testing)")]
-        public bool forceGooglePlayGamesDetection = false;
-
-        [Tooltip("Force Apple Game Center detection (for testing)")]
-        public bool forceAppleGameCenterDetection = false;
         private static WortalSettings _instance;
 
         public static WortalSettings Instance
@@ -83,6 +78,75 @@ namespace DigitalWill.WortalSDK
         [Tooltip("Enable in-app purchases")]
         public bool enableIAP = true;
 
+        [Header("Cross-Platform Mappings")]
+        [Tooltip("Achievement configurations for all platforms")]
+        public List<AchievementMapping> achievements = new List<AchievementMapping>();
+
+        [Tooltip("Leaderboard configurations for all platforms")]
+        public List<LeaderboardMapping> leaderboards = new List<LeaderboardMapping>();
+
+        [Header("Debug Settings")]
+        [Tooltip("Force Google Play Games detection (for testing)")]
+        public bool forceGooglePlayGamesDetection = false;
+
+        [Tooltip("Force Apple Game Center detection (for testing)")]
+        public bool forceAppleGameCenterDetection = false;
+
+        // Runtime dictionaries for fast lookup
+        private Dictionary<string, AchievementMapping> _achievementDict;
+        private Dictionary<string, LeaderboardMapping> _leaderboardDict;
+
+        /// <summary>
+        /// Get achievement mapping by internal ID
+        /// </summary>
+        public AchievementMapping GetAchievement(string achievementId)
+        {
+            if (_achievementDict == null)
+                _achievementDict = PlatformMappingHelper.CreateAchievementDictionary(achievements);
+
+            _achievementDict.TryGetValue(achievementId, out var achievement);
+            return achievement;
+        }
+
+        /// <summary>
+        /// Get leaderboard mapping by internal ID
+        /// </summary>
+        public LeaderboardMapping GetLeaderboard(string leaderboardId)
+        {
+            if (_leaderboardDict == null)
+                _leaderboardDict = PlatformMappingHelper.CreateLeaderboardDictionary(leaderboards);
+
+            _leaderboardDict.TryGetValue(leaderboardId, out var leaderboard);
+            return leaderboard;
+        }
+
+        /// <summary>
+        /// Get platform-specific achievement ID
+        /// </summary>
+        public string GetPlatformAchievementId(string achievementId)
+        {
+            var achievement = GetAchievement(achievementId);
+            return achievement?.GetPlatformId() ?? achievementId;
+        }
+
+        /// <summary>
+        /// Get platform-specific leaderboard ID
+        /// </summary>
+        public string GetPlatformLeaderboardId(string leaderboardId)
+        {
+            var leaderboard = GetLeaderboard(leaderboardId);
+            return leaderboard?.GetPlatformId() ?? leaderboardId;
+        }
+
+        /// <summary>
+        /// Refresh runtime dictionaries (call when achievements/leaderboards are modified)
+        /// </summary>
+        public void RefreshMappings()
+        {
+            _achievementDict = PlatformMappingHelper.CreateAchievementDictionary(achievements);
+            _leaderboardDict = PlatformMappingHelper.CreateLeaderboardDictionary(leaderboards);
+        }
+
         /// <summary>
         /// Validates the settings configuration
         /// </summary>
@@ -103,6 +167,32 @@ namespace DigitalWill.WortalSDK
                 isValid = false;
             }
 #endif
+
+            // Validate achievements
+            if (enableAchievements)
+            {
+                foreach (var achievement in achievements)
+                {
+                    if (!achievement.IsValid())
+                    {
+                        Debug.LogWarning($"[Wortal] Achievement '{achievement.achievementId}' has invalid configuration");
+                        isValid = false;
+                    }
+                }
+            }
+
+            // Validate leaderboards
+            if (enableLeaderboards)
+            {
+                foreach (var leaderboard in leaderboards)
+                {
+                    if (!leaderboard.IsValid())
+                    {
+                        Debug.LogWarning($"[Wortal] Leaderboard '{leaderboard.leaderboardId}' has invalid configuration");
+                        isValid = false;
+                    }
+                }
+            }
 
             return isValid;
         }
@@ -140,6 +230,12 @@ namespace DigitalWill.WortalSDK
         public bool ValidateAll()
         {
             return ValidateSettings() && ValidateDependencies();
+        }
+
+        private void OnValidate()
+        {
+            // Refresh mappings when settings are modified in editor
+            RefreshMappings();
         }
     }
 }

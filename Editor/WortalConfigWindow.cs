@@ -410,6 +410,35 @@ namespace DigitalWill.WortalEditor
                 EditorGUILayout.EndVertical();
             });
 
+            // Cross-Platform Mappings Section
+            DrawSettingsSection("Cross-Platform Mappings", () =>
+            {
+                EditorGUILayout.LabelField("Configure achievements and leaderboards for all platforms in one place:", EditorStyles.miniLabel);
+                EditorGUILayout.Space(3);
+
+                // Achievements
+                if (wortalSettings.enableAchievements)
+                {
+                    DrawAchievementMappings();
+                }
+                else
+                {
+                    EditorGUILayout.HelpBox("Enable Achievements in Feature Toggles to configure achievement mappings", MessageType.Info);
+                }
+
+                EditorGUILayout.Space(5);
+
+                // Leaderboards
+                if (wortalSettings.enableLeaderboards)
+                {
+                    DrawLeaderboardMappings();
+                }
+                else
+                {
+                    EditorGUILayout.HelpBox("Enable Leaderboards in Feature Toggles to configure leaderboard mappings", MessageType.Info);
+                }
+            });
+
             // Debug Settings Section
             DrawSettingsSection("Debug Settings", () =>
             {
@@ -532,6 +561,185 @@ namespace DigitalWill.WortalEditor
             // Refresh serialized object
             serializedSettings = new SerializedObject(wortalSettings);
         }
+
+        private void DrawAchievementMappings()
+        {
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("🏆 Achievements", EditorStyles.boldLabel);
+
+            if (GUILayout.Button("Add Achievement", GUILayout.Width(120)))
+            {
+                wortalSettings.achievements.Add(new AchievementMapping
+                {
+                    achievementId = $"achievement_{wortalSettings.achievements.Count + 1}",
+                    displayName = "New Achievement"
+                });
+                EditorUtility.SetDirty(wortalSettings);
+            }
+            EditorGUILayout.EndHorizontal();
+
+            if (wortalSettings.achievements.Count == 0)
+            {
+                EditorGUILayout.HelpBox("No achievements configured. Click 'Add Achievement' to get started.", MessageType.Info);
+            }
+            else
+            {
+                for (int i = 0; i < wortalSettings.achievements.Count; i++)
+                {
+                    DrawAchievementMapping(i);
+                }
+            }
+
+            EditorGUILayout.EndVertical();
+        }
+
+        private void DrawAchievementMapping(int index)
+        {
+            var achievement = wortalSettings.achievements[index];
+
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+
+            // Header with delete button
+            EditorGUILayout.BeginHorizontal();
+            achievement.achievementId = EditorGUILayout.TextField("Achievement ID", achievement.achievementId);
+
+            GUI.backgroundColor = Color.red;
+            if (GUILayout.Button("✕", GUILayout.Width(25), GUILayout.Height(18)))
+            {
+                if (EditorUtility.DisplayDialog("Delete Achievement",
+                    $"Are you sure you want to delete '{achievement.displayName}'?", "Delete", "Cancel"))
+                {
+                    wortalSettings.achievements.RemoveAt(index);
+                    EditorUtility.SetDirty(wortalSettings);
+                    return;
+                }
+            }
+            GUI.backgroundColor = Color.white;
+            EditorGUILayout.EndHorizontal();
+
+            // Basic info
+            achievement.displayName = EditorGUILayout.TextField("Display Name", achievement.displayName);
+            achievement.description = EditorGUILayout.TextField("Description", achievement.description);
+
+            EditorGUILayout.Space(3);
+            EditorGUILayout.LabelField("Platform-Specific IDs:", EditorStyles.miniBoldLabel);
+
+            EditorGUI.indentLevel++;
+            achievement.googlePlayGamesId = EditorGUILayout.TextField("Google Play Games ID", achievement.googlePlayGamesId);
+            achievement.appleGameCenterId = EditorGUILayout.TextField("Apple Game Center ID", achievement.appleGameCenterId);
+            // achievement.steamId = EditorGUILayout.TextField("Steam ID (Future)", achievement.steamId);
+            achievement.webglId = EditorGUILayout.TextField("WebGL/Wortal ID", achievement.webglId);
+            EditorGUI.indentLevel--;
+
+            // Validation
+            if (!achievement.IsValid())
+            {
+                EditorGUILayout.HelpBox("⚠️ Achievement needs at least an ID, display name, and one platform ID", MessageType.Warning);
+            }
+            else if (!achievement.IsConfiguredForCurrentPlatform())
+            {
+                EditorGUILayout.HelpBox($"⚠️ No ID configured for current platform ({EditorUserBuildSettings.activeBuildTarget})", MessageType.Warning);
+            }
+            else
+            {
+                EditorGUILayout.HelpBox($"✅ Current platform ID: {achievement.GetPlatformId()}", MessageType.Info);
+            }
+
+            EditorGUILayout.EndVertical();
+            EditorGUILayout.Space(2);
+        }
+
+        private void DrawLeaderboardMappings()
+        {
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("🏁 Leaderboards", EditorStyles.boldLabel);
+
+            if (GUILayout.Button("Add Leaderboard", GUILayout.Width(120)))
+            {
+                wortalSettings.leaderboards.Add(new LeaderboardMapping
+                {
+                    leaderboardId = $"leaderboard_{wortalSettings.leaderboards.Count + 1}",
+                    displayName = "New Leaderboard"
+                });
+                EditorUtility.SetDirty(wortalSettings);
+            }
+            EditorGUILayout.EndHorizontal();
+
+            if (wortalSettings.leaderboards.Count == 0)
+            {
+                EditorGUILayout.HelpBox("No leaderboards configured. Click 'Add Leaderboard' to get started.", MessageType.Info);
+            }
+            else
+            {
+                for (int i = 0; i < wortalSettings.leaderboards.Count; i++)
+                {
+                    DrawLeaderboardMapping(i);
+                }
+            }
+
+            EditorGUILayout.EndVertical();
+        }
+
+        private void DrawLeaderboardMapping(int index)
+        {
+            var leaderboard = wortalSettings.leaderboards[index];
+
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+
+            // Header with delete button
+            EditorGUILayout.BeginHorizontal();
+            leaderboard.leaderboardId = EditorGUILayout.TextField("Leaderboard ID", leaderboard.leaderboardId);
+
+            GUI.backgroundColor = Color.red;
+            if (GUILayout.Button("✕", GUILayout.Width(25), GUILayout.Height(18)))
+            {
+                if (EditorUtility.DisplayDialog("Delete Leaderboard",
+                    $"Are you sure you want to delete '{leaderboard.displayName}'?", "Delete", "Cancel"))
+                {
+                    wortalSettings.leaderboards.RemoveAt(index);
+                    EditorUtility.SetDirty(wortalSettings);
+                    return;
+                }
+            }
+            GUI.backgroundColor = Color.white;
+            EditorGUILayout.EndHorizontal();
+
+            // Basic info
+            leaderboard.displayName = EditorGUILayout.TextField("Display Name", leaderboard.displayName);
+            leaderboard.description = EditorGUILayout.TextField("Description", leaderboard.description);
+
+            EditorGUILayout.Space(3);
+            EditorGUILayout.LabelField("Platform-Specific IDs:", EditorStyles.miniBoldLabel);
+
+            EditorGUI.indentLevel++;
+            leaderboard.googlePlayGamesId = EditorGUILayout.TextField("Google Play Games ID", leaderboard.googlePlayGamesId);
+            leaderboard.appleGameCenterId = EditorGUILayout.TextField("Apple Game Center ID", leaderboard.appleGameCenterId);
+            // leaderboard.steamId = EditorGUILayout.TextField("Steam ID (Future)", leaderboard.steamId);
+            leaderboard.webglId = EditorGUILayout.TextField("WebGL/Wortal ID", leaderboard.webglId);
+            EditorGUI.indentLevel--;
+
+            // Validation
+            if (!leaderboard.IsValid())
+            {
+                EditorGUILayout.HelpBox("⚠️ Leaderboard needs at least an ID, display name, and one platform ID", MessageType.Warning);
+            }
+            else if (!leaderboard.IsConfiguredForCurrentPlatform())
+            {
+                EditorGUILayout.HelpBox($"⚠️ No ID configured for current platform ({EditorUserBuildSettings.activeBuildTarget})", MessageType.Warning);
+            }
+            else
+            {
+                EditorGUILayout.HelpBox($"✅ Current platform ID: {leaderboard.GetPlatformId()}", MessageType.Info);
+            }
+
+            EditorGUILayout.EndVertical();
+            EditorGUILayout.Space(2);
+        }
+
 
         private void DrawWebGLSubTabs()
         {
