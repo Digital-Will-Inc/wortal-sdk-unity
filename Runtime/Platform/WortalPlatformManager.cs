@@ -92,10 +92,10 @@ namespace DigitalWill.WortalSDK
             {
                 case WortalPlatformType.WebGL:
                     return new WebGLWortalPlatform();
-                // case WortalPlatformType.Android:
-                //     return new AndroidWortalPlatform();
-                // case WortalPlatformType.iOS:
-                //     return new iOSWortalPlatform();
+                case WortalPlatformType.Android:
+                    return new AndroidWortalPlatform();
+                case WortalPlatformType.iOS:
+                    return new iOSWortalPlatform();
                 default:
                     Debug.LogWarning($"[Wortal] Unsupported platform: {platformType}, falling back to WebGL");
                     return new WebGLWortalPlatform();
