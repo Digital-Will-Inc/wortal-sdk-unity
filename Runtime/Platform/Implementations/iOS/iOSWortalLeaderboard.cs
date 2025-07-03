@@ -48,19 +48,28 @@ namespace DigitalWill.WortalSDK
                 for (int i = 0; i < scores.Length; i++)
                 {
                     var score = scores[i];
+
+                    var playerId = score.userID ?? Social.localUser.id;
+                    var player = new Player
+                    {
+                        ID = playerId,
+                        Name = Social.localUser.userName ?? "Game Center User",
+                    };
                     entries[i] = new LeaderboardEntry
                     {
-                        PlayerId = score.userID,
-                        PlayerName = score.userID, // Game Center doesn't provide player name in score
+                        Player = player,
                         Score = (int)score.value,
-                        Rank = score.rank
+                        Rank = score.rank,
+                        FormattedScore = score.formattedValue ?? score.value.ToString(),
+                        Timestamp = (int)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds, // Game Center does not provide timestamp, using current time
+                        Details = null // Game Center does not support details
                     };
                 }
 
                 var leaderboard = new Leaderboard
                 {
-                    Name = name,
-                    Entries = entries
+                    Id = platformLeaderboardId,
+                    Name = name
                 };
 
                 onSuccess?.Invoke(leaderboard);
@@ -101,12 +110,21 @@ namespace DigitalWill.WortalSDK
                 if (success)
                 {
                     Debug.Log($"[iOS] Successfully submitted score {score} to leaderboard: {name}");
+                    var playerId = Social.localUser.id;
+                    var player = new Player
+                    {
+                        ID = playerId,
+                        Name = Social.localUser.userName ?? "Game Center User",
+                    };
+
                     var entry = new LeaderboardEntry
                     {
-                        PlayerId = Social.localUser.id,
-                        PlayerName = Social.localUser.userName ?? "Game Center User",
+                        Player = player,
                         Score = score,
-                        Rank = 0 // Rank unknown after submission
+                        Rank = 0, // Rank will be updated when leaderboard is fetched
+                        FormattedScore = score.ToString(),
+                        Timestamp = (int)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds, // Game Center does not provide timestamp, using current time
+                        Details = null // Game Center does not support details
                     };
                     onSuccess?.Invoke(entry);
                 }
@@ -190,12 +208,21 @@ namespace DigitalWill.WortalSDK
                     if (score.userID == Social.localUser.id)
                     {
                         Debug.Log($"[iOS] Found player entry for leaderboard: {name}");
+                        var playerId = score.userID ?? Social.localUser.id;
+                        var player = new Player
+                        {
+                            ID = playerId,
+                            Name = Social.localUser.userName ?? "Game Center User",
+                        };
+
                         var entry = new LeaderboardEntry
                         {
-                            PlayerId = score.userID,
-                            PlayerName = Social.localUser.userName ?? "Game Center User",
+                            Player = player,
                             Score = (int)score.value,
-                            Rank = score.rank
+                            Rank = score.rank,
+                            FormattedScore = score.formattedValue ?? score.value.ToString(),
+                            Timestamp = (int)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds, // Game Center does not provide timestamp, using current time
+                            Details = null // Game Center does not support details
                         };
                         onSuccess?.Invoke(entry);
                         return;

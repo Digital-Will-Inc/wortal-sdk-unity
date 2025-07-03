@@ -7,7 +7,7 @@
       </repositories>
     </androidPackage>
     <!-- Add these additional dependencies -->
-    <androidPackage spec="com.google.android.gms:play-services-games-v2:17.0.0" />
+    <androidPackage spec="com.google.android.gms:play-services-games-v2:19.0.0" />
     <androidPackage spec="com.google.android.gms:play-services-auth:20.7.0" />
   </androidPackages>
 </dependencies>

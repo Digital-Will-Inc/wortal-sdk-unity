@@ -92,19 +92,30 @@ namespace DigitalWill.WortalSDK
                         var score = gpgScores[i];
                         var scoreType = score.GetType();
                         
+                        var playerId = (string)scoreType.GetProperty("userID")?.GetValue(score) ?? "";
+                        var player = new Player
+                        {
+                            ID = playerId,
+                            Name = Social.localUser != null && Social.localUser.id == playerId
+                                ? (Social.localUser.userName ?? "Google Play User")
+                                : "Google Play User"
+                        };
+
                         entries[i] = new LeaderboardEntry
                         {
-                            PlayerId = (string)scoreType.GetProperty("userID")?.GetValue(score) ?? "",
-                            PlayerName = (string)scoreType.GetProperty("userID")?.GetValue(score) ?? "", // GPG doesn't provide player name in score
+                            Player = player,
+                            Rank = (int)(scoreType.GetProperty("rank")?.GetValue(score) ?? 0),
                             Score = (int)((long)(scoreType.GetProperty("value")?.GetValue(score) ?? 0)),
-                            Rank = (int)(scoreType.GetProperty("rank")?.GetValue(score) ?? 0)
+                            FormattedScore = scoreType.GetProperty("formattedValue")?.GetValue(score)?.ToString() ?? "",
+                            Timestamp = (int)((long)(scoreType.GetProperty("date")?.GetValue(score) ?? 0)),
+                            Details = null
                         };
                     }
 
                     var leaderboard = new Leaderboard
                     {
+                        Id = platformLeaderboardId,
                         Name = name,
-                        Entries = entries
                     };
 
                     onSuccess?.Invoke(leaderboard);
@@ -173,14 +184,24 @@ namespace DigitalWill.WortalSDK
                 {
                     if (success)
                     {
-                        Debug.Log($"[Android] Successfully submitted score {score} to leaderboard: {name}");
-                        var entry = new LeaderboardEntry
+                        var playerId = Social.localUser.id ?? "";
+                        var player = new Player
                         {
-                            PlayerId = Social.localUser.id ?? "",
-                            PlayerName = Social.localUser.userName ?? "Google Play User",
-                            Score = score,
-                            Rank = 0 // Rank unknown after submission
+                            ID = playerId,
+                            Name = Social.localUser != null && Social.localUser.id == playerId
+                                ? (Social.localUser.userName ?? "Google Play User")
+                                : "Google Play User"
                         };
+
+                        var entry  = new LeaderboardEntry
+                        {
+                            Player = player,
+                            Rank = 0, // Rank unknown after submission
+                            Score = score,
+                            FormattedScore = score.ToString(),
+                            Details = null
+                        };
+
                         onSuccess?.Invoke(entry);
                     }
                     else
@@ -295,12 +316,23 @@ namespace DigitalWill.WortalSDK
                         if (userID == Social.localUser.id)
                         {
                             Debug.Log($"[Android] Found player entry for leaderboard: {name}");
-                            var entry = new LeaderboardEntry
+
+                            var playerId = userID;
+                            var player = new Player
                             {
-                                PlayerId = userID,
-                                PlayerName = Social.localUser.userName ?? "Google Play User",
+                                ID = playerId,
+                                Name = Social.localUser != null && Social.localUser.id == playerId
+                                    ? (Social.localUser.userName ?? "Google Play User")
+                                    : "Google Play User"
+                            };
+
+                            var entry  = new LeaderboardEntry
+                            {
+                                Player = player,
+                                Rank = (int)(scoreType.GetProperty("rank")?.GetValue(score) ?? 0),
                                 Score = (int)((long)(scoreType.GetProperty("value")?.GetValue(score) ?? 0)),
-                                Rank = (int)(scoreType.GetProperty("rank")?.GetValue(score) ?? 0)
+                                FormattedScore = scoreType.GetProperty("value")?.GetValue(score)?.ToString() ?? "",
+                                Details = null
                             };
                             onSuccess?.Invoke(entry);
                             return;

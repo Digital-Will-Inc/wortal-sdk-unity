@@ -46,6 +46,9 @@ namespace DigitalWill.WortalSDK
         [Tooltip("Google Play Games application ID")]
         public string googlePlayGamesAppId = "";
 
+        [Tooltip("Google Play Games Web App Client ID (OAuth 2.0)")]
+        public string googlePlayGamesClientId = "";
+
         [Tooltip("Request server auth code")]
         public bool requestServerAuthCode = false;
 
@@ -58,25 +61,6 @@ namespace DigitalWill.WortalSDK
 
         [Tooltip("Apple Game Center bundle ID")]
         public string appleGameCenterBundleId = "";
-
-        [Header("Feature Toggles")]
-        [Tooltip("Enable achievements")]
-        public bool enableAchievements = true;
-
-        [Tooltip("Enable leaderboards")]
-        public bool enableLeaderboards = true;
-
-        [Tooltip("Enable cloud save")]
-        public bool enableCloudSave = true;
-
-        [Tooltip("Enable analytics")]
-        public bool enableAnalytics = true;
-
-        [Tooltip("Enable ads")]
-        public bool enableAds = true;
-
-        [Tooltip("Enable in-app purchases")]
-        public bool enableIAP = true;
 
         [Header("Cross-Platform Mappings")]
         [Tooltip("Achievement configurations for all platforms")]
@@ -169,28 +153,23 @@ namespace DigitalWill.WortalSDK
 #endif
 
             // Validate achievements
-            if (enableAchievements)
+            foreach (var achievement in achievements)
             {
-                foreach (var achievement in achievements)
+                if (!achievement.IsValid())
                 {
-                    if (!achievement.IsValid())
-                    {
-                        Debug.LogWarning($"[Wortal] Achievement '{achievement.achievementId}' has invalid configuration");
-                        isValid = false;
-                    }
+                    Debug.LogWarning($"[Wortal] Achievement '{achievement.achievementId}' has invalid configuration");
+                    isValid = false;
                 }
             }
 
+
             // Validate leaderboards
-            if (enableLeaderboards)
+            foreach (var leaderboard in leaderboards)
             {
-                foreach (var leaderboard in leaderboards)
+                if (!leaderboard.IsValid())
                 {
-                    if (!leaderboard.IsValid())
-                    {
-                        Debug.LogWarning($"[Wortal] Leaderboard '{leaderboard.leaderboardId}' has invalid configuration");
-                        isValid = false;
-                    }
+                    Debug.LogWarning($"[Wortal] Leaderboard '{leaderboard.leaderboardId}' has invalid configuration");
+                    isValid = false;
                 }
             }
 

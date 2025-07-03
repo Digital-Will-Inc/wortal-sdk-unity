@@ -33,11 +33,15 @@ namespace DigitalWill.WortalSDK
                 for (int i = 0; i < achievements.Length; i++)
                 {
                     var gcAchievement = achievements[i];
+                    // UnityEngine.SocialPlatforms.IAchievement does not have Name, Description, or IsUnlocked properties.
+                    // We need to cast to IAchievement or use only available properties.
+                    // We'll use id, percentCompleted, and completed.
+
                     wortalAchievements[i] = new Achievement
                     {
                         Id = gcAchievement.id,
-                        Name = !string.IsNullOrEmpty(gcAchievement.title) ? gcAchievement.title : gcAchievement.id,
-                        Description = gcAchievement.description ?? "",
+                        Name = gcAchievement.id, // No Name property available, fallback to id
+                        Description = "", // No Description property available
                         IsUnlocked = gcAchievement.completed,
                         Type = AchievementType.SINGLE
                     };

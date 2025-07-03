@@ -1,6 +1,9 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Xml.Linq;
+using System.Globalization;
+using System.Text;
 using UnityEditor;
 using UnityEditor.PackageManager;
 using UnityEditor.PackageManager.Requests;
@@ -18,6 +21,9 @@ namespace DigitalWill.WortalEditor
 
         private ConfigTab currentTab = ConfigTab.General;
         private WebGLSubTab currentWebGLSubTab = WebGLSubTab.Settings;
+
+        // Used for Google Play Games XML input in settings tab
+        private string xmlInputText = "";
 
         // General state
         private static AddRequest addRequest;
@@ -295,34 +301,78 @@ namespace DigitalWill.WortalEditor
                 {
                     EditorGUI.indentLevel++;
 
+                    // XML Import Section
+                    EditorGUILayout.LabelField("Paste Google Play Games XML Resource:");
+                    xmlInputText = EditorGUILayout.TextArea(xmlInputText, GUILayout.Height(150));
+                    if (GUILayout.Button("Import from XML"))
+                    {
+                        ImportGooglePlayXml(xmlInputText);
+                        SyncWortalToGPGSetup(); // Auto-sync after import
+                    }
+
+                    EditorGUILayout.Space(5);
+
+                    // Configuration Fields
+                    EditorGUI.BeginChangeCheck();
                     EditorGUILayout.PropertyField(serializedSettings.FindProperty("googlePlayGamesAppId"),
                         new GUIContent("App ID", "Google Play Games application ID"));
 
+                    EditorGUILayout.PropertyField(serializedSettings.FindProperty("googlePlayGamesClientId"),
+                        new GUIContent("Web App Client ID", "OAuth 2.0 Web Application Client ID from Google Cloud Console"));
+
+                    // Auto-sync when values change
+                    if (EditorGUI.EndChangeCheck())
+                    {
+                        serializedSettings.ApplyModifiedProperties();
+                        SyncWortalToGPGSetup();
+                    }
+
+                    // Error Messages and Help
                     if (string.IsNullOrEmpty(wortalSettings.googlePlayGamesAppId))
                     {
                         EditorGUILayout.HelpBox("Google Play Games App ID is required when GPG is enabled", MessageType.Error);
-
                         if (GUILayout.Button("How to get App ID?"))
                         {
                             Application.OpenURL("https://developers.google.com/games/services/console/enabling");
                         }
                     }
 
+                    if (string.IsNullOrEmpty(wortalSettings.googlePlayGamesClientId))
+                    {
+                        EditorGUILayout.HelpBox("Web App Client ID is required for OAuth 2.0 authentication", MessageType.Error);
+                        if (GUILayout.Button("How to get Client ID?"))
+                        {
+                            Application.OpenURL("https://developers.google.com/games/services/console/enabling#step_2_generate_an_oauth_20_client_id");
+                        }
+                    }
+
+                    EditorGUILayout.Space(5);
+
+                    // Authentication Options
                     EditorGUILayout.PropertyField(serializedSettings.FindProperty("requestServerAuthCode"),
                         new GUIContent("Request Server Auth Code", "Request server authentication code"));
                     EditorGUILayout.PropertyField(serializedSettings.FindProperty("forceResolve"),
                         new GUIContent("Force Resolve", "Force resolve Google Play Games conflicts"));
 
+                    EditorGUILayout.Space(10);
+
+                    // Manual Sync Button
+                    if (GUILayout.Button("🔄 Sync to Google Play Games Setup"))
+                    {
+                        SyncWortalToGPGSetup();
+                        EditorUtility.DisplayDialog("Sync Complete", "Wortal settings have been synced to Google Play Games Plugin setup.", "OK");
+                    }
+
                     EditorGUI.indentLevel--;
                 }
 
-                // Show dependency status
+                // Dependency Status
                 var status = WortalDependencyChecker.GetDependencyStatus();
                 if (wortalSettings.enableGooglePlayGames)
                 {
                     if (status.HasGooglePlayGames)
                     {
-                        EditorGUILayout.HelpBox("✅ Google Play Games SDK detected", MessageType.Info);
+                        EditorGUILayout.HelpBox("✅ Google Play Games SDK detected and configured", MessageType.Info);
                     }
                     else
                     {
@@ -371,72 +421,21 @@ namespace DigitalWill.WortalEditor
                 }
             });
 
-            // Feature Toggles Section
-            DrawSettingsSection("Feature Toggles", () =>
-            {
-                EditorGUILayout.LabelField("Enable/disable specific SDK features:", EditorStyles.miniLabel);
-                EditorGUILayout.Space(3);
-
-                var features = new[]
-                {
-                    ("enableAchievements", "Achievements", "Enable achievements system"),
-                    ("enableLeaderboards", "Leaderboards", "Enable leaderboards system"),
-                    ("enableCloudSave", "Cloud Save", "Enable cloud save functionality"),
-                    ("enableAnalytics", "Analytics", "Enable analytics tracking"),
-                    ("enableAds", "Advertisements", "Enable ad system"),
-                    ("enableIAP", "In-App Purchases", "Enable in-app purchase system")
-                };
-
-                EditorGUILayout.BeginVertical();
-                for (int i = 0; i < features.Length; i += 2)
-                {
-                    EditorGUILayout.BeginHorizontal();
-
-                    // First feature in row
-                    var (prop1, label1, tooltip1) = features[i];
-                    EditorGUILayout.PropertyField(serializedSettings.FindProperty(prop1),
-                        new GUIContent(label1, tooltip1), GUILayout.Width(200));
-
-                    // Second feature in row (if exists)
-                    if (i + 1 < features.Length)
-                    {
-                        var (prop2, label2, tooltip2) = features[i + 1];
-                        EditorGUILayout.PropertyField(serializedSettings.FindProperty(prop2),
-                            new GUIContent(label2, tooltip2), GUILayout.Width(200));
-                    }
-
-                    EditorGUILayout.EndHorizontal();
-                }
-                EditorGUILayout.EndVertical();
-            });
-
             // Cross-Platform Mappings Section
             DrawSettingsSection("Cross-Platform Mappings", () =>
             {
                 EditorGUILayout.LabelField("Configure achievements and leaderboards for all platforms in one place:", EditorStyles.miniLabel);
                 EditorGUILayout.Space(3);
 
-                // Achievements
-                if (wortalSettings.enableAchievements)
-                {
-                    DrawAchievementMappings();
-                }
-                else
-                {
-                    EditorGUILayout.HelpBox("Enable Achievements in Feature Toggles to configure achievement mappings", MessageType.Info);
-                }
+
+                DrawAchievementMappings();
+
 
                 EditorGUILayout.Space(5);
 
-                // Leaderboards
-                if (wortalSettings.enableLeaderboards)
-                {
-                    DrawLeaderboardMappings();
-                }
-                else
-                {
-                    EditorGUILayout.HelpBox("Enable Leaderboards in Feature Toggles to configure leaderboard mappings", MessageType.Info);
-                }
+
+                DrawLeaderboardMappings();
+
             });
 
             // Debug Settings Section
@@ -543,17 +542,11 @@ namespace DigitalWill.WortalEditor
             wortalSettings.autoInitialize = true;
             wortalSettings.webglGameId = "";
             wortalSettings.enableGooglePlayGames = true;
-            wortalSettings.googlePlayGamesAppId = "351781968191";
+            wortalSettings.googlePlayGamesAppId = "";
             wortalSettings.requestServerAuthCode = false;
             wortalSettings.forceResolve = true;
             wortalSettings.enableAppleGameCenter = true;
             wortalSettings.appleGameCenterBundleId = "";
-            wortalSettings.enableAchievements = true;
-            wortalSettings.enableLeaderboards = true;
-            wortalSettings.enableCloudSave = true;
-            wortalSettings.enableAnalytics = true;
-            wortalSettings.enableAds = true;
-            wortalSettings.enableIAP = true;
 
             EditorUtility.SetDirty(wortalSettings);
             AssetDatabase.SaveAssets();
@@ -561,6 +554,115 @@ namespace DigitalWill.WortalEditor
             // Refresh serialized object
             serializedSettings = new SerializedObject(wortalSettings);
         }
+
+        // Auto-sync method
+        private void SyncWortalToGPGSetup()
+        {
+            try
+            {
+                // First, generate the GPGSIds file
+                GenerateGPGSIdsFile();
+
+                // Try to configure Google Play Games Plugin settings
+                var gpgSettingsType = System.Type.GetType("GooglePlayGames.Editor.GPGSProjectSettings, GooglePlayGames.Editor");
+                if (gpgSettingsType == null)
+                {
+                    // Try alternative type name for newer versions
+                    gpgSettingsType = System.Type.GetType("GooglePlayGames.Editor.GPGSProjectSettings, Assembly-CSharp-Editor");
+                }
+
+                if (gpgSettingsType != null)
+                {
+                    // Get GPG settings instance
+                    var instanceProperty = gpgSettingsType.GetProperty("Instance",
+                        System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
+
+                    if (instanceProperty != null)
+                    {
+                        var gpgSettings = instanceProperty.GetValue(null);
+
+                        // Set app ID and client ID using reflection
+                        var setMethod = gpgSettingsType.GetMethod("Set", new[] { typeof(string), typeof(string) });
+                        if (setMethod != null)
+                        {
+                            setMethod.Invoke(gpgSettings, new object[] { "android.app_id", wortalSettings.googlePlayGamesAppId });
+                            setMethod.Invoke(gpgSettings, new object[] { "android.client_id", wortalSettings.googlePlayGamesClientId });
+
+                            // Save settings
+                            var saveMethod = gpgSettingsType.GetMethod("Save");
+                            saveMethod?.Invoke(gpgSettings, null);
+                        }
+                    }
+                }
+
+                // Force refresh of assets
+                AssetDatabase.Refresh();
+
+                Debug.Log("✅ Wortal settings synced to Google Play Games Plugin successfully!");
+                Debug.Log($"Generated GPGSIds.cs at: Assets/GooglePlayGames/Generated/GPGSIds.cs");
+
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"Failed to sync Wortal settings to Google Play Games Plugin: {e.Message}");
+                Debug.LogError($"Stack trace: {e.StackTrace}");
+            }
+        }
+
+        private void GenerateGPGSIdsFile()
+        {
+            // Use the correct path that Google Play Games Plugin expects
+            var directoryPath = "Assets/GooglePlayGames/Generated";
+            var filePath = Path.Combine(directoryPath, "GPGSIds.cs");
+
+            // Create directory if it doesn't exist
+            if (!Directory.Exists(directoryPath))
+            {
+                Directory.CreateDirectory(directoryPath);
+            }
+
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine("// <auto-generated>");
+            sb.AppendLine("// This file was generated by Wortal SDK");
+            sb.AppendLine("// </auto-generated>");
+            sb.AppendLine();
+            sb.AppendLine("public static class GPGSIds");
+            sb.AppendLine("{");
+
+            // Add app_id if available
+            if (!string.IsNullOrEmpty(wortalSettings.googlePlayGamesAppId))
+            {
+                sb.AppendLine($"    public const string app_id = \"{wortalSettings.googlePlayGamesAppId}\";");
+            }
+
+            // Add achievements
+            foreach (var achievement in wortalSettings.achievements)
+            {
+                if (!string.IsNullOrEmpty(achievement.googlePlayGamesId))
+                {
+                    var constantName = achievement.achievementId.Replace("achievement_", "").Replace("_", "");
+                    sb.AppendLine($"    public const string {constantName} = \"{achievement.googlePlayGamesId}\";");
+                }
+            }
+
+            // Add leaderboards
+            foreach (var leaderboard in wortalSettings.leaderboards)
+            {
+                if (!string.IsNullOrEmpty(leaderboard.googlePlayGamesId))
+                {
+                    var constantName = leaderboard.leaderboardId.Replace("leaderboard_", "").Replace("_", "");
+                    sb.AppendLine($"    public const string {constantName} = \"{leaderboard.googlePlayGamesId}\";");
+                }
+            }
+
+            sb.AppendLine("}");
+
+            File.WriteAllText(filePath, sb.ToString());
+
+            // Force Unity to recognize the new file
+            AssetDatabase.ImportAsset(filePath);
+        }
+
 
         private void DrawAchievementMappings()
         {
@@ -1045,16 +1147,6 @@ namespace DigitalWill.WortalEditor
                     EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Android, BuildTarget.Android);
                 }
             });
-
-            DrawSection("Google Play Services", () =>
-            {
-                EditorGUILayout.HelpBox("Android dependencies include Google Play Services for achievements, leaderboards, and cloud save.", MessageType.Info);
-
-                if (GUILayout.Button("Open Manual Instructions"))
-                {
-                    Application.OpenURL("https://github.com/Digital-Will-Inc/wortal-sdk-unity#android-setup");
-                }
-            });
         }
 
         private void DrawIOSTab()
@@ -1326,6 +1418,73 @@ namespace DigitalWill.WortalEditor
             {
                 EditorGUILayout.HelpBox("Install Google Play Games from Package Manager for Android features", MessageType.Warning);
             }
+        }
+
+        private void ImportGooglePlayXml(string xml)
+        {
+            var doc = XDocument.Parse(xml);
+            foreach (var element in doc.Descendants("string"))
+            {
+                var name = (string)element.Attribute("name");
+                var value = element.Value;
+
+                if (name == "app_id")
+                {
+                    wortalSettings.googlePlayGamesAppId = value;
+                    continue;
+                }
+
+                if (name.StartsWith("achievement_"))
+                {
+                    var mapping = wortalSettings.achievements.FirstOrDefault(a => a.achievementId == name)
+                                  ?? new AchievementMapping { achievementId = name };
+                    mapping.googlePlayGamesId = value;
+
+                    var displayNameKey = name.Replace("achievement_", "");
+                    mapping.displayName = ConvertToPascalCase(displayNameKey);
+
+                    if (!wortalSettings.achievements.Contains(mapping))
+                        wortalSettings.achievements.Add(mapping);
+                }
+                else if (name.StartsWith("leaderboard_"))
+                {
+                    var mapping = wortalSettings.leaderboards.FirstOrDefault(l => l.leaderboardId == name)
+                                  ?? new LeaderboardMapping { leaderboardId = name };
+                    mapping.googlePlayGamesId = value;
+
+                    var displayNameKey = name.Replace("leaderboard_", "");
+                    mapping.displayName = ConvertToPascalCase(displayNameKey);
+
+                    if (!wortalSettings.leaderboards.Contains(mapping))
+                        wortalSettings.leaderboards.Add(mapping);
+                }
+            }
+
+            wortalSettings.RefreshMappings();
+            EditorUtility.SetDirty(wortalSettings);
+            AssetDatabase.SaveAssets();
+        }
+
+        // Helper for gpg xml importer
+        string ConvertToPascalCase(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+                return input;
+
+            var parts = input.Split('_');
+            var result = new StringBuilder();
+
+            foreach (var part in parts)
+            {
+                if (!string.IsNullOrEmpty(part))
+                {
+                    result.Append(char.ToUpper(part[0], CultureInfo.InvariantCulture));
+                    if (part.Length > 1)
+                        result.Append(part.Substring(1).ToLower(CultureInfo.InvariantCulture));
+                }
+            }
+
+            return result.ToString();
         }
     }
 }
