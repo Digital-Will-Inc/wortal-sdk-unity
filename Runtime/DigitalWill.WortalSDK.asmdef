@@ -3,7 +3,9 @@
     "rootNamespace": "DigitalWill.WortalSDK",
     "references": [
         "Unity.Addressables",
-        "Unity.ResourceManager"
+        "Unity.ResourceManager",
+        "Google.Play.Games",
+        "GooglePlayGames"
     ],
     "includePlatforms": [
         "Editor",
@@ -14,9 +16,17 @@
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
-    "precompiledReferences": [],
+    "precompiledReferences": [
+        "GooglePlayGames.dll"
+    ],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "com.google.play.games",
+            "expression": "2.0.0",
+            "define": "GOOGLE_PLAY_GAMES_AVAILABLE"
+        }
+    ],
     "noEngineReferences": false
 }
